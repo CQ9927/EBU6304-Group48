@@ -3,4 +3,4 @@ BUPT International School Teaching Assistant Recruitment System - Agile Software
 
 ## Group Members
 
-- cuihongqing - 231225775
+- CQ9927 - 231225775
