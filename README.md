@@ -2,8 +2,7 @@
 
 BUPT International School Teaching Assistant Recruitment System - Agile Software Engineering Project
 
-## Group Name-list
+## Group Members
 
-- Yuanxingjianliao
-  - github user name: zzzskl
-  - QMID: 231226772 (Member)
+- CQ9927 - 231225775
+- zzzskl - 231226772
