@@ -1,21 +1,61 @@
-# Team task split (suggested)
+# Team tasks — ownership & merge-conflict avoidance
 
-Auth, session, and role routing are implemented on `main` / latest branch — teammates can start from the dashboards below.
+This document is the **single source of truth** for who does what. If you need to touch another person’s **exclusive** files, open an Issue first or pair in a short sync.
 
-| Area | Routes (first deliverables) | Suggested owner (GitHub) |
-|------|---------------------------|-------------------------|
-| Auth baseline (done) | `/login`, `/register`, `/logout`, `AuthFilter`, `users.json` | CQ9927 |
-| TA features | `/ta/profile`, `/ta/cv`, `/ta/jobs`, `/ta/apply`, `/ta/status` | zzzskl + SpPt2FeMa (split) |
-| MO features | `/mo/jobs/new`, `/mo/jobs/select` | yunmengdd |
-| Admin / rules | `/admin/workload`, matching & workload services | BUCOD |
+---
 
-Adjust names in your sprint planning; keep `docs/ROUTES_AND_MODULES.md` in sync when URLs change.
+## 1. People → responsibilities (one primary owner each)
 
-## How to verify auth
+| GitHub | Role theme | You implement | Primary routes | Data / persistence |
+|--------|------------|---------------|----------------|---------------------|
+| **CQ9927** | Integration & auth (maintainer) | Login, register, logout, session, `AuthFilter`, `EncodingFilter`, `HomeServlet`, shared fixes, **batch dashboard / home nav updates** when others finish features | `/login`, `/register`, `/logout`, `/home` | `users.json` via `UserRepository` only |
+| **zzzskl** | TA profile & CV | `TaProfileServlet`, `TaCvServlet`, JSPs, `ProfileRepository` (new), links on **TA dashboard** for your pages only | `/ta/profile`, `/ta/cv` | `profiles.json`; CV files under runtime dir (agreed subfolder name in PR) |
+| **SpPt2FeMa** | TA jobs, apply, status | `TaJobsServlet`, `TaApplyServlet`, `TaStatusServlet`, JSPs, `ApplicationRepository` (new), **read** jobs for listing | `/ta/jobs`, `/ta/apply`, `/ta/status` | `applications.json` (TA create/list); **read** `jobs.json` for listings |
+| **yunmengdd** | MO jobs & selection | `MoPostJobServlet`, `MoSelectServlet`, JSPs, `JobRepository` (new), extend `MoDashboardServlet` / `mo/dashboard.jsp` with your entry links only | `/mo/jobs/new`, `/mo/jobs/select` | `jobs.json` (write); `applications.json` / `selection.json` for MO updates (**coordinate with SpPt2FeMa** — see §3) |
+| **BUCOD** | Admin workload & rules | Replace/extend `AdminDashboardServlet` workload UI, `MatchingService`, `WorkloadService`, JSP under `admin/` | `/admin/workload` (and subpaths you add under `/admin/*`) | Read `jobs.json`, `applications.json`; optional `selection.json` |
 
-1. First deploy: open `/login` — demo users are created automatically under the runtime data directory (see README).
-2. Log in as `ta_demo` / `demo123` → must land on `/ta/dashboard`.
-3. Log in as `mo_demo` / `demo123` → `/mo/dashboard`.
-4. Log in as `admin_demo` / `demo123` → `/admin/workload`.
-5. While logged in as TA, open `/mo/dashboard` in the same browser → should redirect to login with forbidden or similar.
-6. Register a new user → appears in `users.json` under the runtime data directory.
+**`TaDashboardServlet` / `ta/dashboard.jsp`:** each member adds **only** the links/buttons for **their** TA routes (small PRs). If two people edit the same lines, **CQ9927** resolves or merges a combined nav in one integration PR.
+
+---
+
+## 2. Exclusive file zones (to reduce Git conflicts)
+
+| GitHub | Prefer to create/edit only under | Do **not** change without agreement |
+|--------|-----------------------------------|-------------------------------------|
+| CQ9927 | `.../filter/*`, `LoginServlet`, `RegisterServlet`, `LogoutServlet`, `HomeServlet`, `UserRepository`, `User.java`, `SessionKeys`, `PasswordHash`, `auth/*.jsp`, `home.jsp`, `web.xml` (only if required) | Others’ servlets/JSPs |
+| zzzskl | `TaProfileServlet`, `TaCvServlet`, `ta/profile.jsp`, `ta/cv.jsp`, `ProfileRepository`, `model` classes **only if** profile/CV-specific | `ApplicationRepository`, `JobRepository`, MO/Admin servlets |
+| SpPt2FeMa | `TaJobsServlet`, `TaApplyServlet`, `TaStatusServlet`, `ta/jobs.jsp`, `ta/apply.jsp`, `ta/status.jsp`, `ApplicationRepository` | `JobRepository` internals (see §3); auth filters |
+| yunmengdd | `MoPostJobServlet`, `MoSelectServlet`, `mo/post-job.jsp`, `mo/select.jsp`, `JobRepository`, MO-related updates to `mo/dashboard.jsp` | `UserRepository`, `ApplicationRepository` **body** (use §3) |
+| BUCOD | `MatchingService`, `WorkloadService`, `admin/workload.jsp`, admin-only servlets you add | `UserRepository`, login/register |
+
+Use **`@WebServlet`** for new endpoints so you rarely need the same `web.xml` edit.
+
+---
+
+## 3. Shared data — how to avoid merge fights
+
+| Topic | Rule |
+|-------|------|
+| **`jobs.json`** | **yunmengdd** owns `JobRepository` and all **write** shapes. **SpPt2FeMa** needs listings: ask **yunmengdd** to add `findOpenJobs()` (or similar) in a small PR, or **SpPt2FeMa** opens a PR that **only** adds read methods and assigns **yunmengdd** as reviewer. |
+| **`applications.json`** | **SpPt2FeMa** owns `ApplicationRepository` for TA flows. **yunmengdd** for MO status changes: **either** extend `ApplicationRepository` in a PR **reviewed by SpPt2FeMa**, **or** agree in stand-up and merge in order **SpPt2FeMa first**, then **yunmengdd**. |
+| **`DATA_SCHEMA.md`** | Any field/enum change: **one PR** that updates the doc **and** code; tag both data owners in review. |
+| **`pom.xml`** | Dependency adds: one PR at a time; ping **CQ9927** if the branch is busy. |
+
+---
+
+## 4. Git workflow (short)
+
+1. **Pull `main` before** `git checkout -b yourname/feature-xyz`.
+2. **Small PRs** (one feature or one servlet + JSP).
+3. **Do not** reformat unrelated files.
+4. If Git marks a conflict in a file you do not own, **ask the owner** or **CQ9927** to help resolve.
+
+---
+
+## 5. Auth smoke test (everyone after pulling `main`)
+
+1. Deploy WAR, open `/login`.
+2. `ta_demo` / `demo123` → `/ta/dashboard`.
+3. `mo_demo` / `demo123` → `/mo/dashboard`.
+4. TA session opening `/mo/dashboard` → blocked.
+5. Register a user → row in runtime `users.json`.
