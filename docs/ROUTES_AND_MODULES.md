@@ -19,11 +19,13 @@
 | `/mo/jobs/select` | `MoSelectServlet` | `mo/select.jsp` | `applications.json`, `selection.json` | yunmengdd |
 | `/admin/workload` | `AdminDashboardServlet` | `admin/workload.jsp` | `jobs.json`, `applications.json` | BUCOD |
 
+
 ## Shared Modules
 - `service/MatchingService`: score and missing skills logic
 - `service/WorkloadService`: workload summary and conflict hints
 - `repository/*Repository`: all file read/write operations
 - `filter/AuthFilter`: login and role-based page access (`/ta/*`, `/mo/*`, `/admin/*`)
+
 
 ## Ownership Rules
 - Owner writes first implementation and unit-level checks.
