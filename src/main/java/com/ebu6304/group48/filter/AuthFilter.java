@@ -12,6 +12,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 
 /**
  * Requires login and matching role for {@code /ta/*}, {@code /mo/*}, {@code /admin/*}.
@@ -62,7 +63,7 @@ public class AuthFilter implements Filter {
     }
 
     private static String urlEncode(String path) {
-        return java.net.URLEncoder.encode(path, java.nio.charset.StandardCharsets.UTF_8);
+        return java.net.URLEncoder.encode(path, StandardCharsets.UTF_8.name());
     }
 
     @Override
