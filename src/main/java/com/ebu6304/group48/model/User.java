@@ -11,6 +11,17 @@ public class User {
     private String role;
     private String createdAt;
 
+    public User() {
+    }
+
+    public User(String userId, String username, String passwordHash, String role, String createdAt) {
+        this.userId = userId;
+        this.username = username;
+        this.passwordHash = passwordHash;
+        this.role = role;
+        this.createdAt = createdAt;
+    }
+
     public String getUserId() {
         return userId;
     }
@@ -49,5 +60,16 @@ public class User {
 
     public void setCreatedAt(String createdAt) {
         this.createdAt = createdAt;
+    }
+
+    @Override
+    public String toString() {
+        return "User{"
+                + "userId='" + userId + '\''
+                + ", username='" + username + '\''
+                + ", passwordHash='" + passwordHash + '\''
+                + ", role='" + role + '\''
+                + ", createdAt='" + createdAt + '\''
+                + '}';
     }
 }

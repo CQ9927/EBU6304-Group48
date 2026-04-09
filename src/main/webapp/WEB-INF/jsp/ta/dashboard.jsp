@@ -9,7 +9,10 @@
 <body>
 <h1>TA dashboard</h1>
 <p>Welcome, <strong>${username}</strong>.</p>
-<p>Next (assign to teammate): profile, CV upload, find jobs, apply, application status — see <code>docs/ROUTES_AND_MODULES.md</code>.</p>
+<p><a href="${pageContext.request.contextPath}/ta/profile">Profile</a> ·
+   <a href="${pageContext.request.contextPath}/ta/cv">CV</a> ·
+   <a href="${pageContext.request.contextPath}/ta/jobs">Jobs</a></p>
+<p>More detail: <code>docs/ROUTES_AND_MODULES.md</code>.</p>
 <p><a href="${pageContext.request.contextPath}/home">Home</a> · <a href="${pageContext.request.contextPath}/logout">Logout</a></p>
 </body>
 </html>
