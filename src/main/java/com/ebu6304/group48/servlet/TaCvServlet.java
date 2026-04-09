@@ -144,6 +144,7 @@ package com.ebu6304.group48.servlet;
 import com.ebu6304.group48.config.AppPaths;
 import com.ebu6304.group48.model.Profile;
 import com.ebu6304.group48.repository.ProfileRepository;
+import com.ebu6304.group48.util.SessionKeys;
 import javax.servlet.ServletException;
 import javax.servlet.annotation.MultipartConfig;
 import javax.servlet.annotation.WebServlet;
@@ -186,12 +187,12 @@ public class TaCvServlet extends HttpServlet {
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
         HttpSession session = req.getSession(false);
-        if (session == null || session.getAttribute("userId") == null) {
+        if (session == null || session.getAttribute(SessionKeys.USER_ID) == null) {
             resp.sendRedirect(req.getContextPath() + "/login");
             return;
         }
 
-        String userId = (String) session.getAttribute("userId");
+        String userId = (String) session.getAttribute(SessionKeys.USER_ID);
         Profile profile = profileRepository.findByUserId(userId);
         String[] existingCvs = getExistingCvs(userId);
         
@@ -203,12 +204,12 @@ public class TaCvServlet extends HttpServlet {
     @Override
     protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
         HttpSession session = req.getSession(false);
-        if (session == null || session.getAttribute("userId") == null) {
+        if (session == null || session.getAttribute(SessionKeys.USER_ID) == null) {
             resp.sendRedirect(req.getContextPath() + "/login");
             return;
         }
 
-        String userId = (String) session.getAttribute("userId");
+        String userId = (String) session.getAttribute(SessionKeys.USER_ID);
         String action = req.getParameter("action");
 
         if ("upload".equals(action)) {

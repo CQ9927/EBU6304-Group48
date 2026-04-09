@@ -106,7 +106,7 @@
  * =============================================================================
  * 
  * 📁 DEPENDENCIES:
- *   - Jackson Databind (already in pom.xml)
+ *   - Gson (already in pom.xml), consistent with UserRepository
  *   - ServletContext (for data directory resolution)
  *   - Application model class (for data representation)
  *   - JobRepository (for job existence validation)

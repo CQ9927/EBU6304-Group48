@@ -33,7 +33,7 @@
    - `ApplicationRepository.java` - 需要实现真实的JSON读写
 
 ### 📦 配置与依赖
-- `pom.xml` - 项目配置，已添加Jackson JSON依赖
+- `pom.xml` - 项目配置，JSON 使用 Gson（与 `UserRepository` 一致）
 
 ## 核心文件详细说明
 
@@ -296,7 +296,7 @@ public void testProfileServlet_PostValidData_SavesProfile() {
 ## 故障排除
 
 ### 常见问题
-1. **编译错误**: 检查Jackson依赖是否添加
+1. **编译错误**: 检查 Gson 依赖是否存在于 pom.xml
 2. **404错误**: 检查Tomcat部署路径
 3. **空指针异常**: 检查Session属性是否设置
 4. **文件上传失败**: 检查目录权限和磁盘空间

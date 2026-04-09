@@ -137,6 +137,7 @@ import com.ebu6304.group48.model.Profile;
 import com.ebu6304.group48.repository.ApplicationRepository;
 import com.ebu6304.group48.repository.JobRepository;
 import com.ebu6304.group48.repository.ProfileRepository;
+import com.ebu6304.group48.util.SessionKeys;
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
@@ -165,12 +166,12 @@ public class TaJobsServlet extends HttpServlet {
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
         HttpSession session = req.getSession(false);
-        if (session == null || session.getAttribute("userId") == null) {
+        if (session == null || session.getAttribute(SessionKeys.USER_ID) == null) {
             resp.sendRedirect(req.getContextPath() + "/login");
             return;
         }
 
-        String userId = (String) session.getAttribute("userId");
+        String userId = (String) session.getAttribute(SessionKeys.USER_ID);
         String typeFilter = req.getParameter("type");
         String semesterFilter = req.getParameter("semester");
         String skillFilter = req.getParameter("skill");

@@ -48,7 +48,7 @@
  * 🔧 TECHNICAL IMPLEMENTATION GUIDE:
  * 
  * 1. JSON PROCESSING:
- *    - Use Jackson ObjectMapper for JSON serialization/deserialization
+ *    - Use Gson for JSON serialization/deserialization (same stack as UserRepository)
  *    - Handle IOException appropriately (log, return default values)
  *    - Implement proper error handling for malformed JSON
  * 
@@ -104,7 +104,7 @@
  * =============================================================================
  * 
  * 📁 DEPENDENCIES:
- *   - Jackson Databind (already in pom.xml)
+ *   - Gson (already in pom.xml), consistent with UserRepository
  *   - ServletContext (for data directory resolution)
  *   - Profile model class (for data representation)
  * 

@@ -27,7 +27,7 @@
 ### 4. 基础架构支持
 - **Model 类** (4个): `Profile`, `Job`, `Application`, `User` (基本POJO)
 - **Repository 类** (3个): `ProfileRepository`, `JobRepository`, `ApplicationRepository` (占位符实现)
-- **Maven 依赖**: 添加了Jackson JSON处理库
+- **Maven 依赖**: JSON 与认证模块统一使用 Gson（见 `pom.xml`，与 `UserRepository` 一致）
 
 ## 功能特性
 
@@ -97,7 +97,7 @@ src/main/webapp/WEB-INF/jsp/ta/
 ### ✅ 已满足的依赖
 1. **Model 类**: 4个基本POJO已创建
 2. **Repository 接口**: 3个Repository类已创建 (占位符)
-3. **JSON 依赖**: Jackson已添加到pom.xml
+3. **JSON 依赖**: Gson 已在 pom.xml（与全局用户数据读写一致）
 4. **目录结构**: 所有必要目录已创建
 
 ### ⚠️ 需要其他成员实现的依赖
@@ -109,10 +109,8 @@ src/main/webapp/WEB-INF/jsp/ta/
 - `ApplicationRepository`: 需要实现真实的JSON读写 (`applications.json`)
 
 #### 2. 用户认证系统
-- `LoginServlet`: 需要实现真实的用户验证
-- `RegisterServlet`: 需要实现用户注册
-- `AuthFilter`: 需要实现会话验证过滤器
-- Session管理: 登录后需要设置 `userId`, `username`, `role`
+- 已由 Member A 侧实现：`LoginServlet`、`RegisterServlet`、`AuthFilter`
+- Session 键名使用 `SessionKeys`（`auth.userId`、`auth.username`、`auth.role`），TA Servlet 已对齐
 
 #### 3. 测试数据
 - `data/users.json`: 需要至少一个TA用户用于测试

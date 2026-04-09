@@ -132,6 +132,7 @@ package com.ebu6304.group48.servlet;
 
 import com.ebu6304.group48.model.Profile;
 import com.ebu6304.group48.repository.ProfileRepository;
+import com.ebu6304.group48.util.SessionKeys;
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
@@ -156,12 +157,12 @@ public class TaProfileServlet extends HttpServlet {
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
         HttpSession session = req.getSession(false);
-        if (session == null || session.getAttribute("userId") == null) {
+        if (session == null || session.getAttribute(SessionKeys.USER_ID) == null) {
             resp.sendRedirect(req.getContextPath() + "/login");
             return;
         }
 
-        String userId = (String) session.getAttribute("userId");
+        String userId = (String) session.getAttribute(SessionKeys.USER_ID);
         Profile profile = profileRepository.findByUserId(userId);
         req.setAttribute("profile", profile);
         req.getRequestDispatcher("/WEB-INF/jsp/ta/profile.jsp").forward(req, resp);
@@ -170,12 +171,12 @@ public class TaProfileServlet extends HttpServlet {
     @Override
     protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
         HttpSession session = req.getSession(false);
-        if (session == null || session.getAttribute("userId") == null) {
+        if (session == null || session.getAttribute(SessionKeys.USER_ID) == null) {
             resp.sendRedirect(req.getContextPath() + "/login");
             return;
         }
 
-        String userId = (String) session.getAttribute("userId");
+        String userId = (String) session.getAttribute(SessionKeys.USER_ID);
         String name = req.getParameter("name");
         String email = req.getParameter("email");
         String major = req.getParameter("major");

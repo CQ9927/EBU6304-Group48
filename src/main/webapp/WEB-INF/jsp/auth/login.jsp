@@ -10,18 +10,23 @@
         input[type=text], input[type=password] { width: 100%; box-sizing: border-box; padding: 0.35rem; }
         button { margin-top: 1rem; padding: 0.4rem 0.8rem; }
         .msg { color: #666; margin-top: 1rem; }
+        .err { color: #a30; }
     </style>
 </head>
 <body>
 <h1>Login</h1>
 <form method="post" action="${pageContext.request.contextPath}/login">
-    <label>Username <input type="text" name="username" autocomplete="username"/></label>
-    <label>Password <input type="password" name="password" autocomplete="current-password"/></label>
+    <% if (request.getParameter("next") != null) { %>
+    <input type="hidden" name="next" value="${param.next}"/>
+    <% } %>
+    <label>Username <input type="text" name="username" autocomplete="username" required/></label>
+    <label>Password <input type="password" name="password" autocomplete="current-password" required/></label>
     <button type="submit">Sign in</button>
 </form>
 <% if (request.getAttribute("message") != null) { %>
 <p class="msg"><%= request.getAttribute("message") %></p>
 <% } %>
+<p><a href="${pageContext.request.contextPath}/register">Create an account</a></p>
 <p><a href="${pageContext.request.contextPath}/home">Back</a></p>
 </body>
 </html>
