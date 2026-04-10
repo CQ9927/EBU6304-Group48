@@ -9,7 +9,11 @@
 <body>
 <h1>MO dashboard</h1>
 <p>Welcome, <strong>${username}</strong>.</p>
-<p>Next: post jobs, select applicants — see <code>docs/ROUTES_AND_MODULES.md</code>.</p>
+<p>
+    <a href="${pageContext.request.contextPath}/mo/jobs/new">Post a new job</a>
+    ·
+    <a href="${pageContext.request.contextPath}/mo/jobs/select">Review applications</a>
+</p>
 <p><a href="${pageContext.request.contextPath}/home">Home</a> · <a href="${pageContext.request.contextPath}/logout">Logout</a></p>
 </body>
 </html>

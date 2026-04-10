@@ -63,7 +63,7 @@ public class AuthFilter implements Filter {
     }
 
     private static String urlEncode(String path) {
-        return java.net.URLEncoder.encode(path, StandardCharsets.UTF_8.name());
+        return java.net.URLEncoder.encode(path, StandardCharsets.UTF_8);
     }
 
     @Override
