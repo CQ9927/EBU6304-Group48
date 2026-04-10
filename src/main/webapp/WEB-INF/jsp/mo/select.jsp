@@ -63,6 +63,12 @@
                     <form method="post" action="${pageContext.request.contextPath}/mo/jobs/select">
                         <input type="hidden" name="applicationId" value="${app.applicationId}"/>
                         <input type="hidden" name="jobId" value="${selectedJobId}"/>
+                        <input type="hidden" name="decision" value="UNDER_REVIEW"/>
+                        <button type="submit">Under Review</button>
+                    </form>
+                    <form method="post" action="${pageContext.request.contextPath}/mo/jobs/select">
+                        <input type="hidden" name="applicationId" value="${app.applicationId}"/>
+                        <input type="hidden" name="jobId" value="${selectedJobId}"/>
                         <input type="hidden" name="decision" value="SELECTED"/>
                         <button type="submit">Select</button>
                     </form>
@@ -79,6 +85,7 @@
     </tbody>
 </table>
 
+<p>Status flow: SUBMITTED -> UNDER_REVIEW -> SELECTED/REJECTED</p>
 <p><a href="${pageContext.request.contextPath}/mo/dashboard">Back to MO dashboard</a></p>
 </body>
 </html>

@@ -3,6 +3,7 @@ package com.ebu6304.group48.servlet;
 import com.ebu6304.group48.config.AppPaths;
 import com.ebu6304.group48.model.Application;
 import com.ebu6304.group48.model.Job;
+import com.ebu6304.group48.repository.ApplicationRepository;
 import com.ebu6304.group48.repository.JobRepository;
 import com.ebu6304.group48.util.SessionKeys;
 import com.google.gson.Gson;
@@ -32,19 +33,18 @@ import java.util.stream.Collectors;
 public class MoSelectServlet extends HttpServlet {
 
     private static final Gson GSON = new GsonBuilder().setPrettyPrinting().create();
-    private static final Type APPLICATION_LIST_TYPE = new TypeToken<List<Application>>() { }.getType();
     private static final Type MAP_LIST_TYPE = new TypeToken<List<Map<String, String>>>() { }.getType();
     private static final Object FILE_LOCK = new Object();
 
     private JobRepository jobRepository;
-    private Path applicationsFile;
+    private ApplicationRepository applicationRepository;
     private Path selectionFile;
 
     @Override
     public void init() {
         jobRepository = new JobRepository(getServletContext());
+        applicationRepository = new ApplicationRepository(getServletContext());
         String dataDir = AppPaths.resolveDataDirectory(getServletContext());
-        applicationsFile = Path.of(dataDir, "applications.json");
         selectionFile = Path.of(dataDir, "selection.json");
     }
 
@@ -60,7 +60,7 @@ public class MoSelectServlet extends HttpServlet {
         }
 
         final String selectedJobIdFinal = selectedJobId;
-        List<Application> applications = readApplications();
+        List<Application> applications = applicationRepository.findAll();
         List<Application> filteredApplications = applications.stream()
                 .filter(a -> selectedJobIdFinal.isEmpty() || selectedJobIdFinal.equals(a.getJobId()))
                 .collect(Collectors.toList());
@@ -78,7 +78,8 @@ public class MoSelectServlet extends HttpServlet {
         String selectedJobId = trim(req.getParameter("jobId"));
         String reviewerUserId = String.valueOf(req.getSession().getAttribute(SessionKeys.USER_ID));
 
-        if (applicationId.isEmpty() || (!"SELECTED".equals(decision) && !"REJECTED".equals(decision))) {
+        if (applicationId.isEmpty() ||
+                (!"UNDER_REVIEW".equals(decision) && !"SELECTED".equals(decision) && !"REJECTED".equals(decision))) {
             resp.sendRedirect(req.getContextPath() + "/mo/jobs/select?jobId=" + selectedJobId + "&error=1");
             return;
         }
@@ -92,21 +93,15 @@ public class MoSelectServlet extends HttpServlet {
         synchronized (FILE_LOCK) {
             try {
                 ensureStorage();
-                List<Application> applications = readList(applicationsFile, APPLICATION_LIST_TYPE);
-                Application target = null;
-                for (Application app : applications) {
-                    if (applicationId.equals(app.getApplicationId())) {
-                        target = app;
-                        break;
-                    }
-                }
+                Application target = applicationRepository.findById(applicationId);
                 if (target == null) {
                     return false;
                 }
 
-                target.setStatus(decision);
-                target.setUpdatedAt(Instant.now().toString());
-                Files.writeString(applicationsFile, GSON.toJson(applications), StandardCharsets.UTF_8);
+                boolean statusUpdated = applicationRepository.updateStatus(applicationId, decision);
+                if (!statusUpdated) {
+                    return false;
+                }
 
                 List<Map<String, String>> selections = readList(selectionFile, MAP_LIST_TYPE);
                 Map<String, String> log = new LinkedHashMap<>();
@@ -127,19 +122,6 @@ public class MoSelectServlet extends HttpServlet {
         }
     }
 
-    private List<Application> readApplications() {
-        synchronized (FILE_LOCK) {
-            try {
-                ensureStorage();
-                return readList(applicationsFile, APPLICATION_LIST_TYPE);
-            } catch (IOException e) {
-                return new ArrayList<>();
-            } catch (RuntimeException e) {
-                return new ArrayList<>();
-            }
-        }
-    }
-
     private <T> List<T> readList(Path file, Type listType) throws IOException {
         String json = Files.readString(file, StandardCharsets.UTF_8);
         List<T> list = GSON.fromJson(json, listType);
@@ -147,10 +129,7 @@ public class MoSelectServlet extends HttpServlet {
     }
 
     private void ensureStorage() throws IOException {
-        Files.createDirectories(applicationsFile.getParent());
-        if (!Files.exists(applicationsFile)) {
-            Files.writeString(applicationsFile, "[]", StandardCharsets.UTF_8);
-        }
+        Files.createDirectories(selectionFile.getParent());
         if (!Files.exists(selectionFile)) {
             Files.writeString(selectionFile, "[]", StandardCharsets.UTF_8);
         }
