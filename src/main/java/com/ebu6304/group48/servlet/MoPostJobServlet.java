@@ -28,6 +28,7 @@ public class MoPostJobServlet extends HttpServlet {
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
         req.setAttribute("jobs", jobRepository.findAll());
+        req.setAttribute("navCurrent", "post");
         req.getRequestDispatcher("/WEB-INF/jsp/mo/post-job.jsp").forward(req, resp);
     }
 
@@ -44,6 +45,7 @@ public class MoPostJobServlet extends HttpServlet {
         if (title.isEmpty() || type.isEmpty() || semester.isEmpty() || schedule.isEmpty() || capacity == null) {
             req.setAttribute("error", "Please fill all required fields. Capacity must be a positive integer.");
             req.setAttribute("jobs", jobRepository.findAll());
+            req.setAttribute("navCurrent", "post");
             req.getRequestDispatcher("/WEB-INF/jsp/mo/post-job.jsp").forward(req, resp);
             return;
         }
@@ -70,6 +72,7 @@ public class MoPostJobServlet extends HttpServlet {
         if (!ok) {
             req.setAttribute("error", "Failed to save job. Please retry.");
             req.setAttribute("jobs", jobRepository.findAll());
+            req.setAttribute("navCurrent", "post");
             req.getRequestDispatcher("/WEB-INF/jsp/mo/post-job.jsp").forward(req, resp);
             return;
         }

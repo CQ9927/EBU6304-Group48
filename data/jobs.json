@@ -1,1 +1,50 @@
-[]
+[
+  {
+    "jobId": "J-DEMO-001",
+    "title": "Software Engineering Lab TA",
+    "type": "MODULE",
+    "semester": "2026_SPRING",
+    "schedule": "WED_18_20",
+    "capacity": 3,
+    "requiredSkills": ["Java", "Teaching", "Algorithms"],
+    "postedByUserId": "U-DEMO-MO",
+    "status": "OPEN",
+    "createdAt": "2026-04-10T10:00:00Z"
+  },
+  {
+    "jobId": "J-DEMO-002",
+    "title": "Final Exam Invigilation (Hall A)",
+    "type": "INVIGILATION",
+    "semester": "2026_SPRING",
+    "schedule": "FRI_09_12",
+    "capacity": 4,
+    "requiredSkills": ["Proctoring", "Teaching"],
+    "postedByUserId": "U-DEMO-MO",
+    "status": "OPEN",
+    "createdAt": "2026-04-10T10:15:00Z"
+  },
+  {
+    "jobId": "J-DEMO-003",
+    "title": "Database Systems Tutorial",
+    "type": "MODULE",
+    "semester": "2026_SPRING",
+    "schedule": "TUE_18_20",
+    "capacity": 2,
+    "requiredSkills": ["Database", "Teaching", "Java"],
+    "postedByUserId": "U-DEMO-MO",
+    "status": "OPEN",
+    "createdAt": "2026-04-10T10:30:00Z"
+  },
+  {
+    "jobId": "J-DEMO-004",
+    "title": "Legacy Module (Closed)",
+    "type": "MODULE",
+    "semester": "2025_FALL",
+    "schedule": "MON_14_16",
+    "capacity": 1,
+    "requiredSkills": ["Python"],
+    "postedByUserId": "U-DEMO-MO",
+    "status": "CLOSED",
+    "createdAt": "2025-12-01T09:00:00Z"
+  }
+]

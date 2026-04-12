@@ -4,71 +4,15 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1"/>
+    <meta name="view-transition" content="same-origin"/>
     <title>Available Jobs</title>
-    <style>
-        body { font-family: system-ui, sans-serif; max-width: 52rem; margin: 2rem auto; padding: 0 1rem; }
-        .container { display: grid; gap: 1.5rem; }
-        .card { background: #f8f9fa; border: 1px solid #dee2e6; border-radius: 0.375rem; padding: 1.5rem; }
-        .card h2 { margin-top: 0; color: #2c3e50; }
-        .filter-form { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem; margin-bottom: 1.5rem; padding: 1rem; background: white; border: 1px solid #dee2e6; border-radius: 0.25rem; }
-        .filter-group { display: flex; flex-direction: column; }
-        .filter-group label { margin-bottom: 0.375rem; font-weight: 500; color: #495057; font-size: 0.875rem; }
-        .form-control { width: 100%; padding: 0.5rem 0.75rem; font-size: 0.875rem; line-height: 1.5; border: 1px solid #ced4da; border-radius: 0.25rem; box-sizing: border-box; }
-        .form-control:focus { border-color: #80bdff; outline: 0; box-shadow: 0 0 0 0.2rem rgba(0,123,255,.25); }
-        .btn { display: inline-block; font-weight: 400; text-align: center; vertical-align: middle; user-select: none; padding: 0.5rem 1rem; font-size: 0.875rem; line-height: 1.5; border-radius: 0.25rem; border: 1px solid transparent; cursor: pointer; }
-        .btn-primary { color: #fff; background-color: #007bff; border-color: #007bff; }
-        .btn-primary:hover { background-color: #0069d9; border-color: #0062cc; }
-        .btn-success { color: #fff; background-color: #28a745; border-color: #28a745; }
-        .btn-success:hover { background-color: #218838; border-color: #1e7e34; }
-        .btn-secondary { color: #fff; background-color: #6c757d; border-color: #6c757d; }
-        .btn-secondary:hover { background-color: #5a6268; border-color: #545b62; }
-        .btn-disabled { color: #fff; background-color: #6c757d; border-color: #6c757d; opacity: 0.65; cursor: not-allowed; }
-        .btn-apply { min-width: 80px; }
-        .nav { display: flex; gap: 1rem; margin-bottom: 1.5rem; padding-bottom: 0.75rem; border-bottom: 1px solid #dee2e6; }
-        .nav a { color: #007bff; text-decoration: none; }
-        .nav a:hover { text-decoration: underline; }
-        .alert { padding: 0.75rem 1.25rem; margin-bottom: 1rem; border: 1px solid transparent; border-radius: 0.25rem; }
-        .alert-info { color: #0c5460; background-color: #d1ecf1; border-color: #bee5eb; }
-        .alert-warning { color: #856404; background-color: #fff3cd; border-color: #ffeaa7; }
-        .job-table { width: 100%; border-collapse: collapse; margin-top: 1rem; }
-        .job-table th, .job-table td { padding: 0.75rem; text-align: left; border-bottom: 1px solid #dee2e6; }
-        .job-table th { background-color: #f8f9fa; font-weight: 600; color: #495057; }
-        .job-table tr:hover { background-color: #f8f9fa; }
-        .badge { display: inline-block; padding: 0.25rem 0.5rem; font-size: 0.75rem; font-weight: 600; line-height: 1; text-align: center; white-space: nowrap; vertical-align: baseline; border-radius: 0.25rem; }
-        .badge-module { background-color: #d4edda; color: #155724; }
-        .badge-invigilation { background-color: #cce5ff; color: #004085; }
-        .badge-open { background-color: #d4edda; color: #155724; }
-        .badge-closed { background-color: #f8d7da; color: #721c24; }
-        .skills-list { display: flex; flex-wrap: wrap; gap: 0.25rem; }
-        .skill-badge { background-color: #e9ecef; color: #495057; padding: 0.15rem 0.4rem; border-radius: 0.25rem; font-size: 0.75rem; }
-        .skill-match { background-color: #d4edda; color: #155724; }
-        .skill-missing { background-color: #f8d7da; color: #721c24; }
-        .match-score { font-weight: 600; }
-        .match-high { color: #28a745; }
-        .match-medium { color: #fd7e14; }
-        .match-low { color: #dc3545; }
-        .no-jobs { text-align: center; padding: 2rem; color: #6c757d; }
-        .pagination { display: flex; justify-content: space-between; align-items: center; margin-top: 1.5rem; padding-top: 1rem; border-top: 1px solid #dee2e6; }
-        .pagination-info { font-size: 0.875rem; color: #6c757d; }
-        .stats { display: flex; gap: 1.5rem; margin-bottom: 1rem; }
-        .stat-item { background: white; border: 1px solid #dee2e6; border-radius: 0.25rem; padding: 0.75rem; min-width: 120px; text-align: center; }
-        .stat-value { font-size: 1.5rem; font-weight: 600; color: #007bff; }
-        .stat-label { font-size: 0.875rem; color: #6c757d; }
-        .profile-warning { background-color: #fff3cd; border: 1px solid #ffeaa7; border-radius: 0.25rem; padding: 1rem; margin-bottom: 1rem; }
-    </style>
+    <link rel="stylesheet" href="${pageContext.request.contextPath}/css/app.css"/>
 </head>
 <body>
-<div class="container">
+<jsp:include page="/WEB-INF/jsp/_include/app-header.jsp"/>
+<main class="site-main container-grid">
     <h1>Available TA Jobs</h1>
-    
-    <div class="nav">
-        <a href="${pageContext.request.contextPath}/home">Home</a>
-        <a href="${pageContext.request.contextPath}/ta/profile">Profile</a>
-        <a href="${pageContext.request.contextPath}/ta/cv">CV</a>
-        <a href="${pageContext.request.contextPath}/ta/jobs" style="font-weight: bold;">Jobs</a>
-        <a href="${pageContext.request.contextPath}/ta/status">Status</a>
-        <a href="${pageContext.request.contextPath}/logout" style="margin-left: auto;">Logout</a>
-    </div>
 
     <c:if test="${not empty sessionScope.message}">
         <div class="alert alert-info">
@@ -103,14 +47,14 @@
 
     <c:if test="${empty userProfile}">
         <div class="profile-warning">
-            <strong>⚠️ Profile Incomplete!</strong> Please complete your <a href="${pageContext.request.contextPath}/ta/profile">profile</a> before applying for jobs.
+            <strong>Profile incomplete.</strong> Please complete your <a href="${pageContext.request.contextPath}/ta/profile">profile</a> before applying for jobs.
             Your skills and availability will be used to match you with suitable positions.
         </div>
     </c:if>
 
     <c:if test="${empty userProfile.cvFileName}">
         <div class="profile-warning">
-            <strong>⚠️ CV Missing!</strong> Please upload your <a href="${pageContext.request.contextPath}/ta/cv">CV</a> before applying for jobs.
+            <strong>CV missing.</strong> Please upload your <a href="${pageContext.request.contextPath}/ta/cv">CV</a> before applying for jobs.
             Most applications require a current CV.
         </div>
     </c:if>
@@ -197,7 +141,7 @@
                             <tr>
                                 <td>
                                     <strong>${job.title}</strong><br>
-                                    <small style="color: #6c757d;">${job.semester} • Capacity: ${job.capacity}</small>
+                                    <small class="text-muted">${job.semester} • Capacity: ${job.capacity}</small>
                                 </td>
                                 <td>
                                     <span class="badge badge-${job.type.toLowerCase()}">
@@ -232,7 +176,7 @@
                                             </span>
                                         </c:when>
                                         <c:otherwise>
-                                            <span style="color: #6c757d;">N/A</span>
+                                            <span class="text-muted">N/A</span>
                                         </c:otherwise>
                                     </c:choose>
                                 </td>
@@ -252,7 +196,7 @@
                                             <button class="btn btn-secondary btn-apply" disabled>Applied</button>
                                         </c:when>
                                         <c:when test="${empty userProfile or empty userProfile.cvFileName}">
-                                            <button class="btn btn-disabled btn-apply" disabled 
+                                            <button type="button" class="btn btn-secondary btn-apply btn-disabled" disabled
                                                     title="Complete profile and upload CV first">Apply</button>
                                         </c:when>
                                         <c:otherwise>
@@ -301,13 +245,13 @@
             <li><strong>Apply early:</strong> Popular positions fill up quickly</li>
             <li><strong>Track applications:</strong> Check your application status regularly</li>
         </ul>
-        <p style="margin-top: 1rem;">
+        <p style="margin-top: 1rem; margin-bottom: 0;">
             <a href="${pageContext.request.contextPath}/ta/status" class="btn btn-secondary">
                 View Application Status
             </a>
         </p>
     </div>
-</div>
+</main>
 
 <script>
 document.addEventListener('DOMContentLoaded', function() {

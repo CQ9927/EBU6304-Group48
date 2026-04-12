@@ -198,6 +198,7 @@ public class TaCvServlet extends HttpServlet {
         
         req.setAttribute("profile", profile);
         req.setAttribute("existingCvs", existingCvs);
+        req.setAttribute("navCurrent", "cv");
         req.getRequestDispatcher("/WEB-INF/jsp/ta/cv.jsp").forward(req, resp);
     }
 

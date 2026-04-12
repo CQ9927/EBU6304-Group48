@@ -39,6 +39,11 @@
         <url-pattern>/admin/*</url-pattern>
     </filter-mapping>
 
+    <!-- Seed runtime dir from bundled data/*.json + data/cvs when files are missing or [] -->
+    <listener>
+        <listener-class>com.ebu6304.group48.config.DemoDataContextListener</listener-class>
+    </listener>
+
     <welcome-file-list>
         <welcome-file>index.jsp</welcome-file>
     </welcome-file-list>

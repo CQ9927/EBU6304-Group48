@@ -4,39 +4,24 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1"/>
+    <meta name="view-transition" content="same-origin"/>
     <title>Application Status</title>
-    <style>
-        body { font-family: system-ui, sans-serif; max-width: 60rem; margin: 2rem auto; padding: 0 1rem; }
-        .nav { display: flex; gap: 1rem; margin-bottom: 1.5rem; padding-bottom: 0.75rem; border-bottom: 1px solid #dee2e6; }
-        .nav a { color: #007bff; text-decoration: none; }
-        .nav a:hover { text-decoration: underline; }
-        table { width: 100%; border-collapse: collapse; margin-top: 1rem; }
-        th, td { border-bottom: 1px solid #dee2e6; padding: 0.75rem; text-align: left; }
-        th { background: #f8f9fa; }
-        .badge { display: inline-block; padding: 0.2rem 0.5rem; border-radius: 0.25rem; font-size: 0.75rem; font-weight: 600; }
-        .submitted { background: #e2e3e5; color: #383d41; }
-        .under-review { background: #fff3cd; color: #856404; }
-        .selected { background: #d4edda; color: #155724; }
-        .rejected { background: #f8d7da; color: #721c24; }
-    </style>
+    <link rel="stylesheet" href="${pageContext.request.contextPath}/css/app.css"/>
 </head>
 <body>
-<h1>My Application Status</h1>
-
-<div class="nav">
-    <a href="${pageContext.request.contextPath}/home">Home</a>
-    <a href="${pageContext.request.contextPath}/ta/profile">Profile</a>
-    <a href="${pageContext.request.contextPath}/ta/cv">CV</a>
-    <a href="${pageContext.request.contextPath}/ta/jobs">Jobs</a>
-    <a href="${pageContext.request.contextPath}/ta/status" style="font-weight: bold;">Status</a>
-    <a href="${pageContext.request.contextPath}/logout" style="margin-left: auto;">Logout</a>
-</div>
-
-<p><a href="${pageContext.request.contextPath}/ta/status">Refresh</a> to get latest status updates.</p>
+<jsp:include page="/WEB-INF/jsp/_include/app-header.jsp"/>
+<main class="site-main">
+<header class="page-header">
+    <h1 class="page-title">My application status</h1>
+    <p class="lead lead--tight text-muted"><a href="${pageContext.request.contextPath}/ta/status">Refresh</a> for the latest updates.</p>
+</header>
 
 <c:choose>
     <c:when test="${not empty applications}">
-        <table>
+        <div class="card card--flush">
+        <div class="table-scroll">
+        <table class="job-table">
             <thead>
             <tr>
                 <th>Application ID</th>
@@ -68,11 +53,14 @@
             </c:forEach>
             </tbody>
         </table>
+        </div>
+        </div>
     </c:when>
     <c:otherwise>
         <p>No applications yet. Visit <a href="${pageContext.request.contextPath}/ta/jobs">Jobs</a> to apply.</p>
     </c:otherwise>
 </c:choose>
 
+</main>
 </body>
 </html>

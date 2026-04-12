@@ -3,17 +3,35 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1"/>
+    <meta name="view-transition" content="same-origin"/>
     <title>TA Dashboard</title>
-    <style>body { font-family: system-ui, sans-serif; max-width: 40rem; margin: 2rem auto; padding: 0 1rem; }</style>
+    <link rel="stylesheet" href="${pageContext.request.contextPath}/css/app.css"/>
 </head>
 <body>
-<h1>TA dashboard</h1>
-<p>Welcome, <strong>${username}</strong>.</p>
-<p><a href="${pageContext.request.contextPath}/ta/profile">Profile</a> ·
-   <a href="${pageContext.request.contextPath}/ta/cv">CV</a> ·
-   <a href="${pageContext.request.contextPath}/ta/jobs">Jobs</a> ·
-   <a href="${pageContext.request.contextPath}/ta/status">Status</a></p>
-<p>More detail: <code>docs/ROUTES_AND_MODULES.md</code>.</p>
-<p><a href="${pageContext.request.contextPath}/home">Home</a> · <a href="${pageContext.request.contextPath}/logout">Logout</a></p>
+<jsp:include page="/WEB-INF/jsp/_include/app-header.jsp"/>
+<main class="site-main">
+    <header class="page-header">
+        <h1 class="page-title">TA dashboard</h1>
+        <p class="lead">Welcome, <strong>${username}</strong>. Here is a quick snapshot of open roles and your applications.</p>
+    </header>
+
+    <div class="stats-grid">
+        <div class="card"><div class="label">Open positions</div><div class="value">${openJobsCount}</div></div>
+        <div class="card"><div class="label">My applications</div><div class="value">${myApplicationsTotal}</div></div>
+        <div class="card"><div class="label">Submitted</div><div class="value">${myApplicationsSubmitted}</div></div>
+        <div class="card"><div class="label">Under review</div><div class="value">${myApplicationsUnderReview}</div></div>
+        <div class="card"><div class="label">Selected</div><div class="value">${myApplicationsSelected}</div></div>
+        <div class="card"><div class="label">Rejected</div><div class="value">${myApplicationsRejected}</div></div>
+    </div>
+
+    <div class="card dashboard-actions">
+        <p class="card__label">Next steps</p>
+        <div class="action-row">
+            <a class="btn btn-primary" href="${pageContext.request.contextPath}/ta/jobs">Browse jobs</a>
+            <a class="btn btn-ghost" href="${pageContext.request.contextPath}/ta/status">View application status</a>
+        </div>
+    </div>
+</main>
 </body>
 </html>

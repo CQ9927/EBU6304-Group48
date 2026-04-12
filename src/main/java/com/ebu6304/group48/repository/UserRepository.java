@@ -7,6 +7,7 @@ import com.google.gson.GsonBuilder;
 import com.google.gson.reflect.TypeToken;
 
 import java.io.IOException;
+import java.io.InputStream;
 import java.lang.reflect.Type;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
@@ -14,6 +15,7 @@ import java.nio.file.Path;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -29,11 +31,26 @@ public class UserRepository {
         this.usersFile = Path.of(dataDirectory, "users.json");
     }
 
+    /**
+     * Ensures {@code users.json} exists. Seeds from bundled {@code data/users.json} when empty.
+     * When the file already has users, syncs bundled demo accounts by {@code username} (case-insensitive):
+     * missing usernames are appended; existing demo rows are updated from the bundle (fixes wrong password hashes).
+     */
     public void ensureStorage() throws IOException {
         synchronized (FILE_LOCK) {
             Files.createDirectories(usersFile.getParent());
+            List<User> bundled = loadBundledDemoUsers();
             if (!Files.exists(usersFile) || isEmptyOrBlankArray(usersFile)) {
-                Files.writeString(usersFile, GSON.toJson(defaultSeedUsers()), StandardCharsets.UTF_8);
+                Files.writeString(usersFile, GSON.toJson(bundled), StandardCharsets.UTF_8);
+                return;
+            }
+            String json = Files.readString(usersFile, StandardCharsets.UTF_8);
+            List<User> existing = GSON.fromJson(json, LIST_TYPE);
+            if (existing == null) {
+                existing = new ArrayList<>();
+            }
+            if (syncBundledDemoAccounts(existing, bundled)) {
+                Files.writeString(usersFile, GSON.toJson(existing), StandardCharsets.UTF_8);
             }
         }
     }
@@ -43,22 +60,93 @@ public class UserRepository {
         return s.isEmpty() || "[]".equals(s);
     }
 
-    private static List<User> defaultSeedUsers() {
+    /** Demo accounts from classpath {@code data/users.json} (same file as repo {@code data/users.json}). */
+    private static List<User> loadBundledDemoUsers() {
+        ClassLoader cl = UserRepository.class.getClassLoader();
+        try (InputStream in = cl != null ? cl.getResourceAsStream("data/users.json") : null) {
+            if (in == null) {
+                return fallbackBundledDemoUsers();
+            }
+            String s = new String(in.readAllBytes(), StandardCharsets.UTF_8);
+            List<User> list = GSON.fromJson(s, LIST_TYPE);
+            if (list == null || list.isEmpty()) {
+                return fallbackBundledDemoUsers();
+            }
+            return new ArrayList<>(list);
+        } catch (IOException e) {
+            return fallbackBundledDemoUsers();
+        }
+    }
+
+    /** Last resort if {@code data/users.json} is not on the classpath (should not happen in packaged WAR). */
+    private static List<User> fallbackBundledDemoUsers() {
         List<User> list = new ArrayList<>();
-        list.add(seed("U-DEMO-TA", "ta_demo", "TA", "2d34b116983a0624d54b569bef06385437e76ad5c35081252278961101a15f50"));
-        list.add(seed("U-DEMO-MO", "mo_demo", "MO", "0cb41bae797d8065c90cb2bde250ee34e7619773be553bcd9a5dc2a660dd2977"));
-        list.add(seed("U-DEMO-ADMIN", "admin_demo", "ADMIN", "b9864ab7ebd8da8f17b5551edaab0a72bc5a185be3cdb4a4a6a2fbb503a1676a"));
+        list.add(seed("U-DEMO-TA", "ta_demo", "TA", "2d34b116983a0624d54b569bef06385437e76ad5c35081252278961101a15f50", "2026-03-01T00:00:00Z"));
+        list.add(seed("U-DEMO-TA2", "ta_li", "TA", "f40c0dd739c8f2859ff71f5a083d564594270af77873dfe000ff8448718160ec", "2026-03-15T10:00:00Z"));
+        list.add(seed("U-DEMO-MO", "mo_demo", "MO", "0cb41bae797d8065c90cb2bde250ee34e7619773be553bcd9a5dc2a660dd2977", "2026-03-01T00:00:00Z"));
+        list.add(seed("U-DEMO-ADMIN", "admin_demo", "ADMIN", "b9864ab7ebd8da8f17b5551edaab0a72bc5a185be3cdb4a4a6a2fbb503a1676a", "2026-03-01T00:00:00Z"));
         return list;
     }
 
-    /** Password for all three: {@code demo123} (documented in README). */
-    private static User seed(String userId, String username, String role, String passwordHash) {
+    /**
+     * For each bundled demo user: update an existing row with the same username, or append if absent.
+     * Keeps non-bundled registrations untouched.
+     */
+    private static boolean syncBundledDemoAccounts(List<User> existing, List<User> bundled) {
+        boolean changed = false;
+        for (User d : bundled) {
+            if (d.getUsername() == null || d.getUsername().isBlank()) {
+                continue;
+            }
+            String un = d.getUsername().trim();
+            int index = -1;
+            for (int i = 0; i < existing.size(); i++) {
+                User e = existing.get(i);
+                if (e.getUsername() != null && un.equalsIgnoreCase(e.getUsername().trim())) {
+                    index = i;
+                    break;
+                }
+            }
+            if (index >= 0) {
+                if (!bundledAccountMatches(existing.get(index), d)) {
+                    existing.set(index, copyOf(d));
+                    changed = true;
+                }
+            } else {
+                existing.add(copyOf(d));
+                changed = true;
+            }
+        }
+        return changed;
+    }
+
+    private static boolean bundledAccountMatches(User runtime, User bundle) {
+        return Objects.equals(runtime.getUserId(), bundle.getUserId())
+                && Objects.equals(runtime.getPasswordHash(), bundle.getPasswordHash())
+                && Objects.equals(runtime.getRole(), bundle.getRole())
+                && runtime.getUsername() != null
+                && bundle.getUsername() != null
+                && runtime.getUsername().trim().equalsIgnoreCase(bundle.getUsername().trim());
+    }
+
+    private static User copyOf(User from) {
+        User u = new User();
+        u.setUserId(from.getUserId());
+        u.setUsername(from.getUsername());
+        u.setPasswordHash(from.getPasswordHash());
+        u.setRole(from.getRole());
+        u.setCreatedAt(from.getCreatedAt());
+        return u;
+    }
+
+    /** Password for bundled accounts: {@code demo123} (see README). */
+    private static User seed(String userId, String username, String role, String passwordHash, String createdAtIso) {
         User u = new User();
         u.setUserId(userId);
         u.setUsername(username);
         u.setPasswordHash(passwordHash);
         u.setRole(role);
-        u.setCreatedAt(Instant.parse("2026-03-01T00:00:00Z").toString());
+        u.setCreatedAt(createdAtIso);
         return u;
     }
 

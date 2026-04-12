@@ -51,6 +51,7 @@ public class TaStatusServlet extends HttpServlet {
 
         req.setAttribute("applications", applications);
         req.setAttribute("jobTitles", jobTitles);
+        req.setAttribute("navCurrent", "status");
         req.getRequestDispatcher("/WEB-INF/jsp/ta/status.jsp").forward(req, resp);
     }
 }
