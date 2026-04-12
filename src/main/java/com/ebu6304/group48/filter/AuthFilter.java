@@ -1,12 +1,8 @@
 package com.ebu6304.group48.filter;
 
-<<<<<<< Updated upstream
-=======
 import com.ebu6304.group48.config.AppPaths;
 import com.ebu6304.group48.model.User;
 import com.ebu6304.group48.repository.UserRepository;
-import com.ebu6304.group48.util.RoleLanding;
->>>>>>> Stashed changes
 import com.ebu6304.group48.util.SessionKeys;
 
 import javax.servlet.Filter;

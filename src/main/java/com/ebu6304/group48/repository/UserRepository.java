@@ -14,6 +14,7 @@ import java.nio.file.Path;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -34,6 +35,15 @@ public class UserRepository {
             Files.createDirectories(usersFile.getParent());
             if (!Files.exists(usersFile) || isEmptyOrBlankArray(usersFile)) {
                 Files.writeString(usersFile, GSON.toJson(defaultSeedUsers()), StandardCharsets.UTF_8);
+                return;
+            }
+            String json = Files.readString(usersFile, StandardCharsets.UTF_8);
+            List<User> users = GSON.fromJson(json, LIST_TYPE);
+            if (users == null) {
+                users = new ArrayList<>();
+            }
+            if (syncBundledDemoAccounts(users, defaultSeedUsers())) {
+                Files.writeString(usersFile, GSON.toJson(users), StandardCharsets.UTF_8);
             }
         }
     }
@@ -45,16 +55,13 @@ public class UserRepository {
 
     private static List<User> defaultSeedUsers() {
         List<User> list = new ArrayList<>();
-        list.add(seed("U-DEMO-TA", "ta_demo", "TA", "2d34b116983a0624d54b569bef06385437e76ad5c35081252278961101a15f50"));
-        list.add(seed("U-DEMO-MO", "mo_demo", "MO", "0cb41bae797d8065c90cb2bde250ee34e7619773be553bcd9a5dc2a660dd2977"));
-        list.add(seed("U-DEMO-ADMIN", "admin_demo", "ADMIN", "b9864ab7ebd8da8f17b5551edaab0a72bc5a185be3cdb4a4a6a2fbb503a1676a"));
+        list.add(seed("U-DEMO-TA", "ta_demo", "TA", "2d34b116983a0624d54b569bef06385437e76ad5c35081252278961101a15f50", "2026-03-01T00:00:00Z"));
+        list.add(seed("U-DEMO-TA2", "ta_li", "TA", "f40c0dd739c8f2859ff71f5a083d564594270af77873dfe000ff8448718160ec", "2026-03-15T10:00:00Z"));
+        list.add(seed("U-DEMO-MO", "mo_demo", "MO", "0cb41bae797d8065c90cb2bde250ee34e7619773be553bcd9a5dc2a660dd2977", "2026-03-01T00:00:00Z"));
+        list.add(seed("U-DEMO-ADMIN", "admin_demo", "ADMIN", "b9864ab7ebd8da8f17b5551edaab0a72bc5a185be3cdb4a4a6a2fbb503a1676a", "2026-03-01T00:00:00Z"));
         return list;
     }
 
-<<<<<<< Updated upstream
-    /** Password for all three: {@code demo123} (documented in README). */
-    private static User seed(String userId, String username, String role, String passwordHash) {
-=======
     /**
      * For each bundled demo user: update an existing row with the same username, or append if absent.
      * Keeps non-bundled registrations untouched.
@@ -76,7 +83,13 @@ public class UserRepository {
             }
             if (index >= 0) {
                 if (!bundledAccountMatches(existing.get(index), d)) {
-                    existing.set(index, copyOf(d));
+                    User merged = copyOf(d);
+                    User cur = existing.get(index);
+                    merged.setBanned(cur.getBanned());
+                    merged.setBanReason(cur.getBanReason());
+                    merged.setAppealMessage(cur.getAppealMessage());
+                    merged.setAppealSubmittedAt(cur.getAppealSubmittedAt());
+                    existing.set(index, merged);
                     changed = true;
                 }
             } else {
@@ -112,18 +125,13 @@ public class UserRepository {
 
     /** Password for bundled accounts: {@code demo123} (see README). */
     private static User seed(String userId, String username, String role, String passwordHash, String createdAtIso) {
->>>>>>> Stashed changes
         User u = new User();
         u.setUserId(userId);
         u.setUsername(username);
         u.setPasswordHash(passwordHash);
         u.setRole(role);
-<<<<<<< Updated upstream
-        u.setCreatedAt(Instant.parse("2026-03-01T00:00:00Z").toString());
-=======
         u.setBanned(Boolean.FALSE);
         u.setCreatedAt(createdAtIso);
->>>>>>> Stashed changes
         return u;
     }
 
