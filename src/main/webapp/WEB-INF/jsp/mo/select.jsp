@@ -4,18 +4,18 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1"/>
     <title>Select Applicants</title>
-    <style>
-        body { font-family: system-ui, sans-serif; max-width: 70rem; margin: 2rem auto; padding: 0 1rem; }
-        .ok { color: #0a7f2e; }
-        .error { color: #b00020; }
-        table { width: 100%; border-collapse: collapse; margin-top: 1rem; }
-        th, td { border: 1px solid #ddd; padding: .5rem; text-align: left; vertical-align: top; }
-        .actions form { display: inline; margin-right: .5rem; }
-    </style>
+    <link rel="stylesheet" href="${pageContext.request.contextPath}/css/app.css"/>
 </head>
 <body>
-<h1>MO Selection</h1>
+<header class="site-header">
+    <div class="site-header__inner">
+        <a class="site-brand" href="${pageContext.request.contextPath}/home">TA Recruitment</a>
+    </div>
+</header>
+<main class="site-main">
+<h1 class="page-title">MO selection</h1>
 
 <c:if test="${param.saved == '1'}">
     <p class="ok">Decision saved.</p>
@@ -24,20 +24,25 @@
     <p class="error">Failed to save decision. Please retry.</p>
 </c:if>
 
-<form method="get" action="${pageContext.request.contextPath}/mo/jobs/select">
-    <label>Choose Job:</label>
-    <select name="jobId">
-        <option value="">-- all jobs --</option>
-        <c:forEach var="job" items="${jobs}">
-            <option value="${job.jobId}" ${selectedJobId == job.jobId ? 'selected' : ''}>
-                    ${job.jobId} - ${job.title}
-            </option>
-        </c:forEach>
-    </select>
-    <button type="submit">Filter</button>
+<div class="card">
+<form method="get" action="${pageContext.request.contextPath}/mo/jobs/select" style="display:flex;flex-wrap:wrap;gap:0.75rem;align-items:flex-end;margin:0;">
+    <div class="form-group" style="margin-bottom:0;min-width:12rem;">
+        <label for="jobId">Choose job</label>
+        <select id="jobId" name="jobId">
+            <option value="">— all jobs —</option>
+            <c:forEach var="job" items="${jobs}">
+                <option value="${job.jobId}" ${selectedJobId == job.jobId ? 'selected' : ''}>
+                        ${job.jobId} - ${job.title}
+                </option>
+            </c:forEach>
+        </select>
+    </div>
+    <button type="submit" class="btn btn-primary">Filter</button>
 </form>
+</div>
 
-<table>
+<div class="card" style="padding:0;overflow:hidden;">
+<table class="data-table">
     <thead>
     <tr>
         <th>Application ID</th>
@@ -60,23 +65,23 @@
             <td>${app.status}</td>
             <td class="actions">
                 <c:if test="${app.status != 'SELECTED' && app.status != 'REJECTED'}">
-                    <form method="post" action="${pageContext.request.contextPath}/mo/jobs/select">
+                    <form method="post" action="${pageContext.request.contextPath}/mo/jobs/select" class="inline-form">
                         <input type="hidden" name="applicationId" value="${app.applicationId}"/>
                         <input type="hidden" name="jobId" value="${selectedJobId}"/>
                         <input type="hidden" name="decision" value="UNDER_REVIEW"/>
-                        <button type="submit">Under Review</button>
+                        <button type="submit" class="btn btn-secondary">Under review</button>
                     </form>
-                    <form method="post" action="${pageContext.request.contextPath}/mo/jobs/select">
+                    <form method="post" action="${pageContext.request.contextPath}/mo/jobs/select" class="inline-form">
                         <input type="hidden" name="applicationId" value="${app.applicationId}"/>
                         <input type="hidden" name="jobId" value="${selectedJobId}"/>
                         <input type="hidden" name="decision" value="SELECTED"/>
-                        <button type="submit">Select</button>
+                        <button type="submit" class="btn btn-success">Select</button>
                     </form>
-                    <form method="post" action="${pageContext.request.contextPath}/mo/jobs/select">
+                    <form method="post" action="${pageContext.request.contextPath}/mo/jobs/select" class="inline-form">
                         <input type="hidden" name="applicationId" value="${app.applicationId}"/>
                         <input type="hidden" name="jobId" value="${selectedJobId}"/>
                         <input type="hidden" name="decision" value="REJECTED"/>
-                        <button type="submit">Reject</button>
+                        <button type="submit" class="btn btn-danger">Reject</button>
                     </form>
                 </c:if>
             </td>
@@ -84,8 +89,12 @@
     </c:forEach>
     </tbody>
 </table>
+</div>
 
-<p>Status flow: SUBMITTED -> UNDER_REVIEW -> SELECTED/REJECTED</p>
-<p><a href="${pageContext.request.contextPath}/mo/dashboard">Back to MO dashboard</a></p>
+<p class="text-muted">Status flow: SUBMITTED → UNDER_REVIEW → SELECTED / REJECTED</p>
+<p class="footer-links">
+    <a href="${pageContext.request.contextPath}/mo/dashboard">Back to MO dashboard</a>
+</p>
+</main>
 </body>
 </html>

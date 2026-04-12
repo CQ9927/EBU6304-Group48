@@ -8,13 +8,13 @@
 | `/login` | `LoginServlet` | `auth/login.jsp` | `users.json` | CQ9927 (baseline) |
 | `/register` | `RegisterServlet` | `auth/register.jsp` | `users.json` | CQ9927 (baseline) |
 | `/logout` | `LogoutServlet` | — | — | CQ9927 (baseline) |
-| `/ta/dashboard` | `TaDashboardServlet` | `ta/dashboard.jsp` | — | Placeholder → extend |
+| `/ta/dashboard` | `TaDashboardServlet` | `ta/dashboard.jsp` | — | Core |
 | `/ta/profile` | `TaProfileServlet` | `ta/profile.jsp` | `profiles.json` | zzzskl |
 | `/ta/cv` | `TaCvServlet` | `ta/cv.jsp` | `profiles.json`, `CV_*.txt/json` | zzzskl |
 | `/ta/jobs` | `TaJobsServlet` | `ta/jobs.jsp` | `jobs.json` | SpPt2FeMa |
 | `/ta/apply` | `TaApplyServlet` | — (redirect back to jobs) | `applications.json` | SpPt2FeMa |
 | `/ta/status` | `TaStatusServlet` | `ta/status.jsp` | `applications.json` | SpPt2FeMa |
-| `/mo/dashboard` | `MoDashboardServlet` | `mo/dashboard.jsp` | — | Placeholder → extend |
+| `/mo/dashboard` | `MoDashboardServlet` | `mo/dashboard.jsp` | — | Core |
 | `/mo/jobs/new` | `MoPostJobServlet` | `mo/post-job.jsp` | `jobs.json` | yunmengdd |
 | `/mo/jobs/select` | `MoSelectServlet` | `mo/select.jsp` | `applications.json`, `selection.json` | yunmengdd |
 | `/admin/workload` | `AdminDashboardServlet` | `admin/workload.jsp` | `jobs.json`, `applications.json` | BUCOD |

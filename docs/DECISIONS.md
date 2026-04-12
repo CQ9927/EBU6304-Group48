@@ -22,3 +22,8 @@
 - Decision: Protect `main` and require approval before merge.
 - Reason: Improve collaboration quality and contribution visibility.
 - Impact: Every task must be done in feature branches with PR review.
+
+## 2026-03-28 - Shared stylesheet and English-only UI
+- Decision: Add `src/main/webapp/css/app.css` (design tokens, header, cards, tables, forms) and link it from all JSPs; keep user-facing copy in English.
+- Reason: Consistent look for demos and coursework report; easier maintenance than per-page inline CSS.
+- Impact: New UI changes should prefer extending `app.css` and shared classes; Tomcat must serve `/css/app.css` under the app context.

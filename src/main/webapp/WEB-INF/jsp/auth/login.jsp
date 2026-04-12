@@ -3,30 +3,42 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1"/>
     <title>Login</title>
-    <style>
-        body { font-family: system-ui, sans-serif; max-width: 28rem; margin: 2rem auto; padding: 0 1rem; }
-        label { display: block; margin-top: 0.75rem; }
-        input[type=text], input[type=password] { width: 100%; box-sizing: border-box; padding: 0.35rem; }
-        button { margin-top: 1rem; padding: 0.4rem 0.8rem; }
-        .msg { color: #666; margin-top: 1rem; }
-        .err { color: #a30; }
-    </style>
+    <link rel="stylesheet" href="${pageContext.request.contextPath}/css/app.css"/>
 </head>
 <body>
-<h1>Login</h1>
-<form method="post" action="${pageContext.request.contextPath}/login">
-    <% if (request.getParameter("next") != null) { %>
-    <input type="hidden" name="next" value="${param.next}"/>
-    <% } %>
-    <label>Username <input type="text" name="username" autocomplete="username" required/></label>
-    <label>Password <input type="password" name="password" autocomplete="current-password" required/></label>
-    <button type="submit">Sign in</button>
-</form>
-<% if (request.getAttribute("message") != null) { %>
-<p class="msg"><%= request.getAttribute("message") %></p>
-<% } %>
-<p><a href="${pageContext.request.contextPath}/register">Create an account</a></p>
-<p><a href="${pageContext.request.contextPath}/home">Back</a></p>
+<header class="site-header">
+    <div class="site-header__inner">
+        <a class="site-brand" href="${pageContext.request.contextPath}/home">TA Recruitment</a>
+    </div>
+</header>
+<main class="site-main site-main--auth">
+    <div class="auth-card">
+        <h1 class="page-title">Sign in</h1>
+        <form method="post" action="${pageContext.request.contextPath}/login">
+            <% if (request.getParameter("next") != null) { %>
+            <input type="hidden" name="next" value="${param.next}"/>
+            <% } %>
+            <div class="form-group">
+                <label for="username">Username</label>
+                <input type="text" id="username" name="username" autocomplete="username" required/>
+            </div>
+            <div class="form-group">
+                <label for="password">Password</label>
+                <input type="password" id="password" name="password" autocomplete="current-password" required/>
+            </div>
+            <button type="submit" class="btn btn-primary" style="width:100%;margin-top:0.25rem;">Sign in</button>
+        </form>
+        <% if (request.getAttribute("message") != null) { %>
+        <p class="msg"><%= request.getAttribute("message") %></p>
+        <% } %>
+        <p class="footer-links" style="border:none;margin-top:1.25rem;padding-top:0;">
+            <a href="${pageContext.request.contextPath}/register">Create an account</a>
+            ·
+            <a href="${pageContext.request.contextPath}/home">Back to home</a>
+        </p>
+    </div>
+</main>
 </body>
 </html>
