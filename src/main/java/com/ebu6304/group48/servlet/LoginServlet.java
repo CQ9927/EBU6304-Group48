@@ -28,6 +28,10 @@ public class LoginServlet extends HttpServlet {
         if ("forbidden".equals(req.getParameter("error"))) {
             req.setAttribute("message", "You do not have access to that page for your role.");
         }
+        if ("banned".equals(req.getParameter("error"))) {
+            req.setAttribute("message", "This account has been banned.");
+            req.setAttribute("appealPageHref", req.getContextPath() + "/ban-appeal");
+        }
         if ("1".equals(req.getParameter("registered"))) {
             req.setAttribute("message", "Registration successful. Please sign in.");
         }
@@ -45,6 +49,14 @@ public class LoginServlet extends HttpServlet {
             Optional<User> user = repo.authenticate(username != null ? username : "", password != null ? password : "");
             if (user.isEmpty()) {
                 req.setAttribute("message", "Invalid username or password.");
+                req.getRequestDispatcher("/WEB-INF/jsp/auth/login.jsp").forward(req, resp);
+                return;
+            }
+            if (Boolean.TRUE.equals(user.get().getBanned())) {
+                HttpSession s = req.getSession(true);
+                s.setAttribute(SessionKeys.BANNED_APPEAL_USER_ID, user.get().getUserId());
+                req.setAttribute("message", "This account has been banned.");
+                req.setAttribute("appealPageHref", req.getContextPath() + "/ban-appeal");
                 req.getRequestDispatcher("/WEB-INF/jsp/auth/login.jsp").forward(req, resp);
                 return;
             }

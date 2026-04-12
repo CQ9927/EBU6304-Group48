@@ -12,7 +12,7 @@ This document is the **single source of truth** for who does what. If you need t
 | **zzzskl** | TA profile & CV | `TaProfileServlet`, `TaCvServlet`, JSPs, `ProfileRepository` (new), links on **TA dashboard** for your pages only | `/ta/profile`, `/ta/cv` | `profiles.json`; CV files under runtime dir (agreed subfolder name in PR) |
 | **SpPt2FeMa** | TA jobs, apply, status | `TaJobsServlet`, `TaApplyServlet`, `TaStatusServlet`, JSPs, `ApplicationRepository` (new), **read** jobs for listing | `/ta/jobs`, `/ta/apply`, `/ta/status` | `applications.json` (TA create/list); **read** `jobs.json` for listings |
 | **yunmengdd** | MO jobs & selection | `MoPostJobServlet`, `MoSelectServlet`, JSPs, `JobRepository` (new), extend `MoDashboardServlet` / `mo/dashboard.jsp` with your entry links only | `/mo/jobs/new`, `/mo/jobs/select` | `jobs.json` (write); `applications.json` / `selection.json` for MO updates (**coordinate with SpPt2FeMa** — see §3) |
-| **BUCOD** | Admin workload & rules | Replace/extend `AdminDashboardServlet` workload UI, `MatchingService`, `WorkloadService`, JSP under `admin/` | `/admin/workload` (and subpaths you add under `/admin/*`) | Read `jobs.json`, `applications.json`; optional `selection.json` |
+| **BUCOD** | Admin workload & rules | Replace/extend `AdminDashboardServlet` workload UI, `MatchingService`, `WorkloadService`, admin JSPs; `AdminUsersServlet`, `AdminApplicationsServlet` | `/admin/workload`, `/admin/users`, `/admin/applications` | Read `jobs.json`, `applications.json`; write `users.json` (ban/password) and `applications.json` (admin revoke) per `DATA_SCHEMA.md` — PRs touching `UserRepository` / `LoginServlet` / `AuthFilter` / `login.jsp` / `web.xml` need **CQ9927** review; `ApplicationRepository` extensions need **SpPt2FeMa** review |
 
 **`TaDashboardServlet` / `ta/dashboard.jsp`:** each member adds **only** the links/buttons for **their** TA routes (small PRs). If two people edit the same lines, **CQ9927** resolves or merges a combined nav in one integration PR.
 
@@ -26,7 +26,7 @@ This document is the **single source of truth** for who does what. If you need t
 | zzzskl | `TaProfileServlet`, `TaCvServlet`, `ta/profile.jsp`, `ta/cv.jsp`, `ProfileRepository`, `model` classes **only if** profile/CV-specific | `ApplicationRepository`, `JobRepository`, MO/Admin servlets |
 | SpPt2FeMa | `TaJobsServlet`, `TaApplyServlet`, `TaStatusServlet`, `ta/jobs.jsp`, `ta/apply.jsp`, `ta/status.jsp`, `ApplicationRepository` | `JobRepository` internals (see §3); auth filters |
 | yunmengdd | `MoPostJobServlet`, `MoSelectServlet`, `mo/post-job.jsp`, `mo/select.jsp`, `JobRepository`, MO-related updates to `mo/dashboard.jsp` | `UserRepository`, `ApplicationRepository` **body** (use §3) |
-| BUCOD | `MatchingService`, `WorkloadService`, `admin/workload.jsp`, admin-only servlets you add | `UserRepository`, login/register |
+| BUCOD | `MatchingService`, `WorkloadService`, `admin/*.jsp`, admin-only servlets | `UserRepository` / core auth files only with **CQ9927** review (admin ban/password features) |
 
 Use **`@WebServlet`** for new endpoints so you rarely need the same `web.xml` edit.
 
@@ -38,6 +38,7 @@ Use **`@WebServlet`** for new endpoints so you rarely need the same `web.xml` ed
 |-------|------|
 | **`jobs.json`** | **yunmengdd** owns `JobRepository` and all **write** shapes. **SpPt2FeMa** needs listings: ask **yunmengdd** to add `findOpenJobs()` (or similar) in a small PR, or **SpPt2FeMa** opens a PR that **only** adds read methods and assigns **yunmengdd** as reviewer. |
 | **`applications.json`** | **SpPt2FeMa** owns `ApplicationRepository` for TA flows. **yunmengdd** for MO status changes: **either** extend `ApplicationRepository` in a PR **reviewed by SpPt2FeMa**, **or** agree in stand-up and merge in order **SpPt2FeMa first**, then **yunmengdd**. |
+| **Admin revoke** | `ApplicationRepository.rejectByAdmin(...)` sets `REJECTED` + `adminRevoked`; `updateStatus` (MO flow) clears `adminRevoked`. Further rule changes: coordinate **SpPt2FeMa** / **yunmengdd**. |
 | **`DATA_SCHEMA.md`** | Any field/enum change: **one PR** that updates the doc **and** code; tag both data owners in review. |
 | **`pom.xml`** | Dependency adds: one PR at a time; ping **CQ9927** if the branch is busy. |
 

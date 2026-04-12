@@ -9,6 +9,14 @@ public class User {
     private String username;
     private String passwordHash;
     private String role;
+    /** If true, account cannot sign in. Omitted in JSON means not banned. */
+    private Boolean banned;
+    /** Shown to user on appeal page; set when admin bans. */
+    private String banReason;
+    /** Latest appeal text from banned user. */
+    private String appealMessage;
+    /** ISO 8601 when appeal was submitted. */
+    private String appealSubmittedAt;
     private String createdAt;
 
     public User() {
@@ -54,6 +62,38 @@ public class User {
         this.role = role;
     }
 
+    public Boolean getBanned() {
+        return banned;
+    }
+
+    public void setBanned(Boolean banned) {
+        this.banned = banned;
+    }
+
+    public String getBanReason() {
+        return banReason;
+    }
+
+    public void setBanReason(String banReason) {
+        this.banReason = banReason;
+    }
+
+    public String getAppealMessage() {
+        return appealMessage;
+    }
+
+    public void setAppealMessage(String appealMessage) {
+        this.appealMessage = appealMessage;
+    }
+
+    public String getAppealSubmittedAt() {
+        return appealSubmittedAt;
+    }
+
+    public void setAppealSubmittedAt(String appealSubmittedAt) {
+        this.appealSubmittedAt = appealSubmittedAt;
+    }
+
     public String getCreatedAt() {
         return createdAt;
     }
@@ -69,6 +109,10 @@ public class User {
                 + ", username='" + username + '\''
                 + ", passwordHash='" + passwordHash + '\''
                 + ", role='" + role + '\''
+                + ", banned=" + banned
+                + ", banReason='" + banReason + '\''
+                + ", appealMessage='" + appealMessage + '\''
+                + ", appealSubmittedAt='" + appealSubmittedAt + '\''
                 + ", createdAt='" + createdAt + '\''
                 + '}';
     }

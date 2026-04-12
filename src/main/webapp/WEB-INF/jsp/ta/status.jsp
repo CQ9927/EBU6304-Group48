@@ -45,7 +45,14 @@
                             <c:when test="${app.status == 'SUBMITTED'}"><span class="badge submitted">SUBMITTED</span></c:when>
                             <c:when test="${app.status == 'UNDER_REVIEW'}"><span class="badge under-review">UNDER_REVIEW</span></c:when>
                             <c:when test="${app.status == 'SELECTED'}"><span class="badge selected">SELECTED</span></c:when>
-                            <c:otherwise><span class="badge rejected">REJECTED</span></c:otherwise>
+                            <c:otherwise>
+                                <c:choose>
+                                    <c:when test="${app.status == 'REJECTED' && app.adminRevoked}">
+                                        <span class="badge rejected" title="Revoked by administrator">REJECTED (admin)</span>
+                                    </c:when>
+                                    <c:otherwise><span class="badge rejected">REJECTED</span></c:otherwise>
+                                </c:choose>
+                            </c:otherwise>
                         </c:choose>
                     </td>
                     <td>${app.updatedAt}</td>

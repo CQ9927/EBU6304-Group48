@@ -1,4 +1,5 @@
 <%@ page contentType="text/html;charset=UTF-8" pageEncoding="UTF-8" %>
+<%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -25,9 +26,16 @@
                 alertClass = "alert-success";
             } else if (m.contains("access") || m.contains("Access")) {
                 alertClass = "alert-warning";
+            } else if (m.toLowerCase().contains("banned")) {
+                alertClass = "alert-warning";
             }
         %>
-        <div class="alert <%= alertClass %>" role="status"><%= m %></div>
+        <div class="alert <%= alertClass %>" role="status">
+            <%= m %>
+            <c:if test="${not empty appealPageHref}">
+                <br/><a href="${appealPageHref}">Submit an appeal</a>
+            </c:if>
+        </div>
         <% } %>
         <form method="post" action="${pageContext.request.contextPath}/login">
             <% if (request.getParameter("next") != null) { %>
