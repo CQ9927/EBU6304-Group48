@@ -1,5 +1,12 @@
 package com.ebu6304.group48.filter;
 
+<<<<<<< Updated upstream
+=======
+import com.ebu6304.group48.config.AppPaths;
+import com.ebu6304.group48.model.User;
+import com.ebu6304.group48.repository.UserRepository;
+import com.ebu6304.group48.util.RoleLanding;
+>>>>>>> Stashed changes
 import com.ebu6304.group48.util.SessionKeys;
 
 import javax.servlet.Filter;
@@ -13,6 +20,7 @@ import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
+import java.util.Optional;
 
 /**
  * Requires login and matching role for {@code /ta/*}, {@code /mo/*}, {@code /admin/*}.
@@ -56,6 +64,20 @@ public class AuthFilter implements Filter {
         }
         if (!requiredRole.equals(String.valueOf(role))) {
             resp.sendRedirect(req.getContextPath() + "/login?error=forbidden");
+            return;
+        }
+
+        try {
+            UserRepository userRepo = new UserRepository(AppPaths.resolveDataDirectory(req.getServletContext()));
+            userRepo.ensureStorage();
+            Optional<User> u = userRepo.findByUserId(String.valueOf(userId));
+            if (u.isPresent() && Boolean.TRUE.equals(u.get().getBanned())) {
+                session.invalidate();
+                resp.sendRedirect(req.getContextPath() + "/login?error=banned");
+                return;
+            }
+        } catch (IOException e) {
+            resp.sendRedirect(req.getContextPath() + "/login?next=" + urlEncode(path));
             return;
         }
 

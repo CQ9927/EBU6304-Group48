@@ -140,6 +140,8 @@ public class Application {
     private List<String> missingSkills;
     private String status;
     private String note;
+    /** True if REJECTED by admin revoke; cleared when MO updates status via normal flow. */
+    private Boolean adminRevoked;
     private String createdAt;
     private String updatedAt;
 
@@ -218,6 +220,14 @@ public class Application {
         this.note = note;
     }
 
+    public Boolean getAdminRevoked() {
+        return adminRevoked;
+    }
+
+    public void setAdminRevoked(Boolean adminRevoked) {
+        this.adminRevoked = adminRevoked;
+    }
+
     public String getCreatedAt() {
         return createdAt;
     }
@@ -244,6 +254,7 @@ public class Application {
                 ", missingSkills=" + missingSkills +
                 ", status='" + status + '\'' +
                 ", note='" + note + '\'' +
+                ", adminRevoked=" + adminRevoked +
                 ", createdAt='" + createdAt + '\'' +
                 ", updatedAt='" + updatedAt + '\'' +
                 '}';

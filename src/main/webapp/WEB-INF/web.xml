@@ -13,6 +13,12 @@
     </context-param>
     -->
 
+    <!-- Shown on login page when account is banned (mailto or https URL). -->
+    <context-param>
+        <param-name>appealContactUrl</param-name>
+        <param-value>mailto:course-admin@example.com</param-value>
+    </context-param>
+
     <filter>
         <filter-name>EncodingFilter</filter-name>
         <filter-class>com.ebu6304.group48.filter.EncodingFilter</filter-class>

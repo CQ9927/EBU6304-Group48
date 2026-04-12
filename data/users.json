@@ -1,1 +1,38 @@
+<<<<<<< Updated upstream
 []
+=======
+[
+  {
+    "userId": "U-DEMO-TA",
+    "username": "ta_demo",
+    "passwordHash": "2d34b116983a0624d54b569bef06385437e76ad5c35081252278961101a15f50",
+    "role": "TA",
+    "banned": false,
+    "createdAt": "2026-03-01T00:00:00Z"
+  },
+  {
+    "userId": "U-DEMO-TA2",
+    "username": "ta_li",
+    "passwordHash": "f40c0dd739c8f2859ff71f5a083d564594270af77873dfe000ff8448718160ec",
+    "role": "TA",
+    "banned": false,
+    "createdAt": "2026-03-15T10:00:00Z"
+  },
+  {
+    "userId": "U-DEMO-MO",
+    "username": "mo_demo",
+    "passwordHash": "0cb41bae797d8065c90cb2bde250ee34e7619773be553bcd9a5dc2a660dd2977",
+    "role": "MO",
+    "banned": false,
+    "createdAt": "2026-03-01T00:00:00Z"
+  },
+  {
+    "userId": "U-DEMO-ADMIN",
+    "username": "admin_demo",
+    "passwordHash": "b9864ab7ebd8da8f17b5551edaab0a72bc5a185be3cdb4a4a6a2fbb503a1676a",
+    "role": "ADMIN",
+    "banned": false,
+    "createdAt": "2026-03-01T00:00:00Z"
+  }
+]
+>>>>>>> Stashed changes

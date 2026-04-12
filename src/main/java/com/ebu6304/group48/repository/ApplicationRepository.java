@@ -138,7 +138,120 @@ public class ApplicationRepository {
         // For now, return empty list
         return new ArrayList<>();
     }
+<<<<<<< Updated upstream
     
+=======
+
+    public List<Application> findAll() {
+        synchronized (FILE_LOCK) {
+            try {
+                ensureStorage();
+                List<Application> applications = readAllInternal();
+                applications.sort(Comparator.comparing(Application::getCreatedAt, Comparator.nullsLast(String::compareTo)).reversed());
+                return applications;
+            } catch (IOException e) {
+                return new ArrayList<>();
+            } catch (RuntimeException e) {
+                return new ArrayList<>();
+            }
+        }
+    }
+
+    public Application findById(String applicationId) {
+        if (applicationId == null || applicationId.isBlank()) {
+            return null;
+        }
+        return findAll().stream()
+                .filter(app -> applicationId.equals(app.getApplicationId()))
+                .findFirst()
+                .orElse(null);
+    }
+
+    /**
+     * Sets application to REJECTED with {@code adminRevoked=true} and audit line in note.
+     * Only allowed for {@code SUBMITTED} or {@code UNDER_REVIEW}. Not allowed for {@code SELECTED} or already {@code REJECTED}.
+     */
+    public boolean rejectByAdmin(String applicationId, String adminUserId) {
+        if (applicationId == null || applicationId.isBlank()) {
+            return false;
+        }
+        synchronized (FILE_LOCK) {
+            try {
+                ensureStorage();
+                List<Application> applications = readAllInternal();
+                Application target = null;
+                for (Application app : applications) {
+                    if (applicationId.equals(app.getApplicationId())) {
+                        target = app;
+                        break;
+                    }
+                }
+                if (target == null) {
+                    return false;
+                }
+                String st = target.getStatus() != null ? target.getStatus().trim().toUpperCase() : "";
+                if ("REJECTED".equals(st) || "SELECTED".equals(st)) {
+                    return false;
+                }
+                if (!"SUBMITTED".equals(st) && !"UNDER_REVIEW".equals(st)) {
+                    return false;
+                }
+                String audit = "[ADMIN_REVOKE] revoked by "
+                        + (adminUserId != null ? adminUserId : "unknown")
+                        + " at "
+                        + Instant.now();
+                String existingNote = target.getNote();
+                if (existingNote == null || existingNote.isBlank()) {
+                    target.setNote(audit);
+                } else {
+                    target.setNote(existingNote + "\n" + audit);
+                }
+                target.setStatus("REJECTED");
+                target.setAdminRevoked(Boolean.TRUE);
+                target.setUpdatedAt(Instant.now().toString());
+                Files.writeString(applicationsFile, GSON.toJson(applications), StandardCharsets.UTF_8);
+                return true;
+            } catch (IOException e) {
+                return false;
+            } catch (RuntimeException e) {
+                return false;
+            }
+        }
+    }
+
+    public boolean updateStatus(String applicationId, String status) {
+        if (applicationId == null || applicationId.isBlank() || !isValidStatus(status)) {
+            return false;
+        }
+        String normalizedStatus = status.trim().toUpperCase();
+        synchronized (FILE_LOCK) {
+            try {
+                ensureStorage();
+                List<Application> applications = readAllInternal();
+                Application target = null;
+                for (Application app : applications) {
+                    if (applicationId.equals(app.getApplicationId())) {
+                        target = app;
+                        break;
+                    }
+                }
+                if (target == null) {
+                    return false;
+                }
+                target.setStatus(normalizedStatus);
+                target.setAdminRevoked(null);
+                target.setUpdatedAt(Instant.now().toString());
+                Files.writeString(applicationsFile, GSON.toJson(applications), StandardCharsets.UTF_8);
+                return true;
+            } catch (IOException e) {
+                return false;
+            } catch (RuntimeException e) {
+                return false;
+            }
+        }
+    }
+
+>>>>>>> Stashed changes
     public boolean save(Application application) {
         // TODO: Implement JSON writing to applications.json
         // For now, return true
