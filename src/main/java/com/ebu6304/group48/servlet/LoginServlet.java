@@ -3,6 +3,7 @@ package com.ebu6304.group48.servlet;
 import com.ebu6304.group48.config.AppPaths;
 import com.ebu6304.group48.model.User;
 import com.ebu6304.group48.repository.UserRepository;
+import com.ebu6304.group48.util.RoleLanding;
 import com.ebu6304.group48.util.SessionKeys;
 
 import javax.servlet.ServletException;
@@ -21,7 +22,7 @@ public class LoginServlet extends HttpServlet {
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
         HttpSession existing = req.getSession(false);
         if (existing != null && existing.getAttribute(SessionKeys.USER_ID) != null) {
-            resp.sendRedirect(req.getContextPath() + landingPath(String.valueOf(existing.getAttribute(SessionKeys.ROLE))));
+            resp.sendRedirect(req.getContextPath() + RoleLanding.defaultPath(String.valueOf(existing.getAttribute(SessionKeys.ROLE))));
             return;
         }
         if ("forbidden".equals(req.getParameter("error"))) {
@@ -69,22 +70,12 @@ public class LoginServlet extends HttpServlet {
             if (next != null) {
                 resp.sendRedirect(req.getContextPath() + next);
             } else {
-                resp.sendRedirect(req.getContextPath() + landingPath(user.get().getRole()));
+                resp.sendRedirect(req.getContextPath() + RoleLanding.defaultPath(user.get().getRole()));
             }
         } catch (IOException e) {
             req.setAttribute("message", "Login failed: " + e.getMessage());
             req.getRequestDispatcher("/WEB-INF/jsp/auth/login.jsp").forward(req, resp);
         }
-    }
-
-    private static String landingPath(String role) {
-        if ("MO".equals(role)) {
-            return "/mo/dashboard";
-        }
-        if ("ADMIN".equals(role)) {
-            return "/admin/workload";
-        }
-        return "/ta/dashboard";
     }
 
     /** Prevent open redirects: only same-app absolute paths. */

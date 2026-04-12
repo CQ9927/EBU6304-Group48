@@ -9,13 +9,13 @@
 | `/ban-appeal` | `BanAppealServlet` | `auth/ban-appeal.jsp` | `users.json` (read/write appeal fields) | BUCOD (public; no role filter) |
 | `/register` | `RegisterServlet` | `auth/register.jsp` | `users.json` | CQ9927 (baseline) |
 | `/logout` | `LogoutServlet` | — | — | CQ9927 (baseline) |
-| `/ta/dashboard` | `TaDashboardServlet` | `ta/dashboard.jsp` | — | Placeholder → extend |
+| `/ta/dashboard` | `TaDashboardServlet` | `ta/dashboard.jsp` | — | Core |
 | `/ta/profile` | `TaProfileServlet` | `ta/profile.jsp` | `profiles.json` | zzzskl |
 | `/ta/cv` | `TaCvServlet` | `ta/cv.jsp` | `profiles.json`, `CV_*.txt/json` | zzzskl |
 | `/ta/jobs` | `TaJobsServlet` | `ta/jobs.jsp` | `jobs.json` | SpPt2FeMa |
-| `/ta/apply` | `TaApplyServlet` | `ta/apply.jsp` | `applications.json` | SpPt2FeMa |
+| `/ta/apply` | `TaApplyServlet` | — (redirect back to jobs) | `applications.json` | SpPt2FeMa |
 | `/ta/status` | `TaStatusServlet` | `ta/status.jsp` | `applications.json` | SpPt2FeMa |
-| `/mo/dashboard` | `MoDashboardServlet` | `mo/dashboard.jsp` | — | Placeholder → extend |
+| `/mo/dashboard` | `MoDashboardServlet` | `mo/dashboard.jsp` | — | Core |
 | `/mo/jobs/new` | `MoPostJobServlet` | `mo/post-job.jsp` | `jobs.json` | yunmengdd |
 | `/mo/jobs/select` | `MoSelectServlet` | `mo/select.jsp` | `applications.json`, `selection.json` | yunmengdd |
 | `/admin/workload` | `AdminDashboardServlet` | `admin/workload.jsp` | `jobs.json`, `applications.json` | BUCOD |
@@ -35,3 +35,8 @@
 - Owner writes first implementation and unit-level checks.
 - Any change to shared modules requires at least one review approval.
 - Data contract changes must update `DATA_SCHEMA.md` in the same PR.
+
+## MO Status Update Contract (with yunmengdd)
+- MO side updates application status only via `ApplicationRepository.updateStatus(...)`.
+- Allowed status enum: `SUBMITTED`, `UNDER_REVIEW`, `SELECTED`, `REJECTED`.
+- Recommended flow for UI/action buttons: `SUBMITTED -> UNDER_REVIEW -> SELECTED/REJECTED`.

@@ -1,1 +1,46 @@
-[]
+[
+  {
+    "applicationId": "A-DEMO-001",
+    "jobId": "J-DEMO-001",
+    "applicantUserId": "U-DEMO-TA",
+    "matchScore": 100,
+    "missingSkills": [],
+    "status": "SUBMITTED",
+    "note": "Interested in SE lab; available WED evening.",
+    "createdAt": "2026-04-11T14:00:00Z",
+    "updatedAt": "2026-04-11T14:00:00Z"
+  },
+  {
+    "applicationId": "A-DEMO-002",
+    "jobId": "J-DEMO-002",
+    "applicantUserId": "U-DEMO-TA",
+    "matchScore": 50,
+    "missingSkills": ["Proctoring"],
+    "status": "UNDER_REVIEW",
+    "note": "Willing to complete proctoring training if selected.",
+    "createdAt": "2026-04-11T14:30:00Z",
+    "updatedAt": "2026-04-12T08:00:00Z"
+  },
+  {
+    "applicationId": "A-DEMO-003",
+    "jobId": "J-DEMO-001",
+    "applicantUserId": "U-DEMO-TA2",
+    "matchScore": 33,
+    "missingSkills": ["Teaching", "Algorithms"],
+    "status": "REJECTED",
+    "note": "Demo row: skill gap on algorithms module.",
+    "createdAt": "2026-04-11T16:00:00Z",
+    "updatedAt": "2026-04-12T08:30:00Z"
+  },
+  {
+    "applicationId": "A-DEMO-004",
+    "jobId": "J-DEMO-003",
+    "applicantUserId": "U-DEMO-TA2",
+    "matchScore": 67,
+    "missingSkills": ["Teaching"],
+    "status": "SELECTED",
+    "note": "Strong database background; demo selected applicant.",
+    "createdAt": "2026-04-11T17:00:00Z",
+    "updatedAt": "2026-04-12T09:00:00Z"
+  }
+]

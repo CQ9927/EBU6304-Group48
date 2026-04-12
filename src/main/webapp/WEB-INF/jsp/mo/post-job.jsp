@@ -4,45 +4,64 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1"/>
+    <meta name="view-transition" content="same-origin"/>
     <title>Post New Job</title>
-    <style>
-        body { font-family: system-ui, sans-serif; max-width: 60rem; margin: 2rem auto; padding: 0 1rem; }
-        .hint { color: #666; font-size: .95rem; }
-        .ok { color: #0a7f2e; }
-        .error { color: #b00020; }
-        table { width: 100%; border-collapse: collapse; margin-top: 1rem; }
-        th, td { border: 1px solid #ddd; padding: .5rem; text-align: left; }
-    </style>
+    <link rel="stylesheet" href="${pageContext.request.contextPath}/css/app.css"/>
 </head>
 <body>
-<h1>Post New Job</h1>
+<jsp:include page="/WEB-INF/jsp/_include/app-header.jsp"/>
+<main class="site-main">
+<header class="page-header">
+    <h1 class="page-title">Post new job</h1>
+    <p class="lead lead--tight text-muted">Create a vacancy and review jobs in storage.</p>
+</header>
 
 <c:if test="${param.saved == '1'}">
-    <p class="ok">Job has been saved.</p>
+    <div class="alert alert-success" role="status">Job has been saved.</div>
 </c:if>
 <c:if test="${not empty error}">
-    <p class="error">${error}</p>
+    <div class="alert alert-error" role="alert">${error}</div>
 </c:if>
 
-<form method="post" action="${pageContext.request.contextPath}/mo/jobs/new">
-    <p>Title*<br/><input type="text" name="title" style="width: 100%;" required/></p>
+<div class="card">
+<form method="post" action="${pageContext.request.contextPath}/mo/jobs/new" class="form-stack">
     <p>
-        Type*<br/>
-        <select name="type" required>
-            <option value="">-- choose --</option>
+        <label for="title">Title *</label><br/>
+        <input type="text" id="title" name="title" required/>
+    </p>
+    <p>
+        <label for="type">Type *</label><br/>
+        <select id="type" name="type" required>
+            <option value="">— choose —</option>
             <option value="MODULE">MODULE</option>
             <option value="INVIGILATION">INVIGILATION</option>
         </select>
     </p>
-    <p>Semester*<br/><input type="text" name="semester" placeholder="e.g. 2026_SPRING" required/></p>
-    <p>Schedule*<br/><input type="text" name="schedule" placeholder="e.g. WED_18_20" required/></p>
-    <p>Capacity*<br/><input type="number" name="capacity" min="1" required/></p>
-    <p>Required Skills (comma-separated)<br/><input type="text" name="requiredSkills" style="width: 100%;" placeholder="Java, Teaching, Algorithms"/></p>
-    <p><button type="submit">Create Job</button></p>
+    <p>
+        <label for="semester">Semester *</label><br/>
+        <input type="text" id="semester" name="semester" placeholder="e.g. 2026_SPRING" required/>
+    </p>
+    <p>
+        <label for="schedule">Schedule *</label><br/>
+        <input type="text" id="schedule" name="schedule" placeholder="e.g. WED_18_20" required/>
+    </p>
+    <p>
+        <label for="capacity">Capacity *</label><br/>
+        <input type="number" id="capacity" name="capacity" min="1" required/>
+    </p>
+    <p>
+        <label for="requiredSkills">Required skills (comma-separated)</label><br/>
+        <input type="text" id="requiredSkills" name="requiredSkills" placeholder="Java, Teaching, Algorithms"/>
+    </p>
+    <p><button type="submit" class="btn btn-primary">Create job</button></p>
 </form>
+</div>
 
 <p class="hint">Jobs in storage (newest first):</p>
-<table>
+<div class="card card--flush">
+<div class="table-scroll">
+<table class="data-table">
     <thead>
     <tr>
         <th>ID</th>
@@ -66,7 +85,12 @@
     </c:forEach>
     </tbody>
 </table>
+</div>
+</div>
 
-<p><a href="${pageContext.request.contextPath}/mo/dashboard">Back to MO dashboard</a></p>
+<p class="footer-links">
+    <a href="${pageContext.request.contextPath}/mo/dashboard">Back to MO dashboard</a>
+</p>
+</main>
 </body>
 </html>

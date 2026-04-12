@@ -1,1 +1,28 @@
-[]
+[
+  {
+    "profileId": "P-DEMO-TA",
+    "userId": "U-DEMO-TA",
+    "name": "Alex Chen",
+    "email": "alex.chen.demo@example.edu",
+    "major": "Software Engineering",
+    "skills": ["Java", "Python", "Web Development", "Teaching", "Algorithms"],
+    "availability": ["MON_14_16", "WED_18_20", "FRI_10_12"],
+    "notes": "Demo TA profile — prefers lab and tutorial sessions.",
+    "cvFileName": "CV_U-DEMO-TA_20260412090000.pdf",
+    "createdAt": "2026-04-01T08:00:00Z",
+    "updatedAt": "2026-04-12T09:00:00Z"
+  },
+  {
+    "profileId": "P-DEMO-TA2",
+    "userId": "U-DEMO-TA2",
+    "name": "Li Wei",
+    "email": "li.wei.demo@example.edu",
+    "major": "Computer Science",
+    "skills": ["Java", "Python", "Database"],
+    "availability": ["TUE_18_20", "THU_18_20"],
+    "notes": "Second demo TA — stronger on databases, fewer teaching hours.",
+    "cvFileName": "CV_U-DEMO-TA2_20260412090000.pdf",
+    "createdAt": "2026-04-05T11:00:00Z",
+    "updatedAt": "2026-04-12T09:00:00Z"
+  }
+]

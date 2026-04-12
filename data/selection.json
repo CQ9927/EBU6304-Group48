@@ -1,1 +1,18 @@
-[]
+[
+  {
+    "selectionId": "S-DEMO-001",
+    "applicationId": "A-DEMO-003",
+    "jobId": "J-DEMO-001",
+    "reviewerUserId": "U-DEMO-MO",
+    "decision": "REJECTED",
+    "decisionAt": "2026-04-12T08:30:00Z"
+  },
+  {
+    "selectionId": "S-DEMO-002",
+    "applicationId": "A-DEMO-004",
+    "jobId": "J-DEMO-003",
+    "reviewerUserId": "U-DEMO-MO",
+    "decision": "SELECTED",
+    "decisionAt": "2026-04-12T09:00:00Z"
+  }
+]

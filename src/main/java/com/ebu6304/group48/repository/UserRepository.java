@@ -7,6 +7,7 @@ import com.google.gson.GsonBuilder;
 import com.google.gson.reflect.TypeToken;
 
 import java.io.IOException;
+import java.io.InputStream;
 import java.lang.reflect.Type;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
@@ -30,20 +31,26 @@ public class UserRepository {
         this.usersFile = Path.of(dataDirectory, "users.json");
     }
 
+    /**
+     * Ensures {@code users.json} exists. Seeds from bundled {@code data/users.json} when empty.
+     * When the file already has users, syncs bundled demo accounts by {@code username} (case-insensitive):
+     * missing usernames are appended; existing demo rows are updated from the bundle (fixes wrong password hashes).
+     */
     public void ensureStorage() throws IOException {
         synchronized (FILE_LOCK) {
             Files.createDirectories(usersFile.getParent());
+            List<User> bundled = loadBundledDemoUsers();
             if (!Files.exists(usersFile) || isEmptyOrBlankArray(usersFile)) {
-                Files.writeString(usersFile, GSON.toJson(defaultSeedUsers()), StandardCharsets.UTF_8);
+                Files.writeString(usersFile, GSON.toJson(bundled), StandardCharsets.UTF_8);
                 return;
             }
             String json = Files.readString(usersFile, StandardCharsets.UTF_8);
-            List<User> users = GSON.fromJson(json, LIST_TYPE);
-            if (users == null) {
-                users = new ArrayList<>();
+            List<User> existing = GSON.fromJson(json, LIST_TYPE);
+            if (existing == null) {
+                existing = new ArrayList<>();
             }
-            if (syncBundledDemoAccounts(users, defaultSeedUsers())) {
-                Files.writeString(usersFile, GSON.toJson(users), StandardCharsets.UTF_8);
+            if (syncBundledDemoAccounts(existing, bundled)) {
+                Files.writeString(usersFile, GSON.toJson(existing), StandardCharsets.UTF_8);
             }
         }
     }
@@ -53,7 +60,26 @@ public class UserRepository {
         return s.isEmpty() || "[]".equals(s);
     }
 
-    private static List<User> defaultSeedUsers() {
+    /** Demo accounts from classpath {@code data/users.json} (same file as repo {@code data/users.json}). */
+    private static List<User> loadBundledDemoUsers() {
+        ClassLoader cl = UserRepository.class.getClassLoader();
+        try (InputStream in = cl != null ? cl.getResourceAsStream("data/users.json") : null) {
+            if (in == null) {
+                return fallbackBundledDemoUsers();
+            }
+            String s = new String(in.readAllBytes(), StandardCharsets.UTF_8);
+            List<User> list = GSON.fromJson(s, LIST_TYPE);
+            if (list == null || list.isEmpty()) {
+                return fallbackBundledDemoUsers();
+            }
+            return new ArrayList<>(list);
+        } catch (IOException e) {
+            return fallbackBundledDemoUsers();
+        }
+    }
+
+    /** Last resort if {@code data/users.json} is not on the classpath (should not happen in packaged WAR). */
+    private static List<User> fallbackBundledDemoUsers() {
         List<User> list = new ArrayList<>();
         list.add(seed("U-DEMO-TA", "ta_demo", "TA", "2d34b116983a0624d54b569bef06385437e76ad5c35081252278961101a15f50", "2026-03-01T00:00:00Z"));
         list.add(seed("U-DEMO-TA2", "ta_li", "TA", "f40c0dd739c8f2859ff71f5a083d564594270af77873dfe000ff8448718160ec", "2026-03-15T10:00:00Z"));
