@@ -12,7 +12,7 @@
 | `/ta/profile` | `TaProfileServlet` | `ta/profile.jsp` | `profiles.json` | zzzskl |
 | `/ta/cv` | `TaCvServlet` | `ta/cv.jsp` | `profiles.json`, `CV_*.txt/json` | zzzskl |
 | `/ta/jobs` | `TaJobsServlet` | `ta/jobs.jsp` | `jobs.json` | SpPt2FeMa |
-| `/ta/apply` | `TaApplyServlet` | `ta/apply.jsp` | `applications.json` | SpPt2FeMa |
+| `/ta/apply` | `TaApplyServlet` | — (redirect back to jobs) | `applications.json` | SpPt2FeMa |
 | `/ta/status` | `TaStatusServlet` | `ta/status.jsp` | `applications.json` | SpPt2FeMa |
 | `/mo/dashboard` | `MoDashboardServlet` | `mo/dashboard.jsp` | — | Placeholder → extend |
 | `/mo/jobs/new` | `MoPostJobServlet` | `mo/post-job.jsp` | `jobs.json` | yunmengdd |
@@ -31,3 +31,8 @@
 - Owner writes first implementation and unit-level checks.
 - Any change to shared modules requires at least one review approval.
 - Data contract changes must update `DATA_SCHEMA.md` in the same PR.
+
+## MO Status Update Contract (with yunmengdd)
+- MO side updates application status only via `ApplicationRepository.updateStatus(...)`.
+- Allowed status enum: `SUBMITTED`, `UNDER_REVIEW`, `SELECTED`, `REJECTED`.
+- Recommended flow for UI/action buttons: `SUBMITTED -> UNDER_REVIEW -> SELECTED/REJECTED`.

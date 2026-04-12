@@ -66,8 +66,23 @@
         <a href="${pageContext.request.contextPath}/ta/profile">Profile</a>
         <a href="${pageContext.request.contextPath}/ta/cv">CV</a>
         <a href="${pageContext.request.contextPath}/ta/jobs" style="font-weight: bold;">Jobs</a>
+        <a href="${pageContext.request.contextPath}/ta/status">Status</a>
         <a href="${pageContext.request.contextPath}/logout" style="margin-left: auto;">Logout</a>
     </div>
+
+    <c:if test="${not empty sessionScope.message}">
+        <div class="alert alert-info">
+            ${sessionScope.message}
+            <c:remove var="message" scope="session"/>
+        </div>
+    </c:if>
+
+    <c:if test="${not empty sessionScope.error}">
+        <div class="alert alert-warning">
+            ${sessionScope.error}
+            <c:remove var="error" scope="session"/>
+        </div>
+    </c:if>
 
     <c:if test="${not empty userProfile}">
         <div class="stats">
