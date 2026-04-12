@@ -5,32 +5,22 @@
 <head>
     <meta charset="UTF-8"/>
     <meta name="viewport" content="width=device-width, initial-scale=1"/>
+    <meta name="view-transition" content="same-origin"/>
     <title>Application Status</title>
     <link rel="stylesheet" href="${pageContext.request.contextPath}/css/app.css"/>
 </head>
 <body>
-<header class="site-header">
-    <div class="site-header__inner">
-        <a class="site-brand" href="${pageContext.request.contextPath}/home">TA Recruitment</a>
-    </div>
-</header>
+<jsp:include page="/WEB-INF/jsp/_include/app-header.jsp"/>
 <main class="site-main">
-<h1 class="page-title">My Application Status</h1>
-
-<div class="nav">
-    <a href="${pageContext.request.contextPath}/home">Home</a>
-    <a href="${pageContext.request.contextPath}/ta/profile">Profile</a>
-    <a href="${pageContext.request.contextPath}/ta/cv">CV</a>
-    <a href="${pageContext.request.contextPath}/ta/jobs">Jobs</a>
-    <a href="${pageContext.request.contextPath}/ta/status" class="nav-link--current">Status</a>
-    <a href="${pageContext.request.contextPath}/logout" class="nav-spacer">Logout</a>
-</div>
-
-<p class="text-muted"><a href="${pageContext.request.contextPath}/ta/status">Refresh</a> for the latest status.</p>
+<header class="page-header">
+    <h1 class="page-title">My application status</h1>
+    <p class="lead lead--tight text-muted"><a href="${pageContext.request.contextPath}/ta/status">Refresh</a> for the latest updates.</p>
+</header>
 
 <c:choose>
     <c:when test="${not empty applications}">
-        <div class="card" style="padding:0;overflow:hidden;">
+        <div class="card card--flush">
+        <div class="table-scroll">
         <table class="job-table">
             <thead>
             <tr>
@@ -63,6 +53,7 @@
             </c:forEach>
             </tbody>
         </table>
+        </div>
         </div>
     </c:when>
     <c:otherwise>

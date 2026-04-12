@@ -5,24 +5,17 @@
 <head>
     <meta charset="UTF-8"/>
     <meta name="viewport" content="width=device-width, initial-scale=1"/>
+    <meta name="view-transition" content="same-origin"/>
     <title>Admin — Workload</title>
     <link rel="stylesheet" href="${pageContext.request.contextPath}/css/app.css"/>
 </head>
 <body>
-<header class="site-header">
-    <div class="site-header__inner">
-        <a class="site-brand" href="${pageContext.request.contextPath}/home">TA Recruitment</a>
-    </div>
-</header>
+<jsp:include page="/WEB-INF/jsp/_include/app-header.jsp"/>
 <main class="site-main">
-<h1 class="page-title">Admin workload</h1>
-<p class="lead">Welcome, <strong>${username}</strong>.</p>
-
-<div class="nav">
-    <a href="${pageContext.request.contextPath}/home">Home</a>
-    <a href="${pageContext.request.contextPath}/admin/workload" class="nav-link--current">Workload</a>
-    <a href="${pageContext.request.contextPath}/logout" class="nav-spacer">Logout</a>
-</div>
+<header class="page-header">
+    <h1 class="page-title">Admin workload</h1>
+    <p class="lead">Welcome, <strong>${username}</strong>.</p>
+</header>
 
 <div class="stats-grid">
     <div class="card"><div class="label">Total Jobs</div><div class="value">${snapshot.totalJobs}</div></div>
@@ -58,7 +51,7 @@
     <h2>Per-job workload</h2>
     <c:choose>
         <c:when test="${not empty snapshot.rows}">
-            <div style="overflow-x:auto;">
+            <div class="table-scroll">
             <table class="data-table">
                 <thead>
                 <tr>

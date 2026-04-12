@@ -199,6 +199,7 @@ public class TaJobsServlet extends HttpServlet {
         req.setAttribute("typeFilter", typeFilter);
         req.setAttribute("semesterFilter", semesterFilter);
         req.setAttribute("skillFilter", skillFilter);
+        req.setAttribute("navCurrent", "jobs");
         req.getRequestDispatcher("/WEB-INF/jsp/ta/jobs.jsp").forward(req, resp);
     }
 }

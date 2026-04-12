@@ -4,18 +4,31 @@
 <head>
     <meta charset="UTF-8"/>
     <meta name="viewport" content="width=device-width, initial-scale=1"/>
+    <meta name="view-transition" content="same-origin"/>
     <title>Login</title>
     <link rel="stylesheet" href="${pageContext.request.contextPath}/css/app.css"/>
 </head>
 <body>
-<header class="site-header">
-    <div class="site-header__inner">
-        <a class="site-brand" href="${pageContext.request.contextPath}/home">TA Recruitment</a>
-    </div>
-</header>
-<main class="site-main site-main--auth">
+<jsp:include page="/WEB-INF/jsp/_include/app-header.jsp">
+    <jsp:param name="guest" value="true"/>
+</jsp:include>
+<main class="site-main site-main--auth auth-layout">
     <div class="auth-card">
         <h1 class="page-title">Sign in</h1>
+        <p class="auth-card__subtitle">Use your course demo account or register a new user.</p>
+        <% if (request.getAttribute("message") != null) {
+            String m = String.valueOf(request.getAttribute("message"));
+            String alertClass = "alert-info";
+            if (m.contains("Invalid")) {
+                alertClass = "alert-error";
+            } else if (m.contains("successful") || m.contains("Registration")) {
+                alertClass = "alert-success";
+            } else if (m.contains("access") || m.contains("Access")) {
+                alertClass = "alert-warning";
+            }
+        %>
+        <div class="alert <%= alertClass %>" role="status"><%= m %></div>
+        <% } %>
         <form method="post" action="${pageContext.request.contextPath}/login">
             <% if (request.getParameter("next") != null) { %>
             <input type="hidden" name="next" value="${param.next}"/>
@@ -28,16 +41,13 @@
                 <label for="password">Password</label>
                 <input type="password" id="password" name="password" autocomplete="current-password" required/>
             </div>
-            <button type="submit" class="btn btn-primary" style="width:100%;margin-top:0.25rem;">Sign in</button>
+            <button type="submit" class="btn btn-primary btn-block">Sign in</button>
         </form>
-        <% if (request.getAttribute("message") != null) { %>
-        <p class="msg"><%= request.getAttribute("message") %></p>
-        <% } %>
-        <p class="footer-links" style="border:none;margin-top:1.25rem;padding-top:0;">
+        <div class="auth-footer">
             <a href="${pageContext.request.contextPath}/register">Create an account</a>
-            ·
+            <span class="auth-footer__sep">·</span>
             <a href="${pageContext.request.contextPath}/home">Back to home</a>
-        </p>
+        </div>
     </div>
 </main>
 </body>

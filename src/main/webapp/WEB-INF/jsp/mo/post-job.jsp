@@ -5,23 +5,23 @@
 <head>
     <meta charset="UTF-8"/>
     <meta name="viewport" content="width=device-width, initial-scale=1"/>
+    <meta name="view-transition" content="same-origin"/>
     <title>Post New Job</title>
     <link rel="stylesheet" href="${pageContext.request.contextPath}/css/app.css"/>
 </head>
 <body>
-<header class="site-header">
-    <div class="site-header__inner">
-        <a class="site-brand" href="${pageContext.request.contextPath}/home">TA Recruitment</a>
-    </div>
-</header>
+<jsp:include page="/WEB-INF/jsp/_include/app-header.jsp"/>
 <main class="site-main">
-<h1 class="page-title">Post new job</h1>
+<header class="page-header">
+    <h1 class="page-title">Post new job</h1>
+    <p class="lead lead--tight text-muted">Create a vacancy and review jobs in storage.</p>
+</header>
 
 <c:if test="${param.saved == '1'}">
-    <p class="ok">Job has been saved.</p>
+    <div class="alert alert-success" role="status">Job has been saved.</div>
 </c:if>
 <c:if test="${not empty error}">
-    <p class="error">${error}</p>
+    <div class="alert alert-error" role="alert">${error}</div>
 </c:if>
 
 <div class="card">
@@ -54,12 +54,13 @@
         <label for="requiredSkills">Required skills (comma-separated)</label><br/>
         <input type="text" id="requiredSkills" name="requiredSkills" placeholder="Java, Teaching, Algorithms"/>
     </p>
-    <p style="margin-bottom:0;"><button type="submit" class="btn btn-primary">Create job</button></p>
+    <p><button type="submit" class="btn btn-primary">Create job</button></p>
 </form>
 </div>
 
 <p class="hint">Jobs in storage (newest first):</p>
-<div class="card" style="padding:0;overflow:hidden;">
+<div class="card card--flush">
+<div class="table-scroll">
 <table class="data-table">
     <thead>
     <tr>
@@ -84,6 +85,7 @@
     </c:forEach>
     </tbody>
 </table>
+</div>
 </div>
 
 <p class="footer-links">

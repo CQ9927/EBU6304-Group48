@@ -44,6 +44,27 @@
 
     <build>
         <finalName>ta-recruitment</finalName>
+        <!-- Bundle repo data/*.json and data/cvs/* for runtime seeding (single source of truth). -->
+        <resources>
+            <resource>
+                <directory>src/main/resources</directory>
+            </resource>
+            <resource>
+                <directory>data</directory>
+                <targetPath>data</targetPath>
+                <includes>
+                    <include>users.json</include>
+                    <include>profiles.json</include>
+                    <include>jobs.json</include>
+                    <include>applications.json</include>
+                    <include>selection.json</include>
+                </includes>
+            </resource>
+            <resource>
+                <directory>data/cvs</directory>
+                <targetPath>data/cvs</targetPath>
+            </resource>
+        </resources>
         <plugins>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>

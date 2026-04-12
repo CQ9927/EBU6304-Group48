@@ -68,6 +68,7 @@ public class MoSelectServlet extends HttpServlet {
         req.setAttribute("jobs", jobs);
         req.setAttribute("selectedJobId", selectedJobId);
         req.setAttribute("applications", filteredApplications);
+        req.setAttribute("navCurrent", "select");
         req.getRequestDispatcher("/WEB-INF/jsp/mo/select.jsp").forward(req, resp);
     }
 

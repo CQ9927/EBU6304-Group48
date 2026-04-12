@@ -4,35 +4,34 @@
 <head>
     <meta charset="UTF-8"/>
     <meta name="viewport" content="width=device-width, initial-scale=1"/>
+    <meta name="view-transition" content="same-origin"/>
     <title>TA Dashboard</title>
     <link rel="stylesheet" href="${pageContext.request.contextPath}/css/app.css"/>
 </head>
 <body>
-<header class="site-header">
-    <div class="site-header__inner">
-        <a class="site-brand" href="${pageContext.request.contextPath}/home">TA Recruitment</a>
-    </div>
-</header>
+<jsp:include page="/WEB-INF/jsp/_include/app-header.jsp"/>
 <main class="site-main">
-    <h1 class="page-title">TA dashboard</h1>
-    <p class="lead">Welcome, <strong>${username}</strong>.</p>
-    <div class="card">
-        <p style="margin-top:0;">
-            <a href="${pageContext.request.contextPath}/ta/profile">Profile</a>
-            ·
-            <a href="${pageContext.request.contextPath}/ta/cv">CV</a>
-            ·
-            <a href="${pageContext.request.contextPath}/ta/jobs">Jobs</a>
-            ·
-            <a href="${pageContext.request.contextPath}/ta/status">Status</a>
-        </p>
-        <p class="text-muted" style="margin-bottom:0;">Route map: <code>docs/ROUTES_AND_MODULES.md</code></p>
+    <header class="page-header">
+        <h1 class="page-title">TA dashboard</h1>
+        <p class="lead">Welcome, <strong>${username}</strong>. Here is a quick snapshot of open roles and your applications.</p>
+    </header>
+
+    <div class="stats-grid">
+        <div class="card"><div class="label">Open positions</div><div class="value">${openJobsCount}</div></div>
+        <div class="card"><div class="label">My applications</div><div class="value">${myApplicationsTotal}</div></div>
+        <div class="card"><div class="label">Submitted</div><div class="value">${myApplicationsSubmitted}</div></div>
+        <div class="card"><div class="label">Under review</div><div class="value">${myApplicationsUnderReview}</div></div>
+        <div class="card"><div class="label">Selected</div><div class="value">${myApplicationsSelected}</div></div>
+        <div class="card"><div class="label">Rejected</div><div class="value">${myApplicationsRejected}</div></div>
     </div>
-    <p class="footer-links">
-        <a href="${pageContext.request.contextPath}/home">Home</a>
-        ·
-        <a href="${pageContext.request.contextPath}/logout">Logout</a>
-    </p>
+
+    <div class="card dashboard-actions">
+        <p class="card__label">Next steps</p>
+        <div class="action-row">
+            <a class="btn btn-primary" href="${pageContext.request.contextPath}/ta/jobs">Browse jobs</a>
+            <a class="btn btn-ghost" href="${pageContext.request.contextPath}/ta/status">View application status</a>
+        </div>
+    </div>
 </main>
 </body>
 </html>

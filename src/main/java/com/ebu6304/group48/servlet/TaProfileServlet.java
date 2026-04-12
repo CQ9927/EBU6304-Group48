@@ -165,6 +165,7 @@ public class TaProfileServlet extends HttpServlet {
         String userId = (String) session.getAttribute(SessionKeys.USER_ID);
         Profile profile = profileRepository.findByUserId(userId);
         req.setAttribute("profile", profile);
+        req.setAttribute("navCurrent", "profile");
         req.getRequestDispatcher("/WEB-INF/jsp/ta/profile.jsp").forward(req, resp);
     }
 

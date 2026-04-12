@@ -50,19 +50,22 @@ Then open `http://localhost:9080/ta-recruitment/` (or `8080` without override). 
 
 ### Data files
 
-- **Committed samples (empty arrays):** `data/*.json` in the repo — use as templates.
 - **Runtime directory (default):** `${user.home}/ebu6304-group48-data/` on the machine running Tomcat.  
   Override with context param `dataDirectory` in `src/main/webapp/WEB-INF/web.xml` (see comment there).
+- **Demo dataset (repo):** [`data/`](data/) is bundled into the WAR under `classpath:data/`. On startup, `DemoDataContextListener` copies `profiles.json`, `jobs.json`, `applications.json`, and `selection.json` into the **runtime** directory when each file is missing or contains only `[]`, and copies missing files from `data/cvs/` into `{runtime}/cvs/`. `users.json` is synced separately by `UserRepository`. You can still copy or edit runtime files by hand when needed.
 
 ### Demo accounts (development)
 
-On first use, if `users.json` is missing or empty in the **runtime** data directory, three users are created automatically (password for all: **`demo123`**):
+Bundled demo users come from [`data/users.json`](data/users.json), which is also packaged into the WAR (`classpath:data/users.json`). Password for every account below is **`demo123`**.
 
 | Username | Role |
 |----------|------|
 | `ta_demo` | TA |
+| `ta_li` | TA |
 | `mo_demo` | MO |
 | `admin_demo` | ADMIN |
+
+**Behaviour:** If runtime `users.json` is missing or empty (`[]`), it is filled with that full list. If the file already has users, each bundled demo username (case-insensitive) is **updated** from the bundle or **appended** if missing — so wrong password hashes in older files are corrected on the next access, without removing non-demo registrations.
 
 Passwords are stored as **SHA-256** hashes (see `PasswordHash`) — fine for coursework; document limitations in the report.
 

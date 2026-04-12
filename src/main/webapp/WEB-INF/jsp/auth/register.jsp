@@ -4,20 +4,20 @@
 <head>
     <meta charset="UTF-8"/>
     <meta name="viewport" content="width=device-width, initial-scale=1"/>
+    <meta name="view-transition" content="same-origin"/>
     <title>Register</title>
     <link rel="stylesheet" href="${pageContext.request.contextPath}/css/app.css"/>
 </head>
 <body>
-<header class="site-header">
-    <div class="site-header__inner">
-        <a class="site-brand" href="${pageContext.request.contextPath}/home">TA Recruitment</a>
-    </div>
-</header>
-<main class="site-main site-main--auth">
+<jsp:include page="/WEB-INF/jsp/_include/app-header.jsp">
+    <jsp:param name="guest" value="true"/>
+</jsp:include>
+<main class="site-main site-main--auth auth-layout">
     <div class="auth-card">
         <h1 class="page-title">Register</h1>
+        <p class="auth-card__subtitle">Choose a role for the coursework demo. Passwords are stored as a simple hash only.</p>
         <% if (request.getAttribute("error") != null) { %>
-        <p class="err"><%= request.getAttribute("error") %></p>
+        <div class="alert alert-error" role="alert"><%= request.getAttribute("error") %></div>
         <% } %>
         <form method="post" action="${pageContext.request.contextPath}/register">
             <div class="form-group">
@@ -40,11 +40,11 @@
                     <option value="ADMIN">Admin</option>
                 </select>
             </div>
-            <button type="submit" class="btn btn-primary" style="width:100%;">Register</button>
+            <button type="submit" class="btn btn-primary btn-block">Create account</button>
         </form>
-        <p class="footer-links" style="border:none;margin-top:1.25rem;padding-top:0;">
+        <div class="auth-footer">
             <a href="${pageContext.request.contextPath}/login">Already have an account</a>
-        </p>
+        </div>
     </div>
 </main>
 </body>

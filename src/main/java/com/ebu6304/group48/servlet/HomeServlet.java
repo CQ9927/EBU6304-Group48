@@ -1,6 +1,6 @@
 package com.ebu6304.group48.servlet;
 
-import com.ebu6304.group48.config.AppPaths;
+import com.ebu6304.group48.util.RoleLanding;
 import com.ebu6304.group48.util.SessionKeys;
 
 import javax.servlet.ServletException;
@@ -16,14 +16,11 @@ public class HomeServlet extends HttpServlet {
 
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
-        req.setAttribute("dataDirectory", AppPaths.resolveDataDirectory(getServletContext()));
         HttpSession session = req.getSession(false);
-        if (session != null) {
-            req.setAttribute("loggedIn", session.getAttribute(SessionKeys.USER_ID) != null);
-            req.setAttribute("username", session.getAttribute(SessionKeys.USERNAME));
-            req.setAttribute("role", session.getAttribute(SessionKeys.ROLE));
-        } else {
-            req.setAttribute("loggedIn", false);
+        if (session != null && session.getAttribute(SessionKeys.USER_ID) != null) {
+            String role = String.valueOf(session.getAttribute(SessionKeys.ROLE));
+            resp.sendRedirect(resp.encodeRedirectURL(req.getContextPath() + RoleLanding.defaultPath(role)));
+            return;
         }
         req.getRequestDispatcher("/WEB-INF/jsp/home.jsp").forward(req, resp);
     }

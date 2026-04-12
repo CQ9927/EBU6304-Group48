@@ -5,28 +5,28 @@
 <head>
     <meta charset="UTF-8"/>
     <meta name="viewport" content="width=device-width, initial-scale=1"/>
+    <meta name="view-transition" content="same-origin"/>
     <title>Select Applicants</title>
     <link rel="stylesheet" href="${pageContext.request.contextPath}/css/app.css"/>
 </head>
 <body>
-<header class="site-header">
-    <div class="site-header__inner">
-        <a class="site-brand" href="${pageContext.request.contextPath}/home">TA Recruitment</a>
-    </div>
-</header>
+<jsp:include page="/WEB-INF/jsp/_include/app-header.jsp"/>
 <main class="site-main">
-<h1 class="page-title">MO selection</h1>
+<header class="page-header">
+    <h1 class="page-title">MO selection</h1>
+    <p class="lead lead--tight text-muted">Filter applications and update status.</p>
+</header>
 
 <c:if test="${param.saved == '1'}">
-    <p class="ok">Decision saved.</p>
+    <div class="alert alert-success" role="status">Decision saved.</div>
 </c:if>
 <c:if test="${param.error == '1'}">
-    <p class="error">Failed to save decision. Please retry.</p>
+    <div class="alert alert-error" role="alert">Failed to save decision. Please retry.</div>
 </c:if>
 
 <div class="card">
-<form method="get" action="${pageContext.request.contextPath}/mo/jobs/select" style="display:flex;flex-wrap:wrap;gap:0.75rem;align-items:flex-end;margin:0;">
-    <div class="form-group" style="margin-bottom:0;min-width:12rem;">
+<form method="get" action="${pageContext.request.contextPath}/mo/jobs/select" class="filter-bar">
+    <div class="form-group">
         <label for="jobId">Choose job</label>
         <select id="jobId" name="jobId">
             <option value="">— all jobs —</option>
@@ -41,7 +41,8 @@
 </form>
 </div>
 
-<div class="card" style="padding:0;overflow:hidden;">
+<div class="card card--flush">
+<div class="table-scroll">
 <table class="data-table">
     <thead>
     <tr>
@@ -89,6 +90,7 @@
     </c:forEach>
     </tbody>
 </table>
+</div>
 </div>
 
 <p class="text-muted">Status flow: SUBMITTED → UNDER_REVIEW → SELECTED / REJECTED</p>

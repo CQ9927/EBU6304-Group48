@@ -4,30 +4,31 @@
 <head>
     <meta charset="UTF-8"/>
     <meta name="viewport" content="width=device-width, initial-scale=1"/>
+    <meta name="view-transition" content="same-origin"/>
     <title>MO Dashboard</title>
     <link rel="stylesheet" href="${pageContext.request.contextPath}/css/app.css"/>
 </head>
 <body>
-<header class="site-header">
-    <div class="site-header__inner">
-        <a class="site-brand" href="${pageContext.request.contextPath}/home">TA Recruitment</a>
-    </div>
-</header>
+<jsp:include page="/WEB-INF/jsp/_include/app-header.jsp"/>
 <main class="site-main">
-    <h1 class="page-title">MO dashboard</h1>
-    <p class="lead">Welcome, <strong>${username}</strong>.</p>
-    <div class="card">
-        <p style="margin-top:0;">
-            <a href="${pageContext.request.contextPath}/mo/jobs/new">Post a new job</a>
-            ·
-            <a href="${pageContext.request.contextPath}/mo/jobs/select">Review applications</a>
-        </p>
+    <header class="page-header">
+        <h1 class="page-title">MO dashboard</h1>
+        <p class="lead">Welcome, <strong>${username}</strong>. Summary of jobs you posted and applications awaiting action.</p>
+    </header>
+
+    <div class="stats-grid stats-grid--narrow">
+        <div class="card"><div class="label">My job posts</div><div class="value">${myJobsTotal}</div></div>
+        <div class="card"><div class="label">My open jobs</div><div class="value">${myOpenJobs}</div></div>
+        <div class="card"><div class="label">Applications to review</div><div class="value">${pendingApplications}</div></div>
     </div>
-    <p class="footer-links">
-        <a href="${pageContext.request.contextPath}/home">Home</a>
-        ·
-        <a href="${pageContext.request.contextPath}/logout">Logout</a>
-    </p>
+
+    <div class="card dashboard-actions">
+        <p class="card__label">Actions</p>
+        <div class="action-row">
+            <a class="btn btn-primary" href="${pageContext.request.contextPath}/mo/jobs/new">Post a new job</a>
+            <a class="btn btn-ghost" href="${pageContext.request.contextPath}/mo/jobs/select">Review applications</a>
+        </div>
+    </div>
 </main>
 </body>
 </html>

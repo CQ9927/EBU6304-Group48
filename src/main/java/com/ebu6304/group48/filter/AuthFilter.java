@@ -1,5 +1,6 @@
 package com.ebu6304.group48.filter;
 
+import com.ebu6304.group48.util.RoleLanding;
 import com.ebu6304.group48.util.SessionKeys;
 
 import javax.servlet.Filter;
@@ -55,7 +56,8 @@ public class AuthFilter implements Filter {
             return;
         }
         if (!requiredRole.equals(String.valueOf(role))) {
-            resp.sendRedirect(req.getContextPath() + "/login?error=forbidden");
+            String landingPath = RoleLanding.defaultPath(String.valueOf(role));
+            resp.sendRedirect(resp.encodeRedirectURL(req.getContextPath() + landingPath + "?notice=forbidden"));
             return;
         }
 
