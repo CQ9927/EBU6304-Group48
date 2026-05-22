@@ -65,6 +65,7 @@ public class AuthFilter implements Filter {
     }
 
     private static String urlEncode(String path) {
+        // Charset overload: no checked UnsupportedEncodingException (unlike encode(String, String))
         return java.net.URLEncoder.encode(path, StandardCharsets.UTF_8);
     }
 

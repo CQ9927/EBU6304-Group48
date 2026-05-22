@@ -13,12 +13,18 @@ import java.io.IOException;
 import java.time.Instant;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Set;
+import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 @WebServlet(name = "MoPostJobServlet", urlPatterns = "/mo/jobs/new")
 public class MoPostJobServlet extends HttpServlet {
 
     private JobRepository jobRepository;
+
+    private static final Set<String> VALID_JOB_TYPES = Set.of("MODULE", "INVIGILATION");
+    private static final Pattern SCHEDULE_PATTERN =
+            Pattern.compile("^(MON|TUE|WED|THU|FRI|SAT|SUN)_(0[0-9]|1[0-9]|2[0-3])_(0[0-9]|1[0-9]|2[0-3])$");
 
     @Override
     public void init() {
@@ -27,7 +33,11 @@ public class MoPostJobServlet extends HttpServlet {
 
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
-        req.setAttribute("jobs", jobRepository.findAll());
+        String userId = String.valueOf(req.getSession().getAttribute(SessionKeys.USER_ID));
+        List<Job> myJobs = jobRepository.findAll().stream()
+                .filter(job -> userId.equals(job.getPostedByUserId()))
+                .collect(Collectors.toList());
+        req.setAttribute("jobs", myJobs);
         req.setAttribute("navCurrent", "post");
         req.getRequestDispatcher("/WEB-INF/jsp/mo/post-job.jsp").forward(req, resp);
     }
@@ -44,7 +54,25 @@ public class MoPostJobServlet extends HttpServlet {
         Integer capacity = parseCapacity(capacityRaw);
         if (title.isEmpty() || type.isEmpty() || semester.isEmpty() || schedule.isEmpty() || capacity == null) {
             req.setAttribute("error", "Please fill all required fields. Capacity must be a positive integer.");
-            req.setAttribute("jobs", jobRepository.findAll());
+            setMyJobsAttribute(req);
+            req.setAttribute("navCurrent", "post");
+            req.getRequestDispatcher("/WEB-INF/jsp/mo/post-job.jsp").forward(req, resp);
+            return;
+        }
+
+        // Type whitelist validation
+        if (!VALID_JOB_TYPES.contains(type)) {
+            req.setAttribute("error", "Invalid job type. Allowed values: MODULE, INVIGILATION.");
+            setMyJobsAttribute(req);
+            req.setAttribute("navCurrent", "post");
+            req.getRequestDispatcher("/WEB-INF/jsp/mo/post-job.jsp").forward(req, resp);
+            return;
+        }
+
+        // Schedule format validation
+        if (!SCHEDULE_PATTERN.matcher(schedule).matches()) {
+            req.setAttribute("error", "Invalid schedule format. Expected: DAY_HH_HH (e.g., WED_18_20).");
+            setMyJobsAttribute(req);
             req.setAttribute("navCurrent", "post");
             req.getRequestDispatcher("/WEB-INF/jsp/mo/post-job.jsp").forward(req, resp);
             return;
@@ -53,6 +81,7 @@ public class MoPostJobServlet extends HttpServlet {
         List<String> requiredSkills = Arrays.stream(requiredSkillsRaw.split(","))
                 .map(String::trim)
                 .filter(s -> !s.isEmpty())
+                .distinct()
                 .collect(Collectors.toList());
 
         String userId = String.valueOf(req.getSession().getAttribute(SessionKeys.USER_ID));
@@ -71,12 +100,20 @@ public class MoPostJobServlet extends HttpServlet {
         boolean ok = jobRepository.save(job);
         if (!ok) {
             req.setAttribute("error", "Failed to save job. Please retry.");
-            req.setAttribute("jobs", jobRepository.findAll());
+            setMyJobsAttribute(req);
             req.setAttribute("navCurrent", "post");
             req.getRequestDispatcher("/WEB-INF/jsp/mo/post-job.jsp").forward(req, resp);
             return;
         }
         resp.sendRedirect(req.getContextPath() + "/mo/jobs/new?saved=1");
+    }
+
+    private void setMyJobsAttribute(HttpServletRequest req) {
+        String userId = String.valueOf(req.getSession().getAttribute(SessionKeys.USER_ID));
+        List<Job> myJobs = jobRepository.findAll().stream()
+                .filter(job -> userId.equals(job.getPostedByUserId()))
+                .collect(Collectors.toList());
+        req.setAttribute("jobs", myJobs);
     }
 
     private static String trim(String value) {
