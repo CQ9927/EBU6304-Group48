@@ -2,8 +2,11 @@ package com.ebu6304.group48.servlet;
 
 import com.ebu6304.group48.model.Application;
 import com.ebu6304.group48.model.Job;
+import com.ebu6304.group48.model.Profile;
 import com.ebu6304.group48.repository.ApplicationRepository;
 import com.ebu6304.group48.repository.JobRepository;
+import com.ebu6304.group48.repository.ProfileRepository;
+import com.ebu6304.group48.service.MatchingService;
 import com.ebu6304.group48.util.SessionKeys;
 
 import javax.servlet.ServletException;
@@ -24,11 +27,15 @@ public class TaStatusServlet extends HttpServlet {
 
     private ApplicationRepository applicationRepository;
     private JobRepository jobRepository;
+    private ProfileRepository profileRepository;
+    private MatchingService matchingService;
 
     @Override
     public void init() throws ServletException {
         applicationRepository = new ApplicationRepository(getServletContext());
         jobRepository = new JobRepository(getServletContext());
+        profileRepository = new ProfileRepository(getServletContext());
+        matchingService = new MatchingService();
     }
 
     @Override
@@ -49,8 +56,18 @@ public class TaStatusServlet extends HttpServlet {
             jobTitles.put(job.getJobId(), job.getTitle());
         }
 
+        Profile profile = profileRepository.findByUserId(userId);
+        Map<String, MatchingService.MatchResult> matchResultMap = new HashMap<>();
+        for (Application app : applications) {
+            Job job = jobRepository.findById(app.getJobId());
+            if (job != null && profile != null) {
+                matchResultMap.put(app.getApplicationId(), matchingService.computeMatch(job, profile));
+            }
+        }
+
         req.setAttribute("applications", applications);
         req.setAttribute("jobTitles", jobTitles);
+        req.setAttribute("matchResultMap", matchResultMap);
         req.setAttribute("navCurrent", "status");
         req.getRequestDispatcher("/WEB-INF/jsp/ta/status.jsp").forward(req, resp);
     }

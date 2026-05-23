@@ -26,20 +26,46 @@
             <tr>
                 <th>Application ID</th>
                 <th>Job</th>
-                <th>Match Score</th>
+                <th>Match</th>
+                <th>Missing Skills</th>
                 <th>Status</th>
+                <th>Feedback</th>
                 <th>Last Updated</th>
             </tr>
             </thead>
             <tbody>
             <c:forEach var="app" items="${applications}">
+                <c:set var="mr" value="${matchResultMap[app.applicationId]}"/>
                 <tr>
                     <td>${app.applicationId}</td>
                     <td>
-                        ${app.jobId}
-                        <c:if test="${not empty jobTitles[app.jobId]}"> - ${jobTitles[app.jobId]}</c:if>
+                        <a href="${pageContext.request.contextPath}/ta/jobs">${jobTitles[app.jobId]}</a>
                     </td>
-                    <td>${app.matchScore}%</td>
+                    <td>
+                        <c:choose>
+                        <c:when test="${app.matchScore != null}">
+                            ${app.matchScore}%
+                            <c:if test="${not empty mr}">
+                                <br><small class="text-muted">${mr.detail}</small>
+                            </c:if>
+                        </c:when>
+                        <c:otherwise>
+                            <span class="text-muted">N/A</span>
+                        </c:otherwise>
+                    </c:choose>
+                    </td>
+                    <td>
+                        <c:choose>
+                            <c:when test="${not empty app.missingSkills}">
+                                <c:forEach var="skill" items="${app.missingSkills}">
+                                    <span class="skill-badge skill-missing">${skill}</span>
+                                </c:forEach>
+                            </c:when>
+                            <c:otherwise>
+                                <span class="text-muted">None — all skills matched</span>
+                            </c:otherwise>
+                        </c:choose>
+                    </td>
                     <td>
                         <c:choose>
                             <c:when test="${app.status == 'SUBMITTED'}"><span class="badge submitted">SUBMITTED</span></c:when>
@@ -52,6 +78,16 @@
                                     </c:when>
                                     <c:otherwise><span class="badge rejected">REJECTED</span></c:otherwise>
                                 </c:choose>
+                            </c:otherwise>
+                        </c:choose>
+                    </td>
+                    <td>
+                        <c:choose>
+                            <c:when test="${not empty app.note}">
+                                ${app.note}
+                            </c:when>
+                            <c:otherwise>
+                                <span class="text-muted">—</span>
                             </c:otherwise>
                         </c:choose>
                     </td>
