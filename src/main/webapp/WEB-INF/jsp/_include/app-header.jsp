@@ -33,7 +33,6 @@
     <a href="<%= ctx %>/ta/status" class="<%= "status".equals(navCurrent) ? "nav-link--current" : "" %>">Status</a>
     <% } else if ("MO".equals(role)) { %>
     <a href="<%= ctx %>/mo/dashboard" class="<%= "dashboard".equals(navCurrent) ? "nav-link--current" : "" %>">Dashboard</a>
-    <a href="<%= ctx %>/mo/jobs/new" class="<%= "post".equals(navCurrent) ? "nav-link--current" : "" %>">Post job</a>
     <a href="<%= ctx %>/mo/jobs/select" class="<%= "select".equals(navCurrent) ? "nav-link--current" : "" %>">Review applications</a>
     <% } else if ("ADMIN".equals(role)) { %>
     <a href="<%= ctx %>/admin/workload" class="<%= "workload".equals(navCurrent) ? "nav-link--current" : "" %>">Workload</a>

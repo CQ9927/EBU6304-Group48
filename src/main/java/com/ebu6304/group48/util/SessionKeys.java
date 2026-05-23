@@ -9,6 +9,9 @@ public final class SessionKeys {
     /** Set after banned login attempt; allows /ban-appeal to show reason without re-entering password. */
     public static final String BANNED_APPEAL_USER_ID = "bannedAppeal.pendingUserId";
 
+    /** One-shot validation message after failed MO post-job form submit. */
+    public static final String MO_POST_JOB_ERROR = "mo.postJobError";
+
     private SessionKeys() {
     }
 }

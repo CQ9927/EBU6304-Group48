@@ -32,14 +32,8 @@ public class MoPostJobServlet extends HttpServlet {
     }
 
     @Override
-    protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
-        String userId = String.valueOf(req.getSession().getAttribute(SessionKeys.USER_ID));
-        List<Job> myJobs = jobRepository.findAll().stream()
-                .filter(job -> userId.equals(job.getPostedByUserId()))
-                .collect(Collectors.toList());
-        req.setAttribute("jobs", myJobs);
-        req.setAttribute("navCurrent", "post");
-        req.getRequestDispatcher("/WEB-INF/jsp/mo/post-job.jsp").forward(req, resp);
+    protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws IOException {
+        resp.sendRedirect(req.getContextPath() + "/mo/dashboard?openPost=1");
     }
 
     @Override
@@ -53,28 +47,17 @@ public class MoPostJobServlet extends HttpServlet {
 
         Integer capacity = parseCapacity(capacityRaw);
         if (title.isEmpty() || type.isEmpty() || semester.isEmpty() || schedule.isEmpty() || capacity == null) {
-            req.setAttribute("error", "Please fill all required fields. Capacity must be a positive integer.");
-            setMyJobsAttribute(req);
-            req.setAttribute("navCurrent", "post");
-            req.getRequestDispatcher("/WEB-INF/jsp/mo/post-job.jsp").forward(req, resp);
+            forwardDashboardWithError(req, resp, "Please fill all required fields. Capacity must be a positive integer.");
             return;
         }
 
-        // Type whitelist validation
         if (!VALID_JOB_TYPES.contains(type)) {
-            req.setAttribute("error", "Invalid job type. Allowed values: MODULE, INVIGILATION.");
-            setMyJobsAttribute(req);
-            req.setAttribute("navCurrent", "post");
-            req.getRequestDispatcher("/WEB-INF/jsp/mo/post-job.jsp").forward(req, resp);
+            forwardDashboardWithError(req, resp, "Invalid job type. Allowed values: MODULE, INVIGILATION.");
             return;
         }
 
-        // Schedule format validation
         if (!SCHEDULE_PATTERN.matcher(schedule).matches()) {
-            req.setAttribute("error", "Invalid schedule format. Expected: DAY_HH_HH (e.g., WED_18_20).");
-            setMyJobsAttribute(req);
-            req.setAttribute("navCurrent", "post");
-            req.getRequestDispatcher("/WEB-INF/jsp/mo/post-job.jsp").forward(req, resp);
+            forwardDashboardWithError(req, resp, "Invalid schedule format. Expected: DAY_HH_HH (e.g., WED_18_20).");
             return;
         }
 
@@ -99,21 +82,16 @@ public class MoPostJobServlet extends HttpServlet {
 
         boolean ok = jobRepository.save(job);
         if (!ok) {
-            req.setAttribute("error", "Failed to save job. Please retry.");
-            setMyJobsAttribute(req);
-            req.setAttribute("navCurrent", "post");
-            req.getRequestDispatcher("/WEB-INF/jsp/mo/post-job.jsp").forward(req, resp);
+            forwardDashboardWithError(req, resp, "Failed to save job. Please retry.");
             return;
         }
-        resp.sendRedirect(req.getContextPath() + "/mo/jobs/new?saved=1");
+        resp.sendRedirect(req.getContextPath() + "/mo/dashboard?saved=1");
     }
 
-    private void setMyJobsAttribute(HttpServletRequest req) {
-        String userId = String.valueOf(req.getSession().getAttribute(SessionKeys.USER_ID));
-        List<Job> myJobs = jobRepository.findAll().stream()
-                .filter(job -> userId.equals(job.getPostedByUserId()))
-                .collect(Collectors.toList());
-        req.setAttribute("jobs", myJobs);
+    private void forwardDashboardWithError(HttpServletRequest req, HttpServletResponse resp, String error)
+            throws IOException {
+        req.getSession().setAttribute(SessionKeys.MO_POST_JOB_ERROR, error);
+        resp.sendRedirect(req.getContextPath() + "/mo/dashboard?openPost=1");
     }
 
     private static String trim(String value) {
