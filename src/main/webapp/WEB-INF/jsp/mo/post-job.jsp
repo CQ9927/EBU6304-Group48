@@ -44,7 +44,29 @@
     </p>
     <p>
         <label for="schedule">Schedule *</label><br/>
-        <input type="text" id="schedule" name="schedule" placeholder="e.g. WED_18_20" required/>
+        <select id="schedule" name="schedule" required>
+            <option value="">— choose —</option>
+            <option value="MON_09_12">MON_09_12</option>
+            <option value="MON_14_16">MON_14_16</option>
+            <option value="MON_18_20">MON_18_20</option>
+            <option value="TUE_09_12">TUE_09_12</option>
+            <option value="TUE_14_16">TUE_14_16</option>
+            <option value="TUE_18_20">TUE_18_20</option>
+            <option value="WED_09_12">WED_09_12</option>
+            <option value="WED_14_16">WED_14_16</option>
+            <option value="WED_18_20">WED_18_20</option>
+            <option value="THU_09_12">THU_09_12</option>
+            <option value="THU_14_16">THU_14_16</option>
+            <option value="THU_18_20">THU_18_20</option>
+            <option value="FRI_09_12">FRI_09_12</option>
+            <option value="FRI_10_12">FRI_10_12</option>
+            <option value="FRI_14_16">FRI_14_16</option>
+            <option value="FRI_18_20">FRI_18_20</option>
+            <option value="SAT_09_12">SAT_09_12</option>
+            <option value="SAT_14_16">SAT_14_16</option>
+            <option value="SUN_09_12">SUN_09_12</option>
+            <option value="SUN_14_16">SUN_14_16</option>
+        </select>
     </p>
     <p>
         <label for="capacity">Capacity *</label><br/>

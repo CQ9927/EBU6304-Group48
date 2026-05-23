@@ -3,8 +3,12 @@ package com.ebu6304.group48.servlet;
 import com.ebu6304.group48.config.AppPaths;
 import com.ebu6304.group48.model.Application;
 import com.ebu6304.group48.model.Job;
+import com.ebu6304.group48.model.Profile;
 import com.ebu6304.group48.repository.ApplicationRepository;
 import com.ebu6304.group48.repository.JobRepository;
+import com.ebu6304.group48.repository.ProfileRepository;
+import com.ebu6304.group48.service.MatchingService;
+import com.ebu6304.group48.service.MatchingService.MatchResult;
 import com.ebu6304.group48.util.SessionKeys;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
@@ -15,6 +19,7 @@ import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import java.io.File;
 import java.io.IOException;
 import java.lang.reflect.Type;
 import java.nio.charset.StandardCharsets;
@@ -23,6 +28,7 @@ import java.nio.file.Path;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Comparator;
+import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -38,18 +44,31 @@ public class MoSelectServlet extends HttpServlet {
 
     private JobRepository jobRepository;
     private ApplicationRepository applicationRepository;
+    private ProfileRepository profileRepository;
+    private MatchingService matchingService;
     private Path selectionFile;
+    private Path cvsDir;
 
     @Override
     public void init() {
         jobRepository = new JobRepository(getServletContext());
         applicationRepository = new ApplicationRepository(getServletContext());
+        profileRepository = new ProfileRepository(getServletContext());
+        matchingService = new MatchingService();
         String dataDir = AppPaths.resolveDataDirectory(getServletContext());
         selectionFile = Path.of(dataDir, "selection.json");
+        cvsDir = Path.of(dataDir, "cvs");
     }
 
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+        // Handle CV download
+        String download = trim(req.getParameter("download"));
+        if (!download.isEmpty()) {
+            handleCvDownload(req, resp, download);
+            return;
+        }
+
         List<Job> jobs = jobRepository.findAll().stream()
                 .sorted(Comparator.comparing(Job::getCreatedAt, Comparator.nullsLast(String::compareTo)).reversed())
                 .collect(Collectors.toList());
@@ -60,14 +79,65 @@ public class MoSelectServlet extends HttpServlet {
         }
 
         final String selectedJobIdFinal = selectedJobId;
-        List<Application> applications = applicationRepository.findAll();
-        List<Application> filteredApplications = applications.stream()
+        List<Application> allApplications = applicationRepository.findAll();
+        List<Application> filteredApplications = allApplications.stream()
                 .filter(a -> selectedJobIdFinal.isEmpty() || selectedJobIdFinal.equals(a.getJobId()))
                 .collect(Collectors.toList());
 
+        // Build job map for quick lookup
+        Map<String, Job> jobMap = new HashMap<>();
+        for (Job job : jobs) {
+            if (job != null && job.getJobId() != null) {
+                jobMap.put(job.getJobId(), job);
+            }
+        }
+
+        // Build applicant profile map
+        Map<String, Profile> applicantProfileMap = new HashMap<>();
+        for (Application app : filteredApplications) {
+            if (app.getApplicantUserId() != null && !applicantProfileMap.containsKey(app.getApplicantUserId())) {
+                Profile p = profileRepository.findByUserId(app.getApplicantUserId());
+                if (p != null) {
+                    applicantProfileMap.put(app.getApplicantUserId(), p);
+                }
+            }
+        }
+
+        // Build match result map
+        Map<String, MatchResult> matchResultMap = new HashMap<>();
+        for (Application app : filteredApplications) {
+            Job job = jobMap.get(app.getJobId());
+            Profile profile = applicantProfileMap.get(app.getApplicantUserId());
+            if (job != null && profile != null) {
+                matchResultMap.put(app.getApplicationId(), matchingService.computeMatch(job, profile));
+            }
+        }
+
+        // Count selected per job
+        Map<String, Integer> selectedCountByJob = new HashMap<>();
+        for (Application app : allApplications) {
+            if (app.getJobId() != null && "SELECTED".equalsIgnoreCase(trim(app.getStatus()))) {
+                selectedCountByJob.merge(app.getJobId(), 1, Integer::sum);
+            }
+        }
+
+        // Sort applications by match score descending
+        List<Application> sortedApplications = new ArrayList<>(filteredApplications);
+        sortedApplications.sort((a, b) -> {
+            int scoreA = matchResultMap.containsKey(a.getApplicationId())
+                    ? matchResultMap.get(a.getApplicationId()).getTotalScore() : 0;
+            int scoreB = matchResultMap.containsKey(b.getApplicationId())
+                    ? matchResultMap.get(b.getApplicationId()).getTotalScore() : 0;
+            return Integer.compare(scoreB, scoreA);
+        });
+
         req.setAttribute("jobs", jobs);
         req.setAttribute("selectedJobId", selectedJobId);
-        req.setAttribute("applications", filteredApplications);
+        req.setAttribute("applications", sortedApplications);
+        req.setAttribute("applicantProfileMap", applicantProfileMap);
+        req.setAttribute("matchResultMap", matchResultMap);
+        req.setAttribute("selectedCountByJob", selectedCountByJob);
+        req.setAttribute("jobMap", jobMap);
         req.setAttribute("navCurrent", "select");
         req.getRequestDispatcher("/WEB-INF/jsp/mo/select.jsp").forward(req, resp);
     }
@@ -85,9 +155,52 @@ public class MoSelectServlet extends HttpServlet {
             return;
         }
 
+        // Check status transition: terminal states cannot be changed
+        Application existing = applicationRepository.findById(applicationId);
+        if (existing != null) {
+            String currentStatus = trim(existing.getStatus()).toUpperCase();
+            if ("SELECTED".equals(currentStatus) || "REJECTED".equals(currentStatus)) {
+                resp.sendRedirect(req.getContextPath() + "/mo/jobs/select?jobId=" + selectedJobId + "&error=final");
+                return;
+            }
+        }
+
+        // Capacity check for SELECT
+        if ("SELECTED".equals(decision) && existing != null) {
+            Job job = jobRepository.findById(existing.getJobId());
+            if (job != null) {
+                int capacity = job.getCapacity() != null ? job.getCapacity() : 0;
+                long alreadySelected = applicationRepository.findAll().stream()
+                        .filter(a -> existing.getJobId().equals(a.getJobId())
+                                && "SELECTED".equalsIgnoreCase(trim(a.getStatus())))
+                        .count();
+                if (alreadySelected >= capacity) {
+                    resp.sendRedirect(req.getContextPath() + "/mo/jobs/select?jobId=" + selectedJobId + "&error=capacity");
+                    return;
+                }
+            }
+        }
+
         boolean updated = updateApplicationAndSelection(applicationId, decision, reviewerUserId);
         String suffix = updated ? "saved=1" : "error=1";
         resp.sendRedirect(req.getContextPath() + "/mo/jobs/select?jobId=" + selectedJobId + "&" + suffix);
+    }
+
+    private void handleCvDownload(HttpServletRequest req, HttpServletResponse resp, String filename)
+            throws IOException {
+        // Basic path traversal prevention
+        if (filename.contains("/") || filename.contains("\\") || filename.contains("..")) {
+            resp.sendError(HttpServletResponse.SC_FORBIDDEN);
+            return;
+        }
+        Path file = cvsDir.resolve(filename);
+        if (!Files.exists(file) || !Files.isRegularFile(file)) {
+            resp.sendError(HttpServletResponse.SC_NOT_FOUND);
+            return;
+        }
+        resp.setContentType("application/octet-stream");
+        resp.setHeader("Content-Disposition", "attachment; filename=\"" + filename + "\"");
+        Files.copy(file, resp.getOutputStream());
     }
 
     private boolean updateApplicationAndSelection(String applicationId, String decision, String reviewerUserId) {
