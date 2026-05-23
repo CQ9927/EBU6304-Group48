@@ -146,6 +146,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 import java.io.IOException;
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -187,10 +188,18 @@ public class TaJobsServlet extends HttpServlet {
         List<Job> filteredJobs = allJobs.stream()
             .filter(job -> typeFilter == null || typeFilter.isEmpty() || job.getType().equals(typeFilter))
             .filter(job -> semesterFilter == null || semesterFilter.isEmpty() || job.getSemester().equals(semesterFilter))
-            .filter(job -> skillFilter == null || skillFilter.isEmpty() || 
-                          job.getRequiredSkills().stream().anyMatch(s -> 
+            .filter(job -> skillFilter == null || skillFilter.isEmpty() ||
+                          job.getRequiredSkills().stream().anyMatch(s ->
                               s.toLowerCase().contains(skillFilter.toLowerCase())))
             .collect(Collectors.toList());
+
+        // Identify jobs past deadline
+        String now = Instant.now().toString();
+        Set<String> deadlineExpiredJobIds = filteredJobs.stream()
+                .filter(j -> j.getDeadline() != null && !j.getDeadline().isBlank()
+                        && j.getDeadline().compareTo(now) < 0)
+                .map(Job::getJobId)
+                .collect(Collectors.toSet());
 
         Set<String> appliedJobIds = applicationRepository.findByApplicantUserId(userId)
             .stream()
@@ -218,6 +227,7 @@ public class TaJobsServlet extends HttpServlet {
         req.setAttribute("jobs", sortedJobs);
         req.setAttribute("matchResultMap", matchResultMap);
         req.setAttribute("appliedJobIds", appliedJobIds);
+        req.setAttribute("deadlineExpiredJobIds", deadlineExpiredJobIds);
         req.setAttribute("userProfile", userProfile);
         req.setAttribute("typeFilter", typeFilter);
         req.setAttribute("semesterFilter", semesterFilter);

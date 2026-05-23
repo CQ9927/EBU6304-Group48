@@ -41,7 +41,7 @@
         </c:if>
         <form method="post" action="${pageContext.request.contextPath}/login">
             <% if (request.getParameter("next") != null) { %>
-            <input type="hidden" name="next" value="${param.next}"/>
+            <input type="hidden" name="next" value="<c:out value='${param.next}'/>"/>
             <% } %>
             <div class="form-group">
                 <label for="username">Username</label>

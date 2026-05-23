@@ -17,6 +17,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Locale;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 /**
@@ -176,6 +177,44 @@ public class AiService {
         }
     }
 
+    /**
+     * Conversational response from Tabi mascot.
+     *
+     * @param contextJson JSON with userMessage, userProfile, openJobs, myApplications, matchScores
+     * @return ChatResult with intent, reply, and referenced job IDs, or null on failure
+     */
+    public ChatResult chatWithMascot(String contextJson) {
+        if (!AiConfig.isAvailable() || contextJson == null || contextJson.isBlank()) {
+            return null;
+        }
+
+        String systemPrompt = "You are Tabi (TA Buddy Intelligence), a friendly owl mascot \uD83E\uDD89 "
+                + "for a university TA recruitment system. You are cute, enthusiastic, and helpful. "
+                + "Keep replies concise (2-4 sentences). Use a warm tone with simple English. "
+                + "Use emoji sparingly but appropriately.\n\n"
+                + "Based on the user's message and context, classify their intent and reply helpfully.\n"
+                + "Return ONLY valid JSON (no markdown fences, no explanation):\n"
+                + "{\"intent\":\"find_jobs|check_status|check_profile|review_applicants|admin_alerts|chat\",\"reply\":\"your friendly reply\",\"jobIds\":[\"J001\"],\"profileAction\":false}\n"
+                + "Use \"find_jobs\" when they ask about job matching/recommendations/best jobs for them.\n"
+                + "Use \"check_status\" when they ask about their applications/status.\n"
+                + "Use \"check_profile\" when they ask about their profile completeness or what to fill in.\n"
+                + "Use \"review_applicants\" when MO asks about applicants for their jobs or who applied.\n"
+                + "Use \"admin_alerts\" when admin asks about workload problems, alerts, or issues.\n"
+                + "Use \"chat\" for greetings, general questions, or system help.\n"
+                + "jobIds: list relevant job IDs from context if intent is find_jobs/check_status/review_applicants, otherwise [].\n"
+                + "profileAction: set true only when intent is check_profile.\n"
+                + "Only reference job IDs that actually exist in the context.";
+
+        try {
+            String raw = callDeepSeek(systemPrompt, contextJson, 400, 20);
+            if (raw == null) return null;
+            return parseChatResult(raw);
+        } catch (Exception e) {
+            System.err.println("[AiService] Mascot chat failed: " + e.getMessage());
+            return null;
+        }
+    }
+
     // ---- Internal ----
 
     private String callDeepSeek(String systemPrompt, String userPrompt, int maxTokens, int timeoutSeconds) {
@@ -257,6 +296,35 @@ public class AiService {
         }
     }
 
+    private ChatResult parseChatResult(String raw) {
+        String json = raw.trim();
+        if (json.startsWith("```")) {
+            int start = json.indexOf('\n');
+            int end = json.lastIndexOf("```");
+            if (start >= 0 && end > start) json = json.substring(start + 1, end).trim();
+        }
+        try {
+            JsonObject obj = JsonParser.parseString(json).getAsJsonObject();
+            String intent = obj.has("intent") ? obj.get("intent").getAsString().trim() : "chat";
+            String reply = obj.has("reply") ? obj.get("reply").getAsString().trim() : "";
+            List<String> jobIds = new ArrayList<>();
+            if (obj.has("jobIds") && obj.get("jobIds").isJsonArray()) {
+                obj.getAsJsonArray("jobIds").forEach(e -> {
+                    String id = e.getAsString().trim();
+                    if (!id.isEmpty()) jobIds.add(id);
+                });
+            }
+            boolean profileAction = obj.has("profileAction") && obj.get("profileAction").getAsBoolean();
+            // Normalise intent
+            var valid = Set.of("find_jobs", "check_status", "check_profile", "review_applicants", "admin_alerts", "chat");
+            if (!valid.contains(intent)) intent = "chat";
+            return new ChatResult(intent, reply, jobIds, profileAction);
+        } catch (Exception e) {
+            System.err.println("[AiService] Failed to parse chat result: " + e.getMessage());
+            return new ChatResult("chat", raw, Collections.emptyList(), false);
+        }
+    }
+
     private static String formatList(List<String> list) {
         if (list == null || list.isEmpty()) return "(none listed)";
         return String.join(", ", list);
@@ -284,5 +352,24 @@ public class AiService {
         public boolean isEmpty() {
             return skills.isEmpty() && (summary == null || summary.isEmpty());
         }
+    }
+
+    public static class ChatResult {
+        private final String intent;
+        private final String reply;
+        private final List<String> jobIds;
+        private final boolean profileAction;
+
+        public ChatResult(String intent, String reply, List<String> jobIds, boolean profileAction) {
+            this.intent = intent;
+            this.reply = reply;
+            this.jobIds = Collections.unmodifiableList(new ArrayList<>(jobIds));
+            this.profileAction = profileAction;
+        }
+
+        public String getIntent() { return intent; }
+        public String getReply() { return reply; }
+        public List<String> getJobIds() { return jobIds; }
+        public boolean isProfileAction() { return profileAction; }
     }
 }

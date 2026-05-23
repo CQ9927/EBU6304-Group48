@@ -1,3 +1,4 @@
+<%@ page import="com.ebu6304.group48.util.SemesterFormat" %>
 <%@ page contentType="text/html;charset=UTF-8" pageEncoding="UTF-8" %>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <%@ taglib prefix="fn" uri="http://java.sun.com/jsp/jstl/functions" %>
@@ -125,12 +126,19 @@
                     <tbody>
                         <c:forEach var="job" items="${jobs}">
                             <c:set var="isApplied" value="${appliedJobIds.contains(job.jobId)}" />
+                            <c:set var="isDeadlineExpired" value="${deadlineExpiredJobIds.contains(job.jobId)}" />
                             <c:set var="mr" value="${matchResultMap[job.jobId]}" />
-                            
+
                             <tr>
                                 <td>
-                                    <strong>${job.title}</strong><br>
-                                    <small class="text-muted">${job.semester} • Capacity: ${job.capacity}</small>
+                                    <strong>${job.title}</strong>
+                                    <c:if test="${not empty job.deadline}">
+                                        <br><small class="text-muted">Deadline: ${fn:substring(job.deadline, 0, 10)}</small>
+                                    </c:if>
+                                    <c:if test="${isDeadlineExpired}">
+                                        <br><span class="deadline-badge deadline-expired">Deadline passed</span>
+                                    </c:if>
+                                    <br><small class="text-muted"><%= SemesterFormat.label(((com.ebu6304.group48.model.Job)pageContext.getAttribute("job")).getSemester()) %> • Capacity: ${job.capacity}</small>
                                 </td>
                                 <td>
                                     <span class="badge badge-${job.type.toLowerCase()}">
@@ -169,9 +177,9 @@
                                             </small>
                                             <c:if test="${not empty userProfile}">
                                                 <br><button class="btn-ai-analyze" data-job-id="${job.jobId}"
-                                                        onclick="loadAiAnalysis('${job.jobId}', this)">AI Analysis</button>
+                                                        onclick="loadAiAnalysis('${job.jobId}', this)">✨ AI Analysis</button>
                                                 <button class="btn-ai-analyze" data-job-id="${job.jobId}"
-                                                        onclick="loadSkillGap('${job.jobId}', this)" style="margin-left:4px;">Skill Gap</button>
+                                                        onclick="loadSkillGap('${job.jobId}', this)" style="margin-left:4px;">🔍 Skill Gap</button>
                                                 <div class="ai-analysis-result" id="ai-${job.jobId}" style="display:none;"></div>
                                                 <div class="ai-analysis-result" id="sg-${job.jobId}" style="display:none;"></div>
                                             </c:if>
@@ -186,6 +194,9 @@
                                         <c:when test="${isApplied}">
                                             <span class="badge badge-secondary">Applied</span>
                                         </c:when>
+                                        <c:when test="${isDeadlineExpired}">
+                                            <span class="badge badge-rejected">CLOSED</span>
+                                        </c:when>
                                         <c:otherwise>
                                             <span class="badge badge-open">OPEN</span>
                                         </c:otherwise>
@@ -195,6 +206,9 @@
                                     <c:choose>
                                         <c:when test="${isApplied}">
                                             <button class="btn btn-secondary btn-apply" disabled>Applied</button>
+                                        </c:when>
+                                        <c:when test="${isDeadlineExpired}">
+                                            <button class="btn btn-secondary btn-apply" disabled>Deadline passed</button>
                                         </c:when>
                                         <c:when test="${empty userProfile or empty userProfile.cvFileName}">
                                             <button type="button" class="btn btn-secondary btn-apply btn-disabled" disabled
@@ -345,9 +359,10 @@ function loadAiAnalysis(jobId, btn) {
     if (!resultDiv) return;
 
     btn.disabled = true;
-    btn.textContent = 'Analyzing...';
+    btn.classList.add('is-loading');
+    btn.textContent = ' Analyzing...';
     resultDiv.style.display = 'block';
-    resultDiv.innerHTML = '<p>Analyzing...</p>';
+    resultDiv.innerHTML = '<p><span class="spin-emoji">&#9881;</span> Analyzing...</p>';
 
     var ctxPath = '${pageContext.request.contextPath}';
     fetch(ctxPath + '/ta/jobs/ai-analysis?jobId=' + encodeURIComponent(jobId))
@@ -362,12 +377,14 @@ function loadAiAnalysis(jobId, btn) {
             } else {
                 resultDiv.innerHTML = '<p>' + (data.error || 'AI analysis unavailable.') + '</p>';
                 btn.textContent = 'AI Analysis';
+                btn.classList.remove('is-loading');
                 btn.disabled = false;
             }
         })
         .catch(function(err) {
             resultDiv.innerHTML = '<p>AI analysis is currently unavailable. Please try again later.</p>';
             btn.textContent = 'AI Analysis';
+            btn.classList.remove('is-loading');
             btn.disabled = false;
         });
 }
@@ -377,9 +394,10 @@ function loadSkillGap(jobId, btn) {
     if (!resultDiv) return;
 
     btn.disabled = true;
-    btn.textContent = 'Analyzing...';
+    btn.classList.add('is-loading');
+    btn.textContent = ' Analyzing...';
     resultDiv.style.display = 'block';
-    resultDiv.innerHTML = '<p>Analyzing skill gaps...</p>';
+    resultDiv.innerHTML = '<p><span class="spin-emoji">&#9881;</span> Analyzing skill gaps...</p>';
 
     var ctxPath = '${pageContext.request.contextPath}';
     fetch(ctxPath + '/ta/jobs/ai-analysis?type=skills&jobId=' + encodeURIComponent(jobId))
@@ -394,12 +412,14 @@ function loadSkillGap(jobId, btn) {
             } else {
                 resultDiv.innerHTML = '<p>' + (data.error || 'Skill gap analysis unavailable.') + '</p>';
                 btn.textContent = 'Skill Gap';
+                btn.classList.remove('is-loading');
                 btn.disabled = false;
             }
         })
         .catch(function(err) {
             resultDiv.innerHTML = '<p>Skill gap analysis is currently unavailable. Please try again later.</p>';
             btn.textContent = 'Skill Gap';
+            btn.classList.remove('is-loading');
             btn.disabled = false;
         });
 }

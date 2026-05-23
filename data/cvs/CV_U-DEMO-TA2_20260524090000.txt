@@ -1,0 +1,50 @@
+LI WEI
+Email: li.wei.demo@example.edu
+Major: Computer Science
+
+EDUCATION
+MSc Computer Science, University of Technology, 2025–Present
+BSc Information Management, Nanjing University, 2021–2025
+GPA: 3.9/4.0 (Master), 3.6/4.0 (Bachelor)
+
+TECHNICAL SKILLS
+Programming: Java, Python, SQL, R, C
+Databases: Oracle, MySQL, PostgreSQL, MongoDB
+Data Science: Pandas, NumPy, Matplotlib, Jupyter
+Tools: Git, Docker, Tableau, Linux Shell
+
+TEACHING & TUTORING EXPERIENCE
+Graduate Teaching Assistant, Database Systems — 2025 Fall
+- Led weekly tutorial sessions for 40 undergraduate students
+- Taught SQL queries, normalization, and ER diagram design
+- Prepared exam review materials and practice datasets
+
+Private Tutor, Python Programming — 2024–2025
+- Tutored 15+ students in introductory Python courses
+- Designed custom exercises for struggling students
+- 100% pass rate among tutored students
+
+PROJECTS
+Database Performance Benchmark — University Research Project
+- Compared query performance across MySQL, PostgreSQL, and MongoDB
+- Wrote analysis scripts in Python with Pandas and Matplotlib
+- Published findings in department technical report
+
+Student Management System — Java + Oracle DB
+- Built a CRUD application with Java Swing frontend
+- Designed normalized database schema with 15+ tables
+- Implemented triggers, stored procedures, and views
+
+Inventory Forecasting Tool — Python
+- Time-series prediction model using real retail data
+- Achieved 92% accuracy on 3-month forecasts
+- Visualised results with interactive dashboards
+
+ADDITIONAL EXPERIENCE
+Data Analyst Intern, TechStart Inc. — Summer 2025
+- Analysed customer behaviour data using SQL and Python
+- Created Tableau dashboards for management reporting
+- Automated weekly report generation, saving 5 hours/week
+
+LANGUAGES
+English (Professional), Mandarin (Native)

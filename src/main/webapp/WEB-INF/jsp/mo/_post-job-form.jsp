@@ -56,6 +56,10 @@
         <label for="requiredSkills">Required skills (comma-separated)</label><br/>
         <input type="text" id="requiredSkills" name="requiredSkills" placeholder="Java, Teaching, Algorithms"/>
     </p>
+    <p>
+        <label for="deadline">Application deadline (optional)</label><br/>
+        <input type="datetime-local" id="deadline" name="deadline"/>
+    </p>
     <div class="modal__actions">
         <button type="button" class="btn btn-ghost" data-modal-close>Cancel</button>
         <button type="submit" class="btn btn-primary">Create job</button>

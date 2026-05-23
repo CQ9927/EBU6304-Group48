@@ -1,3 +1,4 @@
+<%@ page import="com.ebu6304.group48.util.SemesterFormat" %>
 <%@ page contentType="text/html;charset=UTF-8" pageEncoding="UTF-8" %>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <%@ taglib prefix="fn" uri="http://java.sun.com/jsp/jstl/functions" %>
@@ -20,6 +21,9 @@
 
     <c:if test="${param.saved == '1'}">
         <div class="alert alert-success" role="status">Job has been saved.</div>
+    </c:if>
+    <c:if test="${param.closed == '1'}">
+        <div class="alert alert-success" role="status">Job has been closed.</div>
     </c:if>
     <c:if test="${not empty error}">
         <div class="alert alert-error" role="alert">${error}</div>
@@ -69,8 +73,11 @@
                         </div>
                         <div class="job-card__meta">
                             <span class="badge badge-${fn:toLowerCase(job.type)}">${job.type}</span>
-                            <span>${job.semester}</span>
+                            <span><%= SemesterFormat.label(((com.ebu6304.group48.model.Job)pageContext.getAttribute("job")).getSemester()) %></span>
                             <span>Cap: ${job.capacity}</span>
+                            <c:if test="${not empty job.deadline}">
+                                <span class="deadline-badge">Deadline: ${job.deadline}</span>
+                            </c:if>
                         </div>
                         <div class="job-card__applicants">
                             <c:choose>
@@ -83,7 +90,17 @@
                                 </c:otherwise>
                             </c:choose>
                         </div>
-                        <a class="btn btn-ghost btn-sm" href="${pageContext.request.contextPath}/mo/jobs/select">Review Applicants &rarr;</a>
+                        <div class="job-card__actions">
+                            <a class="btn btn-ghost btn-sm" href="${pageContext.request.contextPath}/mo/jobs/select">Review Applicants &rarr;</a>
+                            <c:if test="${job.status == 'OPEN'}">
+                                <a class="btn btn-ghost btn-sm" href="${pageContext.request.contextPath}/mo/jobs/invite?jobId=${job.jobId}">Invite TAs</a>
+                                <form method="post" action="${pageContext.request.contextPath}/mo/dashboard" style="display:inline" onsubmit="return confirm('Close this job? No more applications will be accepted.');">
+                                    <input type="hidden" name="action" value="close"/>
+                                    <input type="hidden" name="jobId" value="${job.jobId}"/>
+                                    <button type="submit" class="btn btn-ghost btn-sm" style="color:#d32f2f;">Close Job</button>
+                                </form>
+                            </c:if>
+                        </div>
                     </div>
                 </c:forEach>
             </div>

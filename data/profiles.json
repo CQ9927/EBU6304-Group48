@@ -8,7 +8,7 @@
     "skills": ["Java", "Python", "Web Development", "Teaching", "Algorithms"],
     "availability": ["MON_14_16", "WED_18_20", "FRI_10_12"],
     "notes": "Demo TA profile — prefers lab and tutorial sessions.",
-    "cvFileName": "CV_U-DEMO-TA_20260412090000.pdf",
+    "cvFileName": "CV_U-DEMO-TA_20260524090000.txt",
     "createdAt": "2026-04-01T08:00:00Z",
     "updatedAt": "2026-04-12T09:00:00Z"
   },
@@ -21,7 +21,7 @@
     "skills": ["Java", "Python", "Database"],
     "availability": ["TUE_18_20", "THU_18_20"],
     "notes": "Second demo TA — stronger on databases, fewer teaching hours.",
-    "cvFileName": "CV_U-DEMO-TA2_20260412090000.pdf",
+    "cvFileName": "CV_U-DEMO-TA2_20260524090000.txt",
     "createdAt": "2026-04-05T11:00:00Z",
     "updatedAt": "2026-04-12T09:00:00Z"
   }

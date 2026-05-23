@@ -4,6 +4,7 @@ import com.ebu6304.group48.model.Application;
 import com.ebu6304.group48.model.Job;
 import com.ebu6304.group48.model.Profile;
 import com.ebu6304.group48.repository.ApplicationRepository;
+import com.ebu6304.group48.repository.InvitationRepository;
 import com.ebu6304.group48.repository.JobRepository;
 import com.ebu6304.group48.repository.ProfileRepository;
 import com.ebu6304.group48.service.MatchingService;
@@ -24,6 +25,7 @@ public class TaDashboardServlet extends HttpServlet {
     private JobRepository jobRepository;
     private ApplicationRepository applicationRepository;
     private ProfileRepository profileRepository;
+    private InvitationRepository invitationRepository;
     private MatchingService matchingService;
 
     @Override
@@ -31,6 +33,7 @@ public class TaDashboardServlet extends HttpServlet {
         jobRepository = new JobRepository(getServletContext());
         applicationRepository = new ApplicationRepository(getServletContext());
         profileRepository = new ProfileRepository(getServletContext());
+        invitationRepository = new InvitationRepository(getServletContext());
         matchingService = new MatchingService();
     }
 
@@ -48,6 +51,9 @@ public class TaDashboardServlet extends HttpServlet {
         int appUnderReview = (int) mine.stream().filter(a -> "UNDER_REVIEW".equalsIgnoreCase(a.getStatus())).count();
         int appSelected = (int) mine.stream().filter(a -> "SELECTED".equalsIgnoreCase(a.getStatus())).count();
         int appRejected = (int) mine.stream().filter(a -> "REJECTED".equalsIgnoreCase(a.getStatus())).count();
+
+        int pendingInvites = invitationRepository.countPendingByTaUserId(userId);
+        req.setAttribute("pendingInvites", pendingInvites);
 
         req.setAttribute("openJobsCount", openJobsCount);
         req.setAttribute("myApplicationsTotal", appTotal);

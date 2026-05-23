@@ -57,5 +57,14 @@ local.properties
 .loadpath
 .factorypath
 
+# Demo script (internal, not for submission)
+docs/DEMO_SCRIPT.html
+docs/DEMO_SCRIPT.md
+
+# Node (screenshot tooling only)
+node_modules/
+package-lock.json
+package.json
+
 # macOS
 .DS_Store

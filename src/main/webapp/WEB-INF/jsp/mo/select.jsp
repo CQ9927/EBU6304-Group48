@@ -79,6 +79,7 @@
 <table class="data-table">
     <thead>
     <tr>
+        <th><input type="checkbox" id="select-all" title="Select all" onchange="toggleAll(this)"/></th>
         <th>Application ID</th>
         <th>Applicant</th>
         <th>CV</th>
@@ -105,6 +106,7 @@
         </c:if>
 
         <tr>
+            <td><input type="checkbox" class="app-checkbox" name="applicationIds" value="${app.applicationId}" onchange="updateBatchBar()"/></td>
             <td>${app.applicationId}</td>
             <td>
                 <c:choose>
@@ -230,10 +232,61 @@
 </div>
 </div>
 
+<div id="batch-bar" class="batch-bar" style="display:none; position:sticky; bottom:0; background:var(--color-bg-primary); border-top:2px solid var(--color-primary); padding:0.75rem 1rem; display:flex; align-items:center; gap:0.75rem; z-index:100;">
+    <span id="batch-count" style="font-weight:600;">0 selected</span>
+    <form method="post" action="${pageContext.request.contextPath}/mo/jobs/select" style="display:inline" onsubmit="return prepareBatch(this, 'UNDER_REVIEW')">
+        <input type="hidden" name="action" value="batch"/>
+        <input type="hidden" name="jobId" value="${selectedJobId}"/>
+        <input type="hidden" name="decision" value="UNDER_REVIEW"/>
+        <input type="hidden" name="applicationIds" value=""/>
+        <button type="submit" class="btn btn-secondary">Mark as Under Review</button>
+    </form>
+    <form method="post" action="${pageContext.request.contextPath}/mo/jobs/select" style="display:inline" onsubmit="return confirm('Reject all selected applicants?') && prepareBatch(this, 'REJECTED')">
+        <input type="hidden" name="action" value="batch"/>
+        <input type="hidden" name="jobId" value="${selectedJobId}"/>
+        <input type="hidden" name="decision" value="REJECTED"/>
+        <input type="hidden" name="applicationIds" value=""/>
+        <button type="submit" class="btn btn-danger">Reject Selected</button>
+    </form>
+</div>
+
 <p class="text-muted">Status flow: SUBMITTED → UNDER_REVIEW → SELECTED / REJECTED</p>
 <p class="footer-links">
     <a href="${pageContext.request.contextPath}/mo/dashboard">Back to MO dashboard</a>
 </p>
 </main>
+
+<script>
+function toggleAll(checkbox) {
+    var checkboxes = document.querySelectorAll('.app-checkbox');
+    for (var i = 0; i < checkboxes.length; i++) {
+        checkboxes[i].checked = checkbox.checked;
+    }
+    updateBatchBar();
+}
+
+function updateBatchBar() {
+    var checked = document.querySelectorAll('.app-checkbox:checked');
+    var bar = document.getElementById('batch-bar');
+    var countEl = document.getElementById('batch-count');
+    if (checked.length > 0) {
+        bar.style.display = 'flex';
+        countEl.textContent = checked.length + ' selected';
+    } else {
+        bar.style.display = 'none';
+    }
+}
+
+function prepareBatch(form, decision) {
+    var checked = document.querySelectorAll('.app-checkbox:checked');
+    var ids = [];
+    for (var i = 0; i < checked.length; i++) {
+        ids.push(checked[i].value);
+    }
+    if (ids.length === 0) return false;
+    form.querySelector('input[name="applicationIds"]').value = ids.join(',');
+    return true;
+}
+</script>
 </body>
 </html>

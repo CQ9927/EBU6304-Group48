@@ -32,9 +32,11 @@
     <a href="<%= ctx %>/ta/cv" class="<%= "cv".equals(navCurrent) ? "nav-link--current" : "" %>">CV</a>
     <a href="<%= ctx %>/ta/jobs" class="<%= "jobs".equals(navCurrent) ? "nav-link--current" : "" %>">Jobs</a>
     <a href="<%= ctx %>/ta/status" class="<%= "status".equals(navCurrent) ? "nav-link--current" : "" %>">Status</a>
+    <a href="<%= ctx %>/ta/invitations" class="<%= "invitations".equals(navCurrent) ? "nav-link--current" : "" %>">Invitations</a>
     <% } else if ("MO".equals(role)) { %>
     <a href="<%= ctx %>/mo/dashboard" class="<%= "dashboard".equals(navCurrent) ? "nav-link--current" : "" %>">Dashboard</a>
     <a href="<%= ctx %>/mo/jobs/select" class="<%= "select".equals(navCurrent) ? "nav-link--current" : "" %>">Review applications</a>
+    <a href="<%= ctx %>/mo/jobs/invite" class="<%= "invite".equals(navCurrent) ? "nav-link--current" : "" %>">Invite TAs</a>
     <a href="<%= ctx %>/mo/dashboard#post-job-modal" class="<%= "post".equals(navCurrent) ? "nav-link--current" : "" %>">Post a new job</a>
     <% } else if ("ADMIN".equals(role)) { %>
     <a href="<%= ctx %>/admin/workload" class="<%= "workload".equals(navCurrent) ? "nav-link--current" : "" %>">Workload</a>
@@ -45,4 +47,7 @@
 <% } %>
 <% if ("forbidden".equals(request.getParameter("notice"))) { %>
 <p class="app-notice app-notice--warn" role="alert">You do not have access to that page for your role.</p>
+<% } %>
+<% if (userId != null && !guest) { %>
+<jsp:include page="/WEB-INF/jsp/_include/mascot.jsp"/>
 <% } %>

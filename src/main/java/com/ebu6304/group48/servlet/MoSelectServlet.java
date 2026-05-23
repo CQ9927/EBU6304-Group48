@@ -144,10 +144,18 @@ public class MoSelectServlet extends HttpServlet {
 
     @Override
     protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws IOException {
-        String applicationId = trim(req.getParameter("applicationId"));
-        String decision = trim(req.getParameter("decision")).toUpperCase();
+        String action = trim(req.getParameter("action"));
         String selectedJobId = trim(req.getParameter("jobId"));
         String reviewerUserId = String.valueOf(req.getSession().getAttribute(SessionKeys.USER_ID));
+
+        // Batch action handling
+        if ("batch".equals(action)) {
+            handleBatch(req, resp, selectedJobId, reviewerUserId);
+            return;
+        }
+
+        String applicationId = trim(req.getParameter("applicationId"));
+        String decision = trim(req.getParameter("decision")).toUpperCase();
 
         if (applicationId.isEmpty() ||
                 (!"UNDER_REVIEW".equals(decision) && !"SELECTED".equals(decision) && !"REJECTED".equals(decision))) {
@@ -182,6 +190,23 @@ public class MoSelectServlet extends HttpServlet {
         }
 
         boolean updated = updateApplicationAndSelection(applicationId, decision, reviewerUserId);
+
+        // Auto-close job when capacity is reached after SELECT
+        if ("SELECTED".equals(decision) && updated && existing != null) {
+            Job job = jobRepository.findById(existing.getJobId());
+            if (job != null && "OPEN".equalsIgnoreCase(
+                    job.getStatus() != null ? job.getStatus() : "")) {
+                int cap = job.getCapacity() != null ? Math.max(job.getCapacity(), 0) : 0;
+                long selectedCount = applicationRepository.findAll().stream()
+                        .filter(a -> existing.getJobId().equals(a.getJobId())
+                                && "SELECTED".equalsIgnoreCase(trim(a.getStatus())))
+                        .count();
+                if (selectedCount >= cap) {
+                    jobRepository.updateStatus(job.getJobId(), "CLOSED");
+                }
+            }
+        }
+
         String suffix = updated ? "saved=1" : "error=1";
         resp.sendRedirect(req.getContextPath() + "/mo/jobs/select?jobId=" + selectedJobId + "&" + suffix);
     }
@@ -240,6 +265,57 @@ public class MoSelectServlet extends HttpServlet {
         String json = Files.readString(file, StandardCharsets.UTF_8);
         List<T> list = GSON.fromJson(json, listType);
         return list != null ? list : new ArrayList<>();
+    }
+
+    private void handleBatch(HttpServletRequest req, HttpServletResponse resp,
+                              String selectedJobId, String reviewerUserId) throws IOException {
+        String decision = trim(req.getParameter("decision")).toUpperCase();
+        String idsParam = trim(req.getParameter("applicationIds"));
+
+        if (!"UNDER_REVIEW".equals(decision) && !"REJECTED".equals(decision)) {
+            resp.sendRedirect(req.getContextPath() + "/mo/jobs/select?jobId=" + selectedJobId + "&error=1");
+            return;
+        }
+
+        if (idsParam.isEmpty()) {
+            resp.sendRedirect(req.getContextPath() + "/mo/jobs/select?jobId=" + selectedJobId + "&error=1");
+            return;
+        }
+
+        String[] ids = idsParam.split(",");
+        int successCount = 0;
+        int failCount = 0;
+
+        for (String id : ids) {
+            String applicationId = id.trim();
+            if (applicationId.isEmpty()) continue;
+
+            // Skip terminal states
+            Application existing = applicationRepository.findById(applicationId);
+            if (existing != null) {
+                String currentStatus = trim(existing.getStatus()).toUpperCase();
+                if ("SELECTED".equals(currentStatus) || "REJECTED".equals(currentStatus)) {
+                    // Skip already-finalized applications silently for batch
+                    continue;
+                }
+            } else {
+                failCount++;
+                continue;
+            }
+
+            boolean updated = updateApplicationAndSelection(applicationId, decision, reviewerUserId);
+            if (updated) {
+                successCount++;
+            } else {
+                failCount++;
+            }
+        }
+
+        String params = "saved=1";
+        if (failCount > 0) {
+            params += "&error=1";
+        }
+        resp.sendRedirect(req.getContextPath() + "/mo/jobs/select?jobId=" + selectedJobId + "&" + params);
     }
 
     private void ensureStorage() throws IOException {

@@ -52,79 +52,45 @@
             </div>
             
             <div class="form-group">
-                <label>Skills (select all that apply)</label>
-                <div class="checkbox-group">
-                    <div class="checkbox-item">
-                        <input type="checkbox" id="skill-java" name="skills" value="Java" 
-                               ${not empty profile and profile.skills.contains('Java') ? 'checked' : ''}>
-                        <label for="skill-java">Java</label>
-                    </div>
-                    <div class="checkbox-item">
-                        <input type="checkbox" id="skill-python" name="skills" value="Python" 
-                               ${not empty profile and profile.skills.contains('Python') ? 'checked' : ''}>
-                        <label for="skill-python">Python</label>
-                    </div>
-                    <div class="checkbox-item">
-                        <input type="checkbox" id="skill-web" name="skills" value="Web Development" 
-                               ${not empty profile and profile.skills.contains('Web Development') ? 'checked' : ''}>
-                        <label for="skill-web">Web Development</label>
-                    </div>
-                    <div class="checkbox-item">
-                        <input type="checkbox" id="skill-db" name="skills" value="Database" 
-                               ${not empty profile and profile.skills.contains('Database') ? 'checked' : ''}>
-                        <label for="skill-db">Database</label>
-                    </div>
-                    <div class="checkbox-item">
-                        <input type="checkbox" id="skill-teaching" name="skills" value="Teaching" 
-                               ${not empty profile and profile.skills.contains('Teaching') ? 'checked' : ''}>
-                        <label for="skill-teaching">Teaching</label>
-                    </div>
-                    <div class="checkbox-item">
-                        <input type="checkbox" id="skill-algorithms" name="skills" value="Algorithms" 
-                               ${not empty profile and profile.skills.contains('Algorithms') ? 'checked' : ''}>
-                        <label for="skill-algorithms">Algorithms</label>
-                    </div>
-                    <div class="checkbox-item">
-                        <input type="checkbox" id="skill-proctoring" name="skills" value="Proctoring" 
-                               ${not empty profile and profile.skills.contains('Proctoring') ? 'checked' : ''}>
-                        <label for="skill-proctoring">Proctoring</label>
+                <label for="skillsInput">Skills (comma-separated)</label>
+                <input type="text" id="skillsInput" name="skillsInput" class="form-control"
+                       value="${not empty profile ? String.join(', ', profile.skills) : ''}"
+                       placeholder="Java, Python, Machine Learning, Teaching"/>
+                <c:if test="${not empty suggestedSkills}">
+                <div class="suggested-skills" style="margin-top: 0.5rem;">
+                    <small class="text-muted">Suggested skills from open jobs:</small>
+                    <div class="chip-row" style="margin-top: 0.25rem; display: flex; flex-wrap: wrap; gap: 0.25rem;">
+                        <c:forEach var="sk" items="${suggestedSkills}">
+                            <button type="button" class="chip" onclick="addSkill('${sk}')" style="cursor:pointer; background:var(--color-bg-secondary); border:1px solid var(--color-border); border-radius:1rem; padding:0.2rem 0.75rem; font-size:0.85rem;">${sk}</button>
+                        </c:forEach>
                     </div>
                 </div>
+                </c:if>
             </div>
             
             <div class="form-group">
                 <label>Availability (select available time slots)</label>
-                <div class="checkbox-group">
-                    <div class="checkbox-item">
-                        <input type="checkbox" id="time-mon-14-16" name="availability" value="MON_14_16" 
-                               ${not empty profile and profile.availability.contains('MON_14_16') ? 'checked' : ''}>
-                        <label for="time-mon-14-16">Monday 14:00-16:00</label>
-                    </div>
-                    <div class="checkbox-item">
-                        <input type="checkbox" id="time-wed-18-20" name="availability" value="WED_18_20" 
-                               ${not empty profile and profile.availability.contains('WED_18_20') ? 'checked' : ''}>
-                        <label for="time-wed-18-20">Wednesday 18:00-20:00</label>
-                    </div>
-                    <div class="checkbox-item">
-                        <input type="checkbox" id="time-fri-10-12" name="availability" value="FRI_10_12" 
-                               ${not empty profile and profile.availability.contains('FRI_10_12') ? 'checked' : ''}>
-                        <label for="time-fri-10-12">Friday 10:00-12:00</label>
-                    </div>
-                    <div class="checkbox-item">
-                        <input type="checkbox" id="time-tue-18-20" name="availability" value="TUE_18_20" 
-                               ${not empty profile and profile.availability.contains('TUE_18_20') ? 'checked' : ''}>
-                        <label for="time-tue-18-20">Tuesday 18:00-20:00</label>
-                    </div>
-                    <div class="checkbox-item">
-                        <input type="checkbox" id="time-thu-18-20" name="availability" value="THU_18_20" 
-                               ${not empty profile and profile.availability.contains('THU_18_20') ? 'checked' : ''}>
-                        <label for="time-thu-18-20">Thursday 18:00-20:00</label>
-                    </div>
-                    <div class="checkbox-item">
-                        <input type="checkbox" id="time-fri-09-12" name="availability" value="FRI_09_12" 
-                               ${not empty profile and profile.availability.contains('FRI_09_12') ? 'checked' : ''}>
-                        <label for="time-fri-09-12">Friday 09:00-12:00</label>
-                    </div>
+                <div class="checkbox-group" style="display:grid; grid-template-columns:repeat(auto-fill, minmax(190px, 1fr)); gap:0.35rem;">
+                    <div class="checkbox-item"><input type="checkbox" id="time-mon-09-12" name="availability" value="MON_09_12" ${not empty profile and profile.availability.contains('MON_09_12') ? 'checked' : ''}><label for="time-mon-09-12">Mon 09:00-12:00</label></div>
+                    <div class="checkbox-item"><input type="checkbox" id="time-mon-14-16" name="availability" value="MON_14_16" ${not empty profile and profile.availability.contains('MON_14_16') ? 'checked' : ''}><label for="time-mon-14-16">Mon 14:00-16:00</label></div>
+                    <div class="checkbox-item"><input type="checkbox" id="time-mon-18-20" name="availability" value="MON_18_20" ${not empty profile and profile.availability.contains('MON_18_20') ? 'checked' : ''}><label for="time-mon-18-20">Mon 18:00-20:00</label></div>
+                    <div class="checkbox-item"><input type="checkbox" id="time-tue-09-12" name="availability" value="TUE_09_12" ${not empty profile and profile.availability.contains('TUE_09_12') ? 'checked' : ''}><label for="time-tue-09-12">Tue 09:00-12:00</label></div>
+                    <div class="checkbox-item"><input type="checkbox" id="time-tue-14-16" name="availability" value="TUE_14_16" ${not empty profile and profile.availability.contains('TUE_14_16') ? 'checked' : ''}><label for="time-tue-14-16">Tue 14:00-16:00</label></div>
+                    <div class="checkbox-item"><input type="checkbox" id="time-tue-18-20" name="availability" value="TUE_18_20" ${not empty profile and profile.availability.contains('TUE_18_20') ? 'checked' : ''}><label for="time-tue-18-20">Tue 18:00-20:00</label></div>
+                    <div class="checkbox-item"><input type="checkbox" id="time-wed-09-12" name="availability" value="WED_09_12" ${not empty profile and profile.availability.contains('WED_09_12') ? 'checked' : ''}><label for="time-wed-09-12">Wed 09:00-12:00</label></div>
+                    <div class="checkbox-item"><input type="checkbox" id="time-wed-14-16" name="availability" value="WED_14_16" ${not empty profile and profile.availability.contains('WED_14_16') ? 'checked' : ''}><label for="time-wed-14-16">Wed 14:00-16:00</label></div>
+                    <div class="checkbox-item"><input type="checkbox" id="time-wed-18-20" name="availability" value="WED_18_20" ${not empty profile and profile.availability.contains('WED_18_20') ? 'checked' : ''}><label for="time-wed-18-20">Wed 18:00-20:00</label></div>
+                    <div class="checkbox-item"><input type="checkbox" id="time-thu-09-12" name="availability" value="THU_09_12" ${not empty profile and profile.availability.contains('THU_09_12') ? 'checked' : ''}><label for="time-thu-09-12">Thu 09:00-12:00</label></div>
+                    <div class="checkbox-item"><input type="checkbox" id="time-thu-14-16" name="availability" value="THU_14_16" ${not empty profile and profile.availability.contains('THU_14_16') ? 'checked' : ''}><label for="time-thu-14-16">Thu 14:00-16:00</label></div>
+                    <div class="checkbox-item"><input type="checkbox" id="time-thu-18-20" name="availability" value="THU_18_20" ${not empty profile and profile.availability.contains('THU_18_20') ? 'checked' : ''}><label for="time-thu-18-20">Thu 18:00-20:00</label></div>
+                    <div class="checkbox-item"><input type="checkbox" id="time-fri-09-12" name="availability" value="FRI_09_12" ${not empty profile and profile.availability.contains('FRI_09_12') ? 'checked' : ''}><label for="time-fri-09-12">Fri 09:00-12:00</label></div>
+                    <div class="checkbox-item"><input type="checkbox" id="time-fri-10-12" name="availability" value="FRI_10_12" ${not empty profile and profile.availability.contains('FRI_10_12') ? 'checked' : ''}><label for="time-fri-10-12">Fri 10:00-12:00</label></div>
+                    <div class="checkbox-item"><input type="checkbox" id="time-fri-14-16" name="availability" value="FRI_14_16" ${not empty profile and profile.availability.contains('FRI_14_16') ? 'checked' : ''}><label for="time-fri-14-16">Fri 14:00-16:00</label></div>
+                    <div class="checkbox-item"><input type="checkbox" id="time-fri-18-20" name="availability" value="FRI_18_20" ${not empty profile and profile.availability.contains('FRI_18_20') ? 'checked' : ''}><label for="time-fri-18-20">Fri 18:00-20:00</label></div>
+                    <div class="checkbox-item"><input type="checkbox" id="time-sat-09-12" name="availability" value="SAT_09_12" ${not empty profile and profile.availability.contains('SAT_09_12') ? 'checked' : ''}><label for="time-sat-09-12">Sat 09:00-12:00</label></div>
+                    <div class="checkbox-item"><input type="checkbox" id="time-sat-14-16" name="availability" value="SAT_14_16" ${not empty profile and profile.availability.contains('SAT_14_16') ? 'checked' : ''}><label for="time-sat-14-16">Sat 14:00-16:00</label></div>
+                    <div class="checkbox-item"><input type="checkbox" id="time-sun-09-12" name="availability" value="SUN_09_12" ${not empty profile and profile.availability.contains('SUN_09_12') ? 'checked' : ''}><label for="time-sun-09-12">Sun 09:00-12:00</label></div>
+                    <div class="checkbox-item"><input type="checkbox" id="time-sun-14-16" name="availability" value="SUN_14_16" ${not empty profile and profile.availability.contains('SUN_14_16') ? 'checked' : ''}><label for="time-sun-14-16">Sun 14:00-16:00</label></div>
                 </div>
             </div>
             
@@ -141,5 +107,20 @@
         </c:if>
     </div>
 </main>
+
+<script>
+function addSkill(skill) {
+    var input = document.getElementById('skillsInput');
+    var current = input.value.trim();
+    // Avoid duplicates
+    var existing = current ? current.split(/\\s*,\\s*/) : [];
+    for (var i = 0; i < existing.length; i++) {
+        if (existing[i].toLowerCase() === skill.toLowerCase()) return;
+    }
+    if (current) current += ', ';
+    input.value = current + skill;
+    input.focus();
+}
+</script>
 </body>
 </html>

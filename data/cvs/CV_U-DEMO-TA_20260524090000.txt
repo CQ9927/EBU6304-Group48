@@ -1,0 +1,42 @@
+ALEX CHEN
+Email: alex.chen.demo@example.edu
+Major: Software Engineering
+
+EDUCATION
+BSc Software Engineering, University of Technology, 2024–Present (Year 3)
+GPA: 3.7/4.0
+Relevant Coursework: Data Structures, Algorithms, Web Development, Software Architecture, Database Systems
+
+TECHNICAL SKILLS
+Programming Languages: Java, Python, C++, JavaScript, TypeScript
+Web: HTML, CSS, React, Node.js, Spring Boot
+Databases: MySQL, PostgreSQL, MongoDB
+Tools: Git, Docker, VS Code, IntelliJ, Linux
+
+TEACHING & TUTORING EXPERIENCE
+Peer Tutor, CS101 Introduction to Programming — 2025 Spring
+- Assisted 30+ first-year students with Java programming assignments
+- Held weekly office hours and one-on-one tutoring sessions
+- Graded lab assignments and provided feedback
+
+Lab Assistant, Data Structures — 2025 Fall
+- Guided students through algorithm implementation exercises
+- Helped debug code during lab sessions
+- Created supplementary practice problems
+
+PROJECTS
+Online Student Portal — Full-stack web app (Java Spring Boot + React)
+- Built a course management system with user authentication
+- Implemented RESTful APIs and MySQL database
+- Deployed on university server
+
+Algorithm Visualizer — Python + Tkinter
+- Interactive tool to demonstrate sorting and graph algorithms
+- Used in tutoring sessions to help students understand abstract concepts
+
+CERTIFICATIONS
+- AWS Cloud Practitioner (2025)
+- Oracle Java SE 8 Certified
+
+LANGUAGES
+English (Fluent), Mandarin (Native)

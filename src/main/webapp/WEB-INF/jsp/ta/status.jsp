@@ -18,6 +18,10 @@
     <p class="lead lead--tight text-muted"><a href="${pageContext.request.contextPath}/ta/status">Refresh</a> for the latest updates.</p>
 </header>
 
+<c:if test="${param.withdrawn == '1'}">
+    <div class="alert alert-success" role="status">Application withdrawn successfully.</div>
+</c:if>
+
 <c:choose>
     <c:when test="${not empty applications}">
         <div class="card card--flush">
@@ -32,6 +36,7 @@
                 <th>Status</th>
                 <th>Feedback</th>
                 <th>Last Updated</th>
+                <th>Action</th>
             </tr>
             </thead>
             <tbody>
@@ -93,6 +98,15 @@
                         </c:choose>
                     </td>
                     <td>${fn:substring(app.updatedAt, 0, 10)} ${fn:substring(app.updatedAt, 11, 16)}</td>
+                    <td>
+                        <c:if test="${app.status == 'SUBMITTED'}">
+                            <form method="post" action="${pageContext.request.contextPath}/ta/status" onsubmit="return confirm('Withdraw this application? This action cannot be undone.');">
+                                <input type="hidden" name="action" value="withdraw"/>
+                                <input type="hidden" name="applicationId" value="${app.applicationId}"/>
+                                <button type="submit" class="btn btn-ghost btn-sm" style="color:#d32f2f;">Withdraw</button>
+                            </form>
+                        </c:if>
+                    </td>
                 </tr>
             </c:forEach>
             </tbody>

@@ -63,6 +63,14 @@ public class TaApplyServlet extends HttpServlet {
             return;
         }
 
+        // Check deadline
+        if (job.getDeadline() != null && !job.getDeadline().isBlank()
+                && job.getDeadline().compareTo(Instant.now().toString()) < 0) {
+            session.setAttribute("error", "Application deadline has passed for this job.");
+            resp.sendRedirect(req.getContextPath() + "/ta/jobs");
+            return;
+        }
+
         Profile profile = profileRepository.findByUserId(userId);
         if (profile == null || profile.getCvFileName() == null || profile.getCvFileName().isBlank()) {
             session.setAttribute("error", "Please complete profile and upload CV before applying.");

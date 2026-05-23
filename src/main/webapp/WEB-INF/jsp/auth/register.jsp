@@ -38,7 +38,7 @@
                 <select id="role" name="role" required>
                     <option value="TA">TA (applicant)</option>
                     <option value="MO">MO (module organiser)</option>
-                    <option value="ADMIN">Admin</option>
+
                 </select>
             </div>
             <button type="submit" class="btn btn-primary btn-block">Create account</button>

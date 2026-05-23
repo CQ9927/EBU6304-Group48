@@ -23,8 +23,19 @@
                 <span class="inline-stat-sep">&middot;</span>
                 <span class="inline-stat"><strong>${myApplicationsUnderReview}</strong> In Review</span>
             </c:if>
+            <c:if test="${pendingInvites > 0}">
+                <span class="inline-stat-sep">&middot;</span>
+                <span class="inline-stat"><strong>${pendingInvites}</strong> Invitation<c:if test="${pendingInvites > 1}">s</c:if></span>
+            </c:if>
         </div>
     </header>
+
+    <c:if test="${pendingInvites > 0}">
+    <div class="alert alert-info" role="status">
+        You have <strong>${pendingInvites} pending invitation<c:if test="${pendingInvites > 1}">s</c:if></strong> from MOs.
+        <a href="${pageContext.request.contextPath}/ta/invitations" class="btn btn-primary btn-sm">View Invitations &rarr;</a>
+    </div>
+    </c:if>
 
     <%-- Profile completeness card (only shown if < 100%) --%>
     <c:if test="${profileCompleteness < 100}">
@@ -85,7 +96,7 @@
     <%-- Featured positions --%>
     <section class="section">
         <div class="section__header">
-            <h2 class="section__title">Featured Positions</h2>
+            <h2 class="section__title">Best Matches for You</h2>
             <a class="section__action" href="${pageContext.request.contextPath}/ta/jobs">Browse All &nearr;</a>
         </div>
 
@@ -96,17 +107,22 @@
                         <c:set var="match" value="${matchMap[job.jobId]}"/>
                         <div class="job-card">
                             <div class="job-card__header">
-                                <h3 class="job-card__title">${job.title}</h3>
-                                <c:if test="${not empty match}">
-                                    <span class="match-pill ${match.totalScore >= 80 ? 'match-high' : match.totalScore >= 50 ? 'match-medium' : 'match-low'}">
-                                        <c:choose>
-                                            <c:when test="${match.totalScore >= 80}">&#x1f7e2;</c:when>
-                                            <c:when test="${match.totalScore >= 50}">&#x1f7e1;</c:when>
-                                            <c:otherwise>&#x1f534;</c:otherwise>
-                                        </c:choose>
-                                        ${match.totalScore}% match
-                                    </span>
-                                </c:if>
+                                <div>
+                                    <h3 class="job-card__title">${job.title}</h3>
+                                </div>
+                                <div class="job-card__header-right">
+                                    <c:if test="${not empty match}">
+                                        <span class="match-pill ${match.totalScore >= 80 ? 'match-high' : match.totalScore >= 50 ? 'match-medium' : 'match-low'}">
+                                            <c:choose>
+                                                <c:when test="${match.totalScore >= 80}">&#x1f7e2;</c:when>
+                                                <c:when test="${match.totalScore >= 50}">&#x1f7e1;</c:when>
+                                                <c:otherwise>&#x1f534;</c:otherwise>
+                                            </c:choose>
+                                            ${match.totalScore}% match
+                                        </span>
+                                    </c:if>
+                                    <a class="btn btn-primary btn-sm" href="${pageContext.request.contextPath}/ta/jobs">Apply &rarr;</a>
+                                </div>
                             </div>
                             <div class="job-card__meta">
                                 <span class="badge badge-${fn:toLowerCase(job.type)}">${job.type}</span>
@@ -123,7 +139,6 @@
                                 </c:forEach>
                             </div>
                             </c:if>
-                            <a class="btn btn-primary btn-sm job-card__cta" href="${pageContext.request.contextPath}/ta/jobs">Apply &rarr;</a>
                         </div>
                     </c:forEach>
                 </div>
