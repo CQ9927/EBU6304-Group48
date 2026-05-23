@@ -1117,3 +1117,77 @@ table.job-table {
   transform: translateY(-2px);
   border-color: rgba(15, 76, 117, 0.2);
 }
+
+/* Modal dialog (MO post job, etc.) */
+.modal {
+  padding: 0;
+  border: none;
+  border-radius: var(--radius);
+  max-width: min(32rem, calc(100vw - 2rem));
+  width: 100%;
+  box-shadow: var(--shadow-lg);
+  background: transparent;
+}
+
+.modal::backdrop {
+  background: rgba(15, 23, 42, 0.45);
+}
+
+.modal__panel {
+  margin: 0;
+  padding: 0;
+  background: var(--color-surface);
+  border-radius: var(--radius);
+  border: 1px solid var(--color-border);
+}
+
+.modal__header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 1.25rem 1.25rem 0;
+}
+
+.modal__title {
+  margin: 0;
+  font-family: var(--font-display);
+  font-size: var(--font-size-h2);
+  font-weight: 700;
+}
+
+.modal__close {
+  flex-shrink: 0;
+  width: 2rem;
+  height: 2rem;
+  padding: 0;
+  border: none;
+  border-radius: var(--radius-sm);
+  background: transparent;
+  color: var(--color-text-muted);
+  font-size: 1.5rem;
+  line-height: 1;
+  cursor: pointer;
+}
+
+.modal__close:hover {
+  background: var(--color-bg);
+  color: var(--color-text);
+}
+
+.modal__body {
+  padding: 0 1.25rem;
+}
+
+.modal__body .alert {
+  margin-bottom: 1rem;
+}
+
+.modal__footer {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  gap: 0.65rem;
+  padding: 1rem 1.25rem 1.25rem;
+  border-top: 1px solid var(--color-border);
+}

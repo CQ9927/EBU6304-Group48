@@ -26,10 +26,8 @@ public class MoPostJobServlet extends HttpServlet {
     }
 
     @Override
-    protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
-        req.setAttribute("jobs", jobRepository.findAll());
-        req.setAttribute("navCurrent", "post");
-        req.getRequestDispatcher("/WEB-INF/jsp/mo/post-job.jsp").forward(req, resp);
+    protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws IOException {
+        resp.sendRedirect(req.getContextPath() + "/mo/dashboard");
     }
 
     @Override
@@ -43,10 +41,9 @@ public class MoPostJobServlet extends HttpServlet {
 
         Integer capacity = parseCapacity(capacityRaw);
         if (title.isEmpty() || type.isEmpty() || semester.isEmpty() || schedule.isEmpty() || capacity == null) {
-            req.setAttribute("error", "Please fill all required fields. Capacity must be a positive integer.");
-            req.setAttribute("jobs", jobRepository.findAll());
-            req.setAttribute("navCurrent", "post");
-            req.getRequestDispatcher("/WEB-INF/jsp/mo/post-job.jsp").forward(req, resp);
+            forwardDashboardWithForm(req, resp,
+                    "Please fill all required fields. Capacity must be a positive integer.",
+                    title, type, semester, schedule, capacityRaw, requiredSkillsRaw);
             return;
         }
 
@@ -70,13 +67,27 @@ public class MoPostJobServlet extends HttpServlet {
 
         boolean ok = jobRepository.save(job);
         if (!ok) {
-            req.setAttribute("error", "Failed to save job. Please retry.");
-            req.setAttribute("jobs", jobRepository.findAll());
-            req.setAttribute("navCurrent", "post");
-            req.getRequestDispatcher("/WEB-INF/jsp/mo/post-job.jsp").forward(req, resp);
+            forwardDashboardWithForm(req, resp, "Failed to save job. Please retry.",
+                    title, type, semester, schedule, capacityRaw, requiredSkillsRaw);
             return;
         }
-        resp.sendRedirect(req.getContextPath() + "/mo/jobs/new?saved=1");
+        resp.sendRedirect(req.getContextPath() + "/mo/dashboard?saved=1");
+    }
+
+    private void forwardDashboardWithForm(HttpServletRequest req, HttpServletResponse resp,
+                                        String error, String title, String type, String semester,
+                                        String schedule, String capacity, String requiredSkills)
+            throws ServletException, IOException {
+        req.setAttribute("error", error);
+        req.setAttribute("openPostJobModal", Boolean.TRUE);
+        req.setAttribute("title", title);
+        req.setAttribute("type", type);
+        req.setAttribute("semester", semester);
+        req.setAttribute("schedule", schedule);
+        req.setAttribute("capacity", capacity);
+        req.setAttribute("requiredSkills", requiredSkills);
+        req.setAttribute("navCurrent", "dashboard");
+        req.getRequestDispatcher("/mo/dashboard").forward(req, resp);
     }
 
     private static String trim(String value) {

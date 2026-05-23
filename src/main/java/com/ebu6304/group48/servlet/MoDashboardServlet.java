@@ -28,6 +28,11 @@ public class MoDashboardServlet extends HttpServlet {
     }
 
     @Override
+    protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+        doGet(req, resp);
+    }
+
+    @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
         String userId = String.valueOf(req.getSession().getAttribute(SessionKeys.USER_ID));
         req.setAttribute("username", req.getSession().getAttribute(SessionKeys.USERNAME));
