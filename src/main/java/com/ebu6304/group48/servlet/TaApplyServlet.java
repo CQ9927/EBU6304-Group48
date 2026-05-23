@@ -6,6 +6,7 @@ import com.ebu6304.group48.model.Profile;
 import com.ebu6304.group48.repository.ApplicationRepository;
 import com.ebu6304.group48.repository.JobRepository;
 import com.ebu6304.group48.repository.ProfileRepository;
+import com.ebu6304.group48.service.MatchingService;
 import com.ebu6304.group48.util.SessionKeys;
 
 import javax.servlet.ServletException;
@@ -16,8 +17,6 @@ import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 import java.io.IOException;
 import java.time.Instant;
-import java.util.ArrayList;
-import java.util.List;
 
 @WebServlet(name = "TaApplyServlet", urlPatterns = "/ta/apply")
 public class TaApplyServlet extends HttpServlet {
@@ -25,12 +24,14 @@ public class TaApplyServlet extends HttpServlet {
     private JobRepository jobRepository;
     private ProfileRepository profileRepository;
     private ApplicationRepository applicationRepository;
+    private MatchingService matchingService;
 
     @Override
     public void init() throws ServletException {
         jobRepository = new JobRepository(getServletContext());
         profileRepository = new ProfileRepository(getServletContext());
         applicationRepository = new ApplicationRepository(getServletContext());
+        matchingService = new MatchingService();
     }
 
     @Override
@@ -86,26 +87,15 @@ public class TaApplyServlet extends HttpServlet {
         resp.sendRedirect(req.getContextPath() + "/ta/jobs");
     }
 
-    private static Application buildApplication(String userId, Job job, Profile profile, String note) {
-        List<String> userSkills = profile.getSkills() != null ? profile.getSkills() : new ArrayList<>();
-        List<String> requiredSkills = job.getRequiredSkills() != null ? job.getRequiredSkills() : new ArrayList<>();
-        List<String> missingSkills = new ArrayList<>();
-        int matchingCount = 0;
-        for (String required : requiredSkills) {
-            if (userSkills.contains(required)) {
-                matchingCount++;
-            } else {
-                missingSkills.add(required);
-            }
-        }
-        int matchScore = requiredSkills.isEmpty() ? 100 : (matchingCount * 100 / requiredSkills.size());
+    private Application buildApplication(String userId, Job job, Profile profile, String note) {
+        MatchingService.MatchResult result = matchingService.computeMatch(job, profile);
 
         String now = Instant.now().toString();
         Application application = new Application();
         application.setJobId(job.getJobId());
         application.setApplicantUserId(userId);
-        application.setMatchScore(matchScore);
-        application.setMissingSkills(missingSkills);
+        application.setMatchScore(result.getTotalScore());
+        application.setMissingSkills(result.getMissingSkills());
         application.setStatus("SUBMITTED");
         application.setNote(note);
         application.setCreatedAt(now);
