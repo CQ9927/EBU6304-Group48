@@ -36,7 +36,8 @@ public class TaApplyServlet extends HttpServlet {
 
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws IOException {
-        submitApplication(req, resp);
+        // GET should not trigger side effects; redirect to jobs listing
+        resp.sendRedirect(req.getContextPath() + "/ta/jobs");
     }
 
     @Override

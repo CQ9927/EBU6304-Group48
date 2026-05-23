@@ -10,7 +10,7 @@
 </head>
 <body>
 <jsp:include page="/WEB-INF/jsp/_include/app-header.jsp"/>
-<main class="site-main">
+<main class="site-main" id="main-content">
     <header class="page-header">
         <h1 class="page-title">404 - Page Not Found</h1>
     </header>

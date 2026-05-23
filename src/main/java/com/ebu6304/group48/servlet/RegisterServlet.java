@@ -33,8 +33,8 @@ public class RegisterServlet extends HttpServlet {
             req.getRequestDispatcher("/WEB-INF/jsp/auth/register.jsp").forward(req, resp);
             return;
         }
-        if (password == null || password.length() < 4) {
-            req.setAttribute("error", "Password must be at least 4 characters.");
+        if (password == null || password.length() < 8) {
+            req.setAttribute("error", "Password must be at least 8 characters.");
             req.getRequestDispatcher("/WEB-INF/jsp/auth/register.jsp").forward(req, resp);
             return;
         }

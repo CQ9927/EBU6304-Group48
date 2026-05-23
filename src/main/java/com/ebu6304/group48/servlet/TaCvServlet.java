@@ -144,6 +144,7 @@ package com.ebu6304.group48.servlet;
 import com.ebu6304.group48.config.AppPaths;
 import com.ebu6304.group48.model.Profile;
 import com.ebu6304.group48.repository.ProfileRepository;
+import com.ebu6304.group48.service.AiService;
 import com.ebu6304.group48.util.SessionKeys;
 import javax.servlet.ServletException;
 import javax.servlet.annotation.MultipartConfig;
@@ -163,7 +164,12 @@ import java.nio.file.StandardCopyOption;
 import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
+import java.util.Locale;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 @MultipartConfig(
     fileSizeThreshold = 1024 * 1024,
@@ -174,11 +180,13 @@ import java.util.Arrays;
 public class TaCvServlet extends HttpServlet {
 
     private ProfileRepository profileRepository;
+    private AiService aiService;
     private String cvStorageDir;
 
     @Override
     public void init() throws ServletException {
         profileRepository = new ProfileRepository(getServletContext());
+        aiService = new AiService();
         String dataDir = AppPaths.resolveDataDirectory(getServletContext());
         cvStorageDir = dataDir + File.separator + "cvs";
         new File(cvStorageDir).mkdirs();
@@ -192,7 +200,7 @@ public class TaCvServlet extends HttpServlet {
             return;
         }
 
-        String userId = (String) session.getAttribute(SessionKeys.USER_ID);
+        String userId = String.valueOf(session.getAttribute(SessionKeys.USER_ID));
         Profile profile = profileRepository.findByUserId(userId);
         String[] existingCvs = getExistingCvs(userId);
         
@@ -210,13 +218,15 @@ public class TaCvServlet extends HttpServlet {
             return;
         }
 
-        String userId = (String) session.getAttribute(SessionKeys.USER_ID);
+        String userId = String.valueOf(session.getAttribute(SessionKeys.USER_ID));
         String action = req.getParameter("action");
 
         if ("upload".equals(action)) {
             handleUpload(req, userId, session);
         } else if ("delete".equals(action)) {
             handleDelete(req, userId, session);
+        } else if ("setactive".equals(action)) {
+            handleSetActive(req, userId, session);
         }
 
         resp.sendRedirect(req.getContextPath() + "/ta/cv");
@@ -230,30 +240,56 @@ public class TaCvServlet extends HttpServlet {
         }
 
         String contentType = filePart.getContentType();
-        if (contentType == null || (!contentType.equals("application/pdf") && 
-            !contentType.equals("application/msword") && 
-            !contentType.equals("application/vnd.openxmlformats-officedocument.wordprocessingml.document"))) {
-            session.setAttribute("error", "Invalid file type. Please upload PDF or Word document.");
+        if (contentType == null || !contentType.equals("text/plain")) {
+            session.setAttribute("error", "Invalid file type. Please upload a plain text (.txt) file only.");
             return;
         }
 
         String originalFilename = getFileName(filePart);
-        String extension = originalFilename.substring(originalFilename.lastIndexOf("."));
         String timestamp = DateTimeFormatter.ofPattern("yyyyMMddHHmmss")
                                             .format(LocalDateTime.now());
-        String newFilename = String.format("CV_%s_%s%s", userId, timestamp, extension);
+        String newFilename = String.format("CV_%s_%s.txt", userId, timestamp);
 
         File destFile = new File(cvStorageDir, newFilename);
         try (InputStream input = filePart.getInputStream()) {
             Files.copy(input, destFile.toPath(), StandardCopyOption.REPLACE_EXISTING);
         }
 
+        // AI CV Analysis: read text content and extract skills + summary
         Profile profile = profileRepository.findByUserId(userId);
         if (profile != null) {
+            try {
+                String cvText = Files.readString(destFile.toPath());
+                AiService.CvAnalysisResult aiResult = aiService.analyzeCv(cvText);
+                if (aiResult != null && !aiResult.isEmpty()) {
+                    // Merge AI-extracted skills into profile (case-insensitive dedup)
+                    List<String> existing = profile.getSkills() != null
+                            ? new ArrayList<>(profile.getSkills()) : new ArrayList<>();
+                    Set<String> existingLower = existing.stream()
+                            .map(s -> s.toLowerCase(Locale.ROOT))
+                            .collect(Collectors.toSet());
+                    int added = 0;
+                    for (String skill : aiResult.getSkills()) {
+                        if (!existingLower.contains(skill.toLowerCase(Locale.ROOT))) {
+                            existing.add(skill);
+                            existingLower.add(skill.toLowerCase(Locale.ROOT));
+                            added++;
+                        }
+                    }
+                    profile.setSkills(existing);
+                    profile.setAiSummary(aiResult.getSummary());
+                    session.setAttribute("message",
+                            "CV uploaded successfully! AI extracted " + added + " new skill(s) from your CV.");
+                } else {
+                    session.setAttribute("message", "CV uploaded successfully! (AI analysis unavailable, you can manually add skills in your profile.)");
+                }
+            } catch (Exception e) {
+                // AI analysis failed — upload still succeeds
+                session.setAttribute("message", "CV uploaded successfully!");
+            }
             profile.setCvFileName(newFilename);
             profile.setUpdatedAt(Instant.now().toString());
             profileRepository.save(profile);
-            session.setAttribute("message", "CV uploaded successfully!");
         } else {
             session.setAttribute("error", "Please complete your profile first before uploading CV.");
         }
@@ -266,7 +302,25 @@ public class TaCvServlet extends HttpServlet {
             return;
         }
 
+        // Prevent path traversal attacks
+        if (filename.contains("..") || filename.contains("/") || filename.contains("\\")) {
+            session.setAttribute("error", "Invalid filename.");
+            return;
+        }
+
+        // Verify file belongs to current user
+        if (!filename.startsWith("CV_" + userId + "_")) {
+            session.setAttribute("error", "You can only delete your own CV files.");
+            return;
+        }
+
         File fileToDelete = new File(cvStorageDir, filename);
+        // Canonical path check to prevent traversal via symlinks or other tricks
+        if (!fileToDelete.getCanonicalPath().startsWith(new File(cvStorageDir).getCanonicalPath() + File.separator)) {
+            session.setAttribute("error", "Invalid file path.");
+            return;
+        }
+
         if (fileToDelete.exists() && fileToDelete.delete()) {
             Profile profile = profileRepository.findByUserId(userId);
             if (profile != null && filename.equals(profile.getCvFileName())) {
@@ -280,6 +334,37 @@ public class TaCvServlet extends HttpServlet {
         }
     }
 
+    private void handleSetActive(HttpServletRequest req, String userId, HttpSession session) throws IOException {
+        String filename = req.getParameter("filename");
+        if (filename == null || filename.isEmpty()) {
+            session.setAttribute("error", "No filename specified.");
+            return;
+        }
+        // Verify file belongs to user and exists
+        if (filename.contains("..") || filename.contains("/") || filename.contains("\\")) {
+            session.setAttribute("error", "Invalid filename.");
+            return;
+        }
+        if (!filename.startsWith("CV_" + userId + "_")) {
+            session.setAttribute("error", "You can only activate your own CV files.");
+            return;
+        }
+        File file = new File(cvStorageDir, filename);
+        if (!file.exists()) {
+            session.setAttribute("error", "File not found.");
+            return;
+        }
+        Profile profile = profileRepository.findByUserId(userId);
+        if (profile != null) {
+            profile.setCvFileName(filename);
+            profile.setUpdatedAt(Instant.now().toString());
+            profileRepository.save(profile);
+            session.setAttribute("message", "Active CV updated.");
+        } else {
+            session.setAttribute("error", "Please complete your profile first.");
+        }
+    }
+
     private String[] getExistingCvs(String userId) {
         File dir = new File(cvStorageDir);
         File[] files = dir.listFiles((d, name) -> name.startsWith("CV_" + userId + "_"));
@@ -290,10 +375,29 @@ public class TaCvServlet extends HttpServlet {
     }
 
     private String getFileName(Part part) {
+        try {
+            String submitted = part.getSubmittedFileName();
+            if (submitted != null && !submitted.isBlank()) {
+                return submitted;
+            }
+        } catch (Exception ignore) {
+            // fall back to header parsing
+        }
         String contentDisp = part.getHeader("content-disposition");
+        if (contentDisp == null) {
+            return "unknown";
+        }
         for (String token : contentDisp.split(";")) {
             if (token.trim().startsWith("filename")) {
-                return token.substring(token.indexOf("=") + 2, token.length() - 1);
+                int eqIdx = token.indexOf('=');
+                if (eqIdx < 0) {
+                    continue;
+                }
+                String name = token.substring(eqIdx + 1).trim();
+                if (name.startsWith("\"") && name.endsWith("\"")) {
+                    name = name.substring(1, name.length() - 1);
+                }
+                return name;
             }
         }
         return "unknown";

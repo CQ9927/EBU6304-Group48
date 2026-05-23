@@ -62,6 +62,7 @@ public class LoginServlet extends HttpServlet {
             }
 
             HttpSession session = req.getSession(true);
+            req.changeSessionId();
             session.setAttribute(SessionKeys.USER_ID, user.get().getUserId());
             session.setAttribute(SessionKeys.USERNAME, user.get().getUsername());
             session.setAttribute(SessionKeys.ROLE, user.get().getRole());

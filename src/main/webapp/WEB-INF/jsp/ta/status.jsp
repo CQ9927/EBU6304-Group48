@@ -1,5 +1,6 @@
 <%@ page contentType="text/html;charset=UTF-8" pageEncoding="UTF-8" %>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
+<%@ taglib prefix="fn" uri="http://java.sun.com/jsp/jstl/functions" %>
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -11,7 +12,7 @@
 </head>
 <body>
 <jsp:include page="/WEB-INF/jsp/_include/app-header.jsp"/>
-<main class="site-main">
+<main class="site-main" id="main-content">
 <header class="page-header">
     <h1 class="page-title">My application status</h1>
     <p class="lead lead--tight text-muted"><a href="${pageContext.request.contextPath}/ta/status">Refresh</a> for the latest updates.</p>
@@ -84,14 +85,14 @@
                     <td>
                         <c:choose>
                             <c:when test="${not empty app.note}">
-                                ${app.note}
+                                <c:out value="${app.note}"/>
                             </c:when>
                             <c:otherwise>
                                 <span class="text-muted">—</span>
                             </c:otherwise>
                         </c:choose>
                     </td>
-                    <td>${app.updatedAt}</td>
+                    <td>${fn:substring(app.updatedAt, 0, 10)} ${fn:substring(app.updatedAt, 11, 16)}</td>
                 </tr>
             </c:forEach>
             </tbody>

@@ -56,3 +56,6 @@ local.properties
 .settings/
 .loadpath
 .factorypath
+
+# macOS
+.DS_Store

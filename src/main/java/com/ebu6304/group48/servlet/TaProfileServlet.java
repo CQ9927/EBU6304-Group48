@@ -162,7 +162,7 @@ public class TaProfileServlet extends HttpServlet {
             return;
         }
 
-        String userId = (String) session.getAttribute(SessionKeys.USER_ID);
+        String userId = String.valueOf(session.getAttribute(SessionKeys.USER_ID));
         Profile profile = profileRepository.findByUserId(userId);
         req.setAttribute("profile", profile);
         req.setAttribute("navCurrent", "profile");
@@ -177,13 +177,21 @@ public class TaProfileServlet extends HttpServlet {
             return;
         }
 
-        String userId = (String) session.getAttribute(SessionKeys.USER_ID);
+        String userId = String.valueOf(session.getAttribute(SessionKeys.USER_ID));
         String name = req.getParameter("name");
         String email = req.getParameter("email");
         String major = req.getParameter("major");
         String[] skills = req.getParameterValues("skills");
         String[] availability = req.getParameterValues("availability");
         String notes = req.getParameter("notes");
+
+        if (name == null || name.trim().isEmpty()
+                || email == null || email.trim().isEmpty()
+                || major == null || major.trim().isEmpty()) {
+            session.setAttribute("error", "Please fill in all required fields (name, email, major).");
+            resp.sendRedirect(req.getContextPath() + "/ta/profile");
+            return;
+        }
 
         Profile existingProfile = profileRepository.findByUserId(userId);
         Profile profile;
@@ -199,7 +207,7 @@ public class TaProfileServlet extends HttpServlet {
             profile.setUpdatedAt(Instant.now().toString());
         } else {
             profile = new Profile();
-            profile.setProfileId("P" + UUID.randomUUID().toString().substring(0, 8).toUpperCase());
+            // profileId will be assigned by ProfileRepository.normalizeBeforeSave() with consistent P- prefix
             profile.setUserId(userId);
             profile.setName(name);
             profile.setEmail(email);

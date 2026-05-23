@@ -1,5 +1,6 @@
 package com.ebu6304.group48.servlet;
 
+import com.ebu6304.group48.model.Application;
 import com.ebu6304.group48.model.Job;
 import com.ebu6304.group48.repository.ApplicationRepository;
 import com.ebu6304.group48.repository.JobRepository;
@@ -11,7 +12,9 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -25,6 +28,24 @@ public class MoDashboardServlet extends HttpServlet {
     public void init() {
         jobRepository = new JobRepository(getServletContext());
         applicationRepository = new ApplicationRepository(getServletContext());
+    }
+
+    @Override
+    protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws IOException {
+        String action = trim(req.getParameter("action"));
+        String jobId = trim(req.getParameter("jobId"));
+        String userId = String.valueOf(req.getSession().getAttribute(SessionKeys.USER_ID));
+
+        if ("close".equals(action) && !jobId.isEmpty()) {
+            Job job = jobRepository.findById(jobId);
+            if (job != null && userId.equals(job.getPostedByUserId())
+                    && "OPEN".equalsIgnoreCase(job.getStatus() != null ? job.getStatus() : "")) {
+                jobRepository.updateStatus(jobId, "CLOSED");
+                resp.sendRedirect(req.getContextPath() + "/mo/dashboard?closed=1");
+                return;
+            }
+        }
+        resp.sendRedirect(req.getContextPath() + "/mo/dashboard?error=1");
     }
 
     @Override
@@ -56,11 +77,36 @@ public class MoDashboardServlet extends HttpServlet {
                 })
                 .count();
 
+        // Per-job applicant breakdown
+        Map<String, Integer> submittedByJob = new HashMap<>();
+        Map<String, Integer> underReviewByJob = new HashMap<>();
+        Map<String, Integer> selectedByJob = new HashMap<>();
+        Map<String, Integer> rejectedByJob = new HashMap<>();
+        Map<String, Integer> totalByJob = new HashMap<>();
+        for (Application app : applicationRepository.findAll()) {
+            if (app == null || !myJobIds.contains(app.getJobId())) continue;
+            String s = app.getStatus() != null ? app.getStatus().toUpperCase().trim() : "";
+            totalByJob.merge(app.getJobId(), 1, Integer::sum);
+            if ("SUBMITTED".equals(s)) submittedByJob.merge(app.getJobId(), 1, Integer::sum);
+            else if ("UNDER_REVIEW".equals(s)) underReviewByJob.merge(app.getJobId(), 1, Integer::sum);
+            else if ("SELECTED".equals(s)) selectedByJob.merge(app.getJobId(), 1, Integer::sum);
+            else if ("REJECTED".equals(s)) rejectedByJob.merge(app.getJobId(), 1, Integer::sum);
+        }
+
         req.setAttribute("myJobsTotal", myJobsTotal);
         req.setAttribute("myOpenJobs", myOpenJobs);
         req.setAttribute("pendingApplications", pendingApplications);
         req.setAttribute("jobs", myJobs);
+        req.setAttribute("submittedByJob", submittedByJob);
+        req.setAttribute("underReviewByJob", underReviewByJob);
+        req.setAttribute("selectedByJob", selectedByJob);
+        req.setAttribute("rejectedByJob", rejectedByJob);
+        req.setAttribute("totalByJob", totalByJob);
 
         req.getRequestDispatcher("/WEB-INF/jsp/mo/dashboard.jsp").forward(req, resp);
+    }
+
+    private static String trim(String value) {
+        return value == null ? "" : value.trim();
     }
 }

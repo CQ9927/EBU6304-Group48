@@ -13,6 +13,7 @@
             ? String.valueOf(request.getAttribute("navCurrent"))
             : "";
 %>
+<a href="#main-content" class="skip-link">Skip to main content</a>
 <header class="site-header">
     <div class="site-header__inner">
         <a class="site-brand" href="<%= brandHref %>">TA Recruitment</a>
@@ -34,6 +35,7 @@
     <% } else if ("MO".equals(role)) { %>
     <a href="<%= ctx %>/mo/dashboard" class="<%= "dashboard".equals(navCurrent) ? "nav-link--current" : "" %>">Dashboard</a>
     <a href="<%= ctx %>/mo/jobs/select" class="<%= "select".equals(navCurrent) ? "nav-link--current" : "" %>">Review applications</a>
+    <a href="<%= ctx %>/mo/dashboard#post-job-modal" class="<%= "post".equals(navCurrent) ? "nav-link--current" : "" %>">Post a new job</a>
     <% } else if ("ADMIN".equals(role)) { %>
     <a href="<%= ctx %>/admin/workload" class="<%= "workload".equals(navCurrent) ? "nav-link--current" : "" %>">Workload</a>
     <a href="<%= ctx %>/admin/users" class="<%= "users".equals(navCurrent) ? "nav-link--current" : "" %>">Users</a>

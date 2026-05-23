@@ -5,6 +5,7 @@
 <head>
     <meta charset="UTF-8"/>
     <meta name="viewport" content="width=device-width, initial-scale=1"/>
+    <meta name="view-transition" content="same-origin"/>
     <title>Account appeal</title>
     <link rel="stylesheet" href="${pageContext.request.contextPath}/css/app.css"/>
 </head>
@@ -12,7 +13,7 @@
 <jsp:include page="/WEB-INF/jsp/_include/app-header.jsp">
     <jsp:param name="guest" value="true"/>
 </jsp:include>
-<main class="site-main site-main--auth auth-layout">
+<main class="site-main site-main--auth auth-layout" id="main-content">
     <div class="auth-card" style="max-width: 32rem;">
         <h1 class="page-title">Account appeal</h1>
 
@@ -38,19 +39,19 @@
                 </div>
                 <button type="submit" class="btn btn-primary btn-block">Verify and continue</button>
             </form>
-            <p class="auth-footer" style="margin-top: 1rem;">
+            <p class="auth-footer">
                 <a href="${pageContext.request.contextPath}/login">Back to sign in</a>
             </p>
         </c:if>
 
         <c:if test="${step == 'appeal'}">
             <p class="auth-card__subtitle">Your account has been banned. Read the reason below, then submit your appeal.</p>
-            <div class="card" style="margin: 1rem 0; padding: 1rem; text-align: left;">
+            <div class="card ban-reason-card">
                 <strong>Ban reason</strong>
-                <p style="margin: 0.5rem 0 0; white-space: pre-wrap;"><c:out value="${empty appealUser.banReason ? '(none)' : appealUser.banReason}"/></p>
+                <p class="ban-reason-text"><c:out value="${empty appealUser.banReason ? '(none)' : appealUser.banReason}"/></p>
             </div>
             <c:if test="${not empty appealUser.appealMessage}">
-                <p class="text-muted" style="font-size: 0.875rem;">You already submitted an appeal on <c:out value="${appealUser.appealSubmittedAt}"/>. Submitting again will replace your previous message.</p>
+                <p class="text-muted appeal-note">You already submitted an appeal on <c:out value="${appealUser.appealSubmittedAt}"/>. Submitting again will replace your previous message.</p>
             </c:if>
             <c:if test="${not empty appealError}">
                 <p class="alert alert-error" role="alert"><c:out value="${appealError}"/></p>
@@ -63,7 +64,7 @@
                 </div>
                 <button type="submit" class="btn btn-primary btn-block">Submit appeal</button>
             </form>
-            <p class="auth-footer" style="margin-top: 1rem;">
+            <p class="auth-footer">
                 <a href="${pageContext.request.contextPath}/login">Back to sign in</a>
             </p>
         </c:if>

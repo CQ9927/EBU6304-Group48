@@ -1,18 +1,11 @@
 package com.ebu6304.group48.service;
 
-import com.ebu6304.group48.config.AppPaths;
 import com.ebu6304.group48.model.Application;
 import com.ebu6304.group48.model.Job;
+import com.ebu6304.group48.repository.ApplicationRepository;
 import com.ebu6304.group48.repository.JobRepository;
-import com.google.gson.Gson;
-import com.google.gson.reflect.TypeToken;
 
 import javax.servlet.ServletContext;
-import java.io.IOException;
-import java.lang.reflect.Type;
-import java.nio.charset.StandardCharsets;
-import java.nio.file.Files;
-import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.HashMap;
@@ -22,22 +15,19 @@ import java.util.Map;
 
 public class WorkloadService {
 
-    private static final Gson GSON = new Gson();
-    private static final Type APPLICATION_LIST_TYPE = new TypeToken<List<Application>>() { }.getType();
-
     private final JobRepository jobRepository;
+    private final ApplicationRepository applicationRepository;
     private final MatchingService matchingService;
-    private final Path applicationsFile;
 
     public WorkloadService(ServletContext context, MatchingService matchingService) {
         this.jobRepository = new JobRepository(context);
+        this.applicationRepository = new ApplicationRepository(context);
         this.matchingService = matchingService;
-        this.applicationsFile = Path.of(AppPaths.resolveDataDirectory(context), "applications.json");
     }
 
     public WorkloadSnapshot buildSnapshot() {
         List<Job> jobs = jobRepository.findAll();
-        List<Application> applications = readApplications();
+        List<Application> applications = applicationRepository.findAll();
         Map<String, Integer> submittedByJob = new HashMap<>();
         Map<String, Integer> reviewByJob = new HashMap<>();
         Map<String, Integer> selectedByJob = new HashMap<>();
@@ -125,24 +115,6 @@ public class WorkloadService {
                 rows,
                 hints
         );
-    }
-
-    private List<Application> readApplications() {
-        try {
-            ensureStorage();
-            String json = Files.readString(applicationsFile, StandardCharsets.UTF_8);
-            List<Application> applications = GSON.fromJson(json, APPLICATION_LIST_TYPE);
-            return applications != null ? applications : new ArrayList<>();
-        } catch (IOException | RuntimeException e) {
-            return new ArrayList<>();
-        }
-    }
-
-    private void ensureStorage() throws IOException {
-        Files.createDirectories(applicationsFile.getParent());
-        if (!Files.exists(applicationsFile)) {
-            Files.writeString(applicationsFile, "[]", StandardCharsets.UTF_8);
-        }
     }
 
     private boolean isBlank(String value) {

@@ -7,11 +7,12 @@
     <meta name="viewport" content="width=device-width, initial-scale=1"/>
     <meta name="view-transition" content="same-origin"/>
     <title>CV Management</title>
-    <link rel="stylesheet" href="${pageContext.request.contextPath}/css/app.css"/>
+    <link rel="stylesheet" href="${pageContext.request.contextPath}/css/app.css?v=ai2"/>
 </head>
 <body>
 <jsp:include page="/WEB-INF/jsp/_include/app-header.jsp"/>
-<main class="site-main container-grid">
+<main class="site-main container-grid" id="main-content">
+    <div class="back-link"><a href="${pageContext.request.contextPath}/ta/dashboard">&larr; Back to Dashboard</a></div>
     <h1>CV Management</h1>
 
     <c:if test="${not empty sessionScope.message}">
@@ -22,7 +23,7 @@
     </c:if>
     
     <c:if test="${not empty sessionScope.error}">
-        <div class="alert alert-danger">
+        <div class="alert alert-error">
             ${sessionScope.error}
             <c:remove var="error" scope="session"/>
         </div>
@@ -31,7 +32,7 @@
     <div class="requirements">
         <h4>File requirements</h4>
         <ul>
-            <li>Accepted formats: PDF, DOC, DOCX</li>
+            <li>Accepted format: TXT (plain text) only</li>
             <li>Maximum file size: 5MB</li>
             <li>File naming: CV_UserID_Timestamp.Extension (auto-generated)</li>
             <li>You can upload multiple CVs, but only one can be "active" for applications</li>
@@ -45,8 +46,8 @@
             
             <div class="form-group">
                 <label for="cvFile">Select CV File *</label>
-                <input type="file" id="cvFile" name="cvFile" class="form-control file-input" accept=".pdf,.doc,.docx" required>
-                <div class="help-text">PDF, Word documents (.doc, .docx) only. Max 5MB.</div>
+                <input type="file" id="cvFile" name="cvFile" class="form-control file-input" accept=".txt,text/plain" required>
+                <div class="help-text">Plain text files (.txt) only. Max 5MB. AI will analyze your CV and auto-fill skills.</div>
             </div>
             
             <button type="submit" class="btn btn-primary">Upload CV</button>
@@ -134,14 +135,23 @@ document.addEventListener('DOMContentLoaded', function() {
             const file = this.files[0];
             if (file) {
                 const fileSize = file.size / 1024 / 1024; // MB
-                const validTypes = ['application/pdf', 'application/msword', 'application/vnd.openxmlformats-officedocument.wordprocessingml.document'];
-                
-                if (!validTypes.includes(file.type)) {
-                    alert('Invalid file type. Please select a PDF or Word document.');
-                    this.value = '';
+                var msg = '';
+                if (file.type !== 'text/plain' && !file.name.endsWith('.txt')) {
+                    msg = 'Invalid file type. Please select a plain text (.txt) file.';
                 } else if (fileSize > 5) {
-                    alert('File size exceeds 5MB limit. Please select a smaller file.');
+                    msg = 'File size exceeds 5MB limit. Please select a smaller file.';
+                }
+                if (msg) {
                     this.value = '';
+                    var old = document.getElementById('cv-upload-error');
+                    if (old) old.remove();
+                    var err = document.createElement('div');
+                    err.className = 'alert alert-error';
+                    err.id = 'cv-upload-error';
+                    err.role = 'alert';
+                    err.textContent = msg;
+                    var btn = this.closest('form').querySelector('button[type="submit"]');
+                    btn.parentNode.insertBefore(err, btn);
                 }
             }
         });

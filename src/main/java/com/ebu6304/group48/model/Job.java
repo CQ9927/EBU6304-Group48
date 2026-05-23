@@ -138,6 +138,7 @@ public class Job {
     private List<String> requiredSkills;
     private String postedByUserId;
     private String status;
+    private String deadline;
     private String createdAt;
 
     // Constructors
@@ -146,7 +147,7 @@ public class Job {
 
     public Job(String jobId, String title, String type, String semester, String schedule,
                Integer capacity, List<String> requiredSkills, String postedByUserId,
-               String status, String createdAt) {
+               String status, String deadline, String createdAt) {
         this.jobId = jobId;
         this.title = title;
         this.type = type;
@@ -156,6 +157,7 @@ public class Job {
         this.requiredSkills = requiredSkills;
         this.postedByUserId = postedByUserId;
         this.status = status;
+        this.deadline = deadline;
         this.createdAt = createdAt;
     }
 
@@ -232,6 +234,14 @@ public class Job {
         this.status = status;
     }
 
+    public String getDeadline() {
+        return deadline;
+    }
+
+    public void setDeadline(String deadline) {
+        this.deadline = deadline;
+    }
+
     public String getCreatedAt() {
         return createdAt;
     }
@@ -252,6 +262,7 @@ public class Job {
                 ", requiredSkills=" + requiredSkills +
                 ", postedByUserId='" + postedByUserId + '\'' +
                 ", status='" + status + '\'' +
+                ", deadline='" + deadline + '\'' +
                 ", createdAt='" + createdAt + '\'' +
                 '}';
     }

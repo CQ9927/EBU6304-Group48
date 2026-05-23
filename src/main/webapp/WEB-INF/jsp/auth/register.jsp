@@ -1,4 +1,5 @@
 <%@ page contentType="text/html;charset=UTF-8" pageEncoding="UTF-8" %>
+<%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -12,13 +13,13 @@
 <jsp:include page="/WEB-INF/jsp/_include/app-header.jsp">
     <jsp:param name="guest" value="true"/>
 </jsp:include>
-<main class="site-main site-main--auth auth-layout">
+<main class="site-main site-main--auth auth-layout" id="main-content">
     <div class="auth-card">
         <h1 class="page-title">Register</h1>
         <p class="auth-card__subtitle">Choose a role for the coursework demo. Passwords are stored as a simple hash only.</p>
-        <% if (request.getAttribute("error") != null) { %>
-        <div class="alert alert-error" role="alert"><%= request.getAttribute("error") %></div>
-        <% } %>
+        <c:if test="${not empty error}">
+        <div class="alert alert-error" role="alert"><c:out value="${error}"/></div>
+        </c:if>
         <form method="post" action="${pageContext.request.contextPath}/register">
             <div class="form-group">
                 <label for="reg-username">Username</label>
@@ -26,7 +27,7 @@
             </div>
             <div class="form-group">
                 <label for="reg-password">Password</label>
-                <input type="password" id="reg-password" name="password" autocomplete="new-password" required minlength="4"/>
+                <input type="password" id="reg-password" name="password" autocomplete="new-password" required minlength="8"/>
             </div>
             <div class="form-group">
                 <label for="reg-confirm">Confirm password</label>
@@ -47,5 +48,25 @@
         </div>
     </div>
 </main>
+
+<script>
+document.getElementById('reg-confirm').closest('form').addEventListener('submit', function(e) {
+    var pw = document.getElementById('reg-password');
+    var cf = document.getElementById('reg-confirm');
+    if (pw.value !== cf.value) {
+        e.preventDefault();
+        var old = document.getElementById('pw-match-error');
+        if (old) old.remove();
+        var err = document.createElement('div');
+        err.className = 'alert alert-error';
+        err.id = 'pw-match-error';
+        err.role = 'alert';
+        err.textContent = 'Passwords do not match. Please re-enter.';
+        var btn = this.querySelector('button');
+        btn.parentNode.insertBefore(err, btn);
+        cf.focus();
+    }
+});
+</script>
 </body>
 </html>

@@ -5,12 +5,13 @@
 <head>
     <meta charset="UTF-8"/>
     <meta name="viewport" content="width=device-width, initial-scale=1"/>
+    <meta name="view-transition" content="same-origin"/>
     <title>Admin — Users</title>
     <link rel="stylesheet" href="${pageContext.request.contextPath}/css/app.css"/>
 </head>
 <body>
 <jsp:include page="/WEB-INF/jsp/_include/app-header.jsp"/>
-<main class="site-main">
+<main class="site-main" id="main-content">
     <header class="page-header">
         <h1 class="page-title">User management</h1>
         <p class="lead text-muted">Ban / unban accounts and reset passwords. Password hashes are never shown.</p>
@@ -22,6 +23,11 @@
     <c:if test="${param.error == 'self'}"><p class="app-notice app-notice--warn" role="alert">You cannot ban your own account.</p></c:if>
     <c:if test="${param.error == 'notfound'}"><p class="app-notice app-notice--warn" role="alert">User not found.</p></c:if>
     <c:if test="${param.error == 'invalid'}"><p class="app-notice app-notice--warn" role="alert">Invalid request.</p></c:if>
+
+    <c:if test="${empty users}">
+        <div class="card"><p class="text-muted" style="text-align:center; padding:2rem 1rem;">No users found.</p></div>
+    </c:if>
+    <c:if test="${not empty users}">
 
     <div class="card card--flush">
         <div class="table-scroll">
@@ -49,8 +55,8 @@
                                 <c:otherwise><span class="badge submitted">no</span></c:otherwise>
                             </c:choose>
                         </td>
-                        <td style="max-width:14rem; white-space:pre-wrap; font-size:0.875rem;"><c:out value="${u.banReason}"/></td>
-                        <td style="max-width:16rem; white-space:pre-wrap; font-size:0.875rem;">
+                        <td class="td-narrow"><c:out value="${u.banReason}"/></td>
+                        <td class="td-narrow">
                             <c:if test="${not empty u.appealMessage}">
                                 <span class="text-muted"><c:out value="${u.appealSubmittedAt}"/></span><br/>
                                 <c:out value="${u.appealMessage}"/>
@@ -61,27 +67,27 @@
                             <c:if test="${u.userId != selfUserId}">
                                 <c:choose>
                                     <c:when test="${u.banned}">
-                                        <form method="post" action="${pageContext.request.contextPath}/admin/users" style="display:inline;">
+                                        <form method="post" action="${pageContext.request.contextPath}/admin/users" class="inline-form" onsubmit="return confirm('Unban this user?');">
                                             <input type="hidden" name="action" value="unban"/>
                                             <input type="hidden" name="userId" value="${u.userId}"/>
                                             <button type="submit" class="btn btn-ghost">Unban</button>
                                         </form>
                                     </c:when>
                                     <c:otherwise>
-                                        <form method="post" action="${pageContext.request.contextPath}/admin/users" style="display:flex; flex-direction:column; gap:0.35rem; align-items:flex-start; max-width:22rem;">
+                                        <form method="post" action="${pageContext.request.contextPath}/admin/users" class="ban-form" onsubmit="return confirm('Ban this user?');">
                                             <input type="hidden" name="action" value="ban"/>
                                             <input type="hidden" name="userId" value="${u.userId}"/>
-                                            <label class="text-muted" style="font-size:0.8rem;">Ban reason (required)</label>
+                                            <label class="text-muted">Ban reason (required)</label>
                                             <textarea name="banReason" class="form-control" rows="2" required placeholder="Explain why this account is being banned…"></textarea>
                                             <button type="submit" class="btn btn-ghost">Ban</button>
                                         </form>
                                     </c:otherwise>
                                 </c:choose>
                             </c:if>
-                            <form method="post" action="${pageContext.request.contextPath}/admin/users" style="display:inline-flex; gap:0.25rem; align-items:center; margin-left:0.5rem;">
+                            <form method="post" action="${pageContext.request.contextPath}/admin/users" class="reset-pw-form" onsubmit="return confirm('Reset password for this user?');">
                                 <input type="hidden" name="action" value="resetPassword"/>
                                 <input type="hidden" name="userId" value="${u.userId}"/>
-                                <input type="password" name="newPassword" placeholder="New password" required class="form-control" style="max-width:12rem;"/>
+                                <input type="password" name="newPassword" placeholder="New password" required class="form-control reset-pw-input"/>
                                 <button type="submit" class="btn btn-primary">Reset</button>
                             </form>
                         </td>
@@ -91,6 +97,8 @@
             </table>
         </div>
     </div>
+
+    </c:if>
 </main>
 </body>
 </html>

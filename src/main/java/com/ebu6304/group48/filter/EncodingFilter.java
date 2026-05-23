@@ -25,6 +25,7 @@ public class EncodingFilter implements Filter {
             throws IOException, ServletException {
         request.setCharacterEncoding(ENCODING);
         response.setCharacterEncoding(ENCODING);
+        response.setContentType("text/html; charset=" + ENCODING);
         chain.doFilter(request, response);
     }
 

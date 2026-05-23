@@ -1,16 +1,17 @@
 <%@ page contentType="text/html;charset=UTF-8" pageEncoding="UTF-8" %>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <!DOCTYPE html>
-<html lang="zh-CN">
+<html lang="en">
 <head>
     <meta charset="UTF-8"/>
     <meta name="viewport" content="width=device-width, initial-scale=1"/>
+    <meta name="view-transition" content="same-origin"/>
     <title>Admin — Applications</title>
     <link rel="stylesheet" href="${pageContext.request.contextPath}/css/app.css"/>
 </head>
 <body>
 <jsp:include page="/WEB-INF/jsp/_include/app-header.jsp"/>
-<main class="site-main">
+<main class="site-main" id="main-content">
     <header class="page-header">
         <h1 class="page-title">Applications</h1>
         <p class="lead text-muted">Revoke pending applications (sets status to REJECTED and marks admin revoke). Not allowed for SELECTED or already REJECTED.</p>
@@ -19,6 +20,11 @@
     <c:if test="${param.saved == '1'}"><p class="app-notice app-notice--ok" role="status">Application revoked by admin.</p></c:if>
     <c:if test="${param.error == 'revoke'}"><p class="app-notice app-notice--warn" role="alert">Could not revoke (invalid state or not found).</p></c:if>
     <c:if test="${param.error == 'invalid'}"><p class="app-notice app-notice--warn" role="alert">Invalid request.</p></c:if>
+
+    <c:if test="${empty applications}">
+        <div class="card"><p class="text-muted" style="text-align:center; padding:2rem 1rem;">No applications found.</p></div>
+    </c:if>
+    <c:if test="${not empty applications}">
 
     <div class="card card--flush">
         <div class="table-scroll">
@@ -63,6 +69,8 @@
             </table>
         </div>
     </div>
+
+    </c:if>
 </main>
 </body>
 </html>

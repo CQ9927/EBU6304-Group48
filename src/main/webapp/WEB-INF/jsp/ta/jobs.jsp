@@ -1,5 +1,6 @@
 <%@ page contentType="text/html;charset=UTF-8" pageEncoding="UTF-8" %>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
+<%@ taglib prefix="fn" uri="http://java.sun.com/jsp/jstl/functions" %>
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -7,7 +8,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1"/>
     <meta name="view-transition" content="same-origin"/>
     <title>Available Jobs</title>
-    <link rel="stylesheet" href="${pageContext.request.contextPath}/css/app.css"/>
+    <link rel="stylesheet" href="${pageContext.request.contextPath}/css/app.css?v=ai2"/>
 </head>
 <body>
 <jsp:include page="/WEB-INF/jsp/_include/app-header.jsp"/>
@@ -15,14 +16,14 @@
     <h1>Available TA Jobs</h1>
 
     <c:if test="${not empty sessionScope.message}">
-        <div class="alert alert-info">
+        <div class="alert alert-success">
             ${sessionScope.message}
             <c:remove var="message" scope="session"/>
         </div>
     </c:if>
 
     <c:if test="${not empty sessionScope.error}">
-        <div class="alert alert-warning">
+        <div class="alert alert-error">
             ${sessionScope.error}
             <c:remove var="error" scope="session"/>
         </div>
@@ -87,7 +88,7 @@
                        placeholder="e.g., Java, Teaching" value="${skillFilter}">
             </div>
             
-            <div class="filter-group" style="grid-column: 1 / -1; display: flex; gap: 0.5rem; align-items: flex-end;">
+            <div class="filter-actions">
                 <button type="submit" class="btn btn-primary">Apply Filters</button>
                 <a href="${pageContext.request.contextPath}/ta/jobs" class="btn btn-secondary">Clear Filters</a>
             </div>
@@ -96,9 +97,9 @@
         <c:if test="${not empty typeFilter or not empty semesterFilter or not empty skillFilter}">
             <div class="alert alert-info">
                 <strong>Active filters:</strong>
-                <c:if test="${not empty typeFilter}">Type: ${typeFilter}</c:if>
-                <c:if test="${not empty semesterFilter}"> | Semester: ${semesterFilter}</c:if>
-                <c:if test="${not empty skillFilter}"> | Skill: ${skillFilter}</c:if>
+                <c:if test="${not empty typeFilter}">Type: <c:out value="${typeFilter}"/></c:if>
+                <c:if test="${not empty semesterFilter}"> | Semester: <c:out value="${semesterFilter}"/></c:if>
+                <c:if test="${not empty skillFilter}"> | Skill: <c:out value="${skillFilter}"/></c:if>
             </div>
         </c:if>
     </div>
@@ -108,6 +109,7 @@
         
         <c:choose>
             <c:when test="${not empty jobs}">
+                <div class="table-scroll">
                 <table class="job-table">
                     <thead>
                         <tr>
@@ -165,6 +167,14 @@
                                                 S:${mr.skillScore}/50 T:${mr.scheduleScore}/25
                                                 M:${mr.majorScore}/15 P:${mr.completenessScore}/10
                                             </small>
+                                            <c:if test="${not empty userProfile}">
+                                                <br><button class="btn-ai-analyze" data-job-id="${job.jobId}"
+                                                        onclick="loadAiAnalysis('${job.jobId}', this)">AI Analysis</button>
+                                                <button class="btn-ai-analyze" data-job-id="${job.jobId}"
+                                                        onclick="loadSkillGap('${job.jobId}', this)" style="margin-left:4px;">Skill Gap</button>
+                                                <div class="ai-analysis-result" id="ai-${job.jobId}" style="display:none;"></div>
+                                                <div class="ai-analysis-result" id="sg-${job.jobId}" style="display:none;"></div>
+                                            </c:if>
                                         </c:when>
                                         <c:otherwise>
                                             <span class="text-muted">N/A</span>
@@ -191,7 +201,7 @@
                                                     title="Complete profile and upload CV first">Apply</button>
                                         </c:when>
                                         <c:otherwise>
-                                            <a href="${pageContext.request.contextPath}/ta/apply?jobId=${job.jobId}" 
+                                            <a href="<c:url value='/ta/apply'><c:param name='jobId' value='${job.jobId}'/></c:url>"
                                                class="btn btn-success btn-apply">Apply</a>
                                         </c:otherwise>
                                     </c:choose>
@@ -200,7 +210,8 @@
                         </c:forEach>
                     </tbody>
                 </table>
-                
+                </div>
+
                 <div class="pagination">
                     <div class="pagination-info">
                         Showing ${jobs.size()} job<c:if test="${jobs.size() != 1}">s</c:if>
@@ -210,7 +221,7 @@
                     </div>
                     <div>
                         <c:if test="${jobs.size() > 0}">
-                            <small>Last updated: ${jobs[0].createdAt}</small>
+                            <small>Last updated: ${fn:substring(jobs[0].createdAt, 0, 10)} ${fn:substring(jobs[0].createdAt, 11, 16)}</small>
                         </c:if>
                     </div>
                 </div>
@@ -246,13 +257,6 @@
 
 <script>
 document.addEventListener('DOMContentLoaded', function() {
-    // Auto-refresh job list every 30 seconds
-    setInterval(function() {
-        if (document.visibilityState === 'visible') {
-            window.location.reload();
-        }
-    }, 30000);
-    
     // Add tooltips for match scores
     const matchElements = document.querySelectorAll('.match-score');
     matchElements.forEach(el => {
@@ -270,6 +274,135 @@ document.addEventListener('DOMContentLoaded', function() {
         el.title = tooltip;
     });
 });
+</script>
+
+<script>
+function renderAiText(text) {
+    if (!text) return '';
+    // Bold: **text** → <strong class="ai-hl">text</strong>
+    var html = text.replace(/\*\*(.+?)\*\*/g, '<strong class="ai-hl">$1</strong>');
+
+    var lines = html.split('\n');
+    var result = '';
+    var bulletGroup = null;
+    var i = 0;
+
+    while (i < lines.length) {
+        var line = lines[i].trim();
+        if (!line) { i++; continue; }
+
+        var bulletMatch = line.match(/^[•\-]\s+(.*)/);
+        var numMatch = line.match(/^(\d+)[\.\)]\s+(.*)/);
+        var emojiMatch = line.match(/^([\u{1F534}\u{1F7E1}\u{1F7E2}\u{1F4A1}\u2705\u26A0\uFE0F\u274C])\s*(.*)/u);
+
+        function classifyLine(text) {
+            var lower = text.toLowerCase();
+            if (/verdict|overall|recommend/i.test(lower)) return 'ai-insight-tip';
+            if (/missing|gap|lack|no\s|doesn|poor|weak/i.test(lower)) return 'ai-insight-critical';
+            if (/partial|some|moderate|could|might/i.test(lower)) return 'ai-insight-warning';
+            if (/good|strong|excellent|well|match/i.test(lower)) return 'ai-insight-good';
+            return '';
+        }
+
+        if (emojiMatch) {
+            var emoji = emojiMatch[1];
+            var rest = emojiMatch[2];
+            var cls = 'ai-insight';
+            if (/[\u{1F534}\u274C]/.test(emoji)) cls += ' ai-insight-critical';
+            else if (/[\u{1F7E1}\u26A0]/.test(emoji)) cls += ' ai-insight-warning';
+            else if (/[\u{1F7E2}\u2705]/.test(emoji)) cls += ' ai-insight-good';
+            else if (/\u{1F4A1}/.test(emoji)) cls += ' ai-insight-tip';
+            if (bulletGroup) { result += '</' + bulletGroup + '>'; bulletGroup = null; }
+            result += '<div class="' + cls + '">' + emoji + ' ' + rest + '</div>';
+        } else if (bulletMatch) {
+            if (bulletGroup !== 'ul') {
+                if (bulletGroup) result += '</' + bulletGroup + '>';
+                result += '<ul>';
+                bulletGroup = 'ul';
+            }
+            var extraCls = classifyLine(bulletMatch[1]);
+            result += '<li' + (extraCls ? ' class="' + extraCls + '"' : '') + '>' + bulletMatch[1] + '</li>';
+        } else if (numMatch) {
+            if (bulletGroup !== 'ol') {
+                if (bulletGroup) result += '</' + bulletGroup + '>';
+                result += '<ol>';
+                bulletGroup = 'ol';
+            }
+            result += '<li>' + numMatch[2] + '</li>';
+        } else {
+            if (bulletGroup) { result += '</' + bulletGroup + '>'; bulletGroup = null; }
+            var cls2 = classifyLine(line);
+            result += '<div class="' + (cls2 || 'ai-insight') + '">' + line + '</div>';
+        }
+        i++;
+    }
+    if (bulletGroup) result += '</' + bulletGroup + '>';
+    return result;
+}
+
+function loadAiAnalysis(jobId, btn) {
+    var resultDiv = document.getElementById('ai-' + jobId);
+    if (!resultDiv) return;
+
+    btn.disabled = true;
+    btn.textContent = 'Analyzing...';
+    resultDiv.style.display = 'block';
+    resultDiv.innerHTML = '<p>Analyzing...</p>';
+
+    var ctxPath = '${pageContext.request.contextPath}';
+    fetch(ctxPath + '/ta/jobs/ai-analysis?jobId=' + encodeURIComponent(jobId))
+        .then(function(resp) {
+            if (!resp.ok) throw new Error('HTTP ' + resp.status);
+            return resp.json();
+        })
+        .then(function(data) {
+            if (data.explanation) {
+                resultDiv.innerHTML = renderAiText(data.explanation);
+                btn.style.display = 'none';
+            } else {
+                resultDiv.innerHTML = '<p>' + (data.error || 'AI analysis unavailable.') + '</p>';
+                btn.textContent = 'AI Analysis';
+                btn.disabled = false;
+            }
+        })
+        .catch(function(err) {
+            resultDiv.innerHTML = '<p>AI analysis is currently unavailable. Please try again later.</p>';
+            btn.textContent = 'AI Analysis';
+            btn.disabled = false;
+        });
+}
+
+function loadSkillGap(jobId, btn) {
+    var resultDiv = document.getElementById('sg-' + jobId);
+    if (!resultDiv) return;
+
+    btn.disabled = true;
+    btn.textContent = 'Analyzing...';
+    resultDiv.style.display = 'block';
+    resultDiv.innerHTML = '<p>Analyzing skill gaps...</p>';
+
+    var ctxPath = '${pageContext.request.contextPath}';
+    fetch(ctxPath + '/ta/jobs/ai-analysis?type=skills&jobId=' + encodeURIComponent(jobId))
+        .then(function(resp) {
+            if (!resp.ok) throw new Error('HTTP ' + resp.status);
+            return resp.json();
+        })
+        .then(function(data) {
+            if (data.explanation) {
+                resultDiv.innerHTML = renderAiText(data.explanation);
+                btn.style.display = 'none';
+            } else {
+                resultDiv.innerHTML = '<p>' + (data.error || 'Skill gap analysis unavailable.') + '</p>';
+                btn.textContent = 'Skill Gap';
+                btn.disabled = false;
+            }
+        })
+        .catch(function(err) {
+            resultDiv.innerHTML = '<p>Skill gap analysis is currently unavailable. Please try again later.</p>';
+            btn.textContent = 'Skill Gap';
+            btn.disabled = false;
+        });
+}
 </script>
 </body>
 </html>

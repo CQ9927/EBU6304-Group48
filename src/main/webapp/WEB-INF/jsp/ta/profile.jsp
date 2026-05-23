@@ -1,5 +1,6 @@
 <%@ page contentType="text/html;charset=UTF-8" pageEncoding="UTF-8" %>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
+<%@ taglib prefix="fn" uri="http://java.sun.com/jsp/jstl/functions" %>
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -11,7 +12,8 @@
 </head>
 <body>
 <jsp:include page="/WEB-INF/jsp/_include/app-header.jsp"/>
-<main class="site-main container-grid">
+<main class="site-main container-grid" id="main-content">
+    <div class="back-link"><a href="${pageContext.request.contextPath}/ta/dashboard">&larr; Back to Dashboard</a></div>
     <h1>TA Profile Management</h1>
 
     <c:if test="${not empty sessionScope.message}">
@@ -22,7 +24,7 @@
     </c:if>
     
     <c:if test="${not empty sessionScope.error}">
-        <div class="alert alert-danger">
+        <div class="alert alert-error">
             ${sessionScope.error}
             <c:remove var="error" scope="session"/>
         </div>
@@ -135,7 +137,7 @@
         </form>
         
         <c:if test="${not empty profile and not empty profile.updatedAt}">
-            <p class="last-updated">Last updated: ${profile.updatedAt}</p>
+            <p class="last-updated">Last updated: ${fn:substring(profile.updatedAt, 0, 10)} ${fn:substring(profile.updatedAt, 11, 16)}</p>
         </c:if>
     </div>
 </main>

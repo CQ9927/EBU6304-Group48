@@ -7,11 +7,11 @@
     <meta name="viewport" content="width=device-width, initial-scale=1"/>
     <meta name="view-transition" content="same-origin"/>
     <title>Select Applicants</title>
-    <link rel="stylesheet" href="${pageContext.request.contextPath}/css/app.css"/>
+    <link rel="stylesheet" href="${pageContext.request.contextPath}/css/app.css?v=ai2"/>
 </head>
 <body>
 <jsp:include page="/WEB-INF/jsp/_include/app-header.jsp"/>
-<main class="site-main">
+<main class="site-main" id="main-content">
 <header class="page-header">
     <h1 class="page-title">MO selection</h1>
     <p class="lead lead--tight text-muted">Filter applications and update status.</p>
@@ -57,7 +57,7 @@
     <c:if test="${not empty currentJob}">
         <c:set var="cap" value="${currentJob.capacity != null ? currentJob.capacity : 0}"/>
         <c:set var="selCount" value="${selectedCountByJob[selectedJobId] != null ? selectedCountByJob[selectedJobId] : 0}"/>
-        <div class="stats" style="margin-top:1rem;">
+        <div class="stats stats--section">
             <div class="stat-item">
                 <div class="stat-value">${cap}</div>
                 <div class="stat-label">Capacity</div>
@@ -109,9 +109,14 @@
             <td>
                 <c:choose>
                     <c:when test="${not empty profile}">
-                        <strong>${profile.name}</strong><br/>
-                        <small class="text-muted">${profile.major}</small><br/>
-                        <small class="text-muted">${profile.email}</small>
+                        <strong><c:out value="${profile.name}"/></strong><br/>
+                        <small class="text-muted"><c:out value="${profile.major}"/></small><br/>
+                        <small class="text-muted"><c:out value="${profile.email}"/></small>
+                        <c:if test="${not empty profile.aiSummary}">
+                            <div class="ai-summary-badge">
+                                <strong>AI CV Summary:</strong> <c:out value="${profile.aiSummary}"/>
+                            </div>
+                        </c:if>
                     </c:when>
                     <c:otherwise>
                         <span class="text-muted">${app.applicantUserId}</span>
@@ -122,7 +127,7 @@
             <td>
                 <c:if test="${not empty profile and not empty profile.cvFileName}">
                     <a href="${pageContext.request.contextPath}/mo/jobs/select?download=${profile.cvFileName}&jobId=${selectedJobId}"
-                       class="btn btn-secondary" style="font-size:0.75rem;padding:0.2rem 0.5rem;">
+                       class="btn btn-secondary btn-download-cv">
                         Download CV
                     </a>
                 </c:if>
@@ -133,7 +138,7 @@
             <td>
                 <c:choose>
                     <c:when test="${not empty mr}">
-                        <div style="display:flex;flex-direction:column;gap:1px;font-size:0.8rem;line-height:1.4;">
+                        <div class="match-breakdown">
                             <span class="match-score
                                 <c:choose>
                                     <c:when test="${mr.totalScore >= 70}">match-high</c:when>
@@ -165,7 +170,7 @@
                             </c:forEach>
                         </div>
                         <c:if test="${not empty mr.detail}">
-                            <br/><small class="text-muted">${mr.detail}</small>
+                            <br/><small class="text-muted"><c:out value="${mr.detail}"/></small>
                         </c:if>
                     </c:when>
                     <c:otherwise>
@@ -209,7 +214,7 @@
                                 Select
                             </button>
                         </form>
-                        <form method="post" action="${pageContext.request.contextPath}/mo/jobs/select" class="inline-form">
+                        <form method="post" action="${pageContext.request.contextPath}/mo/jobs/select" class="inline-form" onsubmit="return confirm('Reject this applicant? This decision can be changed later.');">
                             <input type="hidden" name="applicationId" value="${app.applicationId}"/>
                             <input type="hidden" name="jobId" value="${selectedJobId}"/>
                             <input type="hidden" name="decision" value="REJECTED"/>
