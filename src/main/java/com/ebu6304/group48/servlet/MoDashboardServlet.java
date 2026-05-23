@@ -29,6 +29,12 @@ public class MoDashboardServlet extends HttpServlet {
 
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+        Object flashError = req.getSession().getAttribute(SessionKeys.MO_POST_JOB_ERROR);
+        if (flashError != null) {
+            req.setAttribute("error", flashError);
+            req.getSession().removeAttribute(SessionKeys.MO_POST_JOB_ERROR);
+        }
+
         String userId = String.valueOf(req.getSession().getAttribute(SessionKeys.USER_ID));
         req.setAttribute("username", req.getSession().getAttribute(SessionKeys.USERNAME));
         req.setAttribute("navCurrent", "dashboard");
@@ -53,6 +59,7 @@ public class MoDashboardServlet extends HttpServlet {
         req.setAttribute("myJobsTotal", myJobsTotal);
         req.setAttribute("myOpenJobs", myOpenJobs);
         req.setAttribute("pendingApplications", pendingApplications);
+        req.setAttribute("jobs", myJobs);
 
         req.getRequestDispatcher("/WEB-INF/jsp/mo/dashboard.jsp").forward(req, resp);
     }
