@@ -23,6 +23,16 @@
 hs_err_pid*
 replay_pid*
 
+# Dev scripts and utilities (non-build)
+scripts/*.ps1
+dev/
+
+# Temp build artifacts
+temp-webapps/
+
+# Apache Tomcat
+apache-tomcat-*/
+
 # Maven
 target/
 
