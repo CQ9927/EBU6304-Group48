@@ -123,20 +123,7 @@
                     <tbody>
                         <c:forEach var="job" items="${jobs}">
                             <c:set var="isApplied" value="${appliedJobIds.contains(job.jobId)}" />
-                            <c:set var="userSkills" value="${not empty userProfile ? userProfile.skills : []}" />
-                            <c:set var="matchingSkills" value="" />
-                            <c:set var="missingSkills" value="" />
-                            <c:set var="matchScore" value="0" />
-                            
-                            <c:if test="${not empty userSkills and not empty job.requiredSkills}">
-                                <c:set var="matchingCount" value="0" />
-                                <c:forEach var="requiredSkill" items="${job.requiredSkills}">
-                                    <c:if test="${userSkills.contains(requiredSkill)}">
-                                        <c:set var="matchingCount" value="${matchingCount + 1}" />
-                                    </c:if>
-                                </c:forEach>
-                                <c:set var="matchScore" value="${matchingCount * 100 / job.requiredSkills.size()}" />
-                            </c:if>
+                            <c:set var="mr" value="${matchResultMap[job.jobId]}" />
                             
                             <tr>
                                 <td>
@@ -153,7 +140,7 @@
                                     <div class="skills-list">
                                         <c:forEach var="skill" items="${job.requiredSkills}">
                                             <c:choose>
-                                                <c:when test="${userSkills.contains(skill)}">
+                                                <c:when test="${not empty mr and mr.matchedSkills.contains(skill)}">
                                                     <span class="skill-badge skill-match" title="You have this skill">${skill} ✓</span>
                                                 </c:when>
                                                 <c:otherwise>
@@ -165,15 +152,19 @@
                                 </td>
                                 <td>
                                     <c:choose>
-                                        <c:when test="${not empty userProfile}">
-                                            <span class="match-score 
+                                        <c:when test="${not empty mr}">
+                                            <span class="match-score
                                                 <c:choose>
-                                                    <c:when test="${matchScore >= 80}">match-high</c:when>
-                                                    <c:when test="${matchScore >= 50}">match-medium</c:when>
+                                                    <c:when test="${mr.totalScore >= 80}">match-high</c:when>
+                                                    <c:when test="${mr.totalScore >= 50}">match-medium</c:when>
                                                     <c:otherwise>match-low</c:otherwise>
                                                 </c:choose>">
-                                                ${matchScore.intValue()}%
+                                                ${mr.totalScore}%
                                             </span>
+                                            <br><small class="text-muted">
+                                                S:${mr.skillScore}/50 T:${mr.scheduleScore}/25
+                                                M:${mr.majorScore}/15 P:${mr.completenessScore}/10
+                                            </small>
                                         </c:when>
                                         <c:otherwise>
                                             <span class="text-muted">N/A</span>

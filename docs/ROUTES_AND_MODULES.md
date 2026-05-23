@@ -6,6 +6,7 @@
 |---|---|---|---|---|
 | `/home` | `HomeServlet` | `home.jsp` | — | Core |
 | `/login` | `LoginServlet` | `auth/login.jsp` | `users.json` | CQ9927 (baseline) |
+| `/ban-appeal` | `BanAppealServlet` | `auth/ban-appeal.jsp` | `users.json` (read/write appeal fields) | BUCOD (public; no role filter) |
 | `/register` | `RegisterServlet` | `auth/register.jsp` | `users.json` | CQ9927 (baseline) |
 | `/logout` | `LogoutServlet` | — | — | CQ9927 (baseline) |
 | `/ta/dashboard` | `TaDashboardServlet` | `ta/dashboard.jsp` | — | Core |
@@ -18,13 +19,16 @@
 | `/mo/jobs/new` | `MoPostJobServlet` | `mo/post-job.jsp` | `jobs.json` | yunmengdd |
 | `/mo/jobs/select` | `MoSelectServlet` | `mo/select.jsp` | `applications.json`, `selection.json` | yunmengdd |
 | `/admin/workload` | `AdminDashboardServlet` | `admin/workload.jsp` | `jobs.json`, `applications.json` | BUCOD |
+| `/admin/users` | `AdminUsersServlet` | `admin/users.jsp` | `users.json` (ban / reset password) | BUCOD (+ CQ9927 review for `UserRepository`) |
+| `/admin/applications` | `AdminApplicationsServlet` | `admin/applications.jsp` | `applications.json` (admin revoke) | BUCOD (+ SpPt2FeMa review for `ApplicationRepository`) |
 
 
 ## Shared Modules
 - `service/MatchingService`: score and missing skills logic
 - `service/WorkloadService`: workload summary and conflict hints
 - `repository/*Repository`: all file read/write operations
-- `filter/AuthFilter`: login and role-based page access (`/ta/*`, `/mo/*`, `/admin/*`)
+- `filter/AuthFilter`: login and role-based page access (`/ta/*`, `/mo/*`, `/admin/*`); re-checks `users.json` `banned` and redirects to `/login?error=banned` if set
+- `web.xml` `appealContactUrl`: link target for banned-account appeal (shown on login page)
 
 
 ## Ownership Rules

@@ -20,10 +20,16 @@
     "username": "CQ9927",
     "passwordHash": "sha256:...",
     "role": "TA",
+    "banned": false,
     "createdAt": "2026-03-27T10:00:00Z"
   }
 ]
 ```
+
+- **`banned`** (optional boolean): if `true`, the account cannot sign in. Omitted or `false` means active.
+- **`banReason`** (optional string): shown to the user on the ban-appeal page; set by admin when banning.
+- **`appealMessage`** (optional string): latest appeal text submitted by the banned user via `/ban-appeal`.
+- **`appealSubmittedAt`** (optional string, ISO 8601): timestamp of the last appeal submission.
 
 Role enum:
 - `TA`
@@ -84,11 +90,15 @@ Job type enum:
     "missingSkills": ["Teaching"],
     "status": "SUBMITTED",
     "note": "Sample note",
+    "adminRevoked": false,
     "createdAt": "2026-03-27T12:00:00Z",
     "updatedAt": "2026-03-27T12:00:00Z"
   }
 ]
 ```
+
+- **`adminRevoked`** (optional boolean): when `true` together with `status` `REJECTED`, the rejection was performed by an **admin** (revoke), not by the MO selection flow. MO updates via the normal review path clear this flag.
+- **`note`**: free text; admin revoke may append a line such as `[ADMIN_REVOKE] revoked by {adminUserId} at {ISO8601}` for audit.
 
 Application status enum:
 - `SUBMITTED`

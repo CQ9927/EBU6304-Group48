@@ -12,11 +12,11 @@ public final class RoleLanding {
         if (role == null) {
             return "/home";
         }
-        return switch (role) {
-            case "MO" -> "/mo/dashboard";
-            case "ADMIN" -> "/admin/workload";
-            case "TA" -> "/ta/dashboard";
-            default -> "/home";
-        };
+        switch (role) {
+            case "MO":    return "/mo/dashboard";
+            case "ADMIN": return "/admin/workload";
+            case "TA":    return "/ta/dashboard";
+            default:      return "/home";
+        }
     }
 }

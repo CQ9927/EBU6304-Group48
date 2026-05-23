@@ -137,6 +137,7 @@ import com.ebu6304.group48.model.Profile;
 import com.ebu6304.group48.repository.ApplicationRepository;
 import com.ebu6304.group48.repository.JobRepository;
 import com.ebu6304.group48.repository.ProfileRepository;
+import com.ebu6304.group48.service.MatchingService;
 import com.ebu6304.group48.util.SessionKeys;
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
@@ -145,7 +146,10 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -155,12 +159,14 @@ public class TaJobsServlet extends HttpServlet {
     private JobRepository jobRepository;
     private ApplicationRepository applicationRepository;
     private ProfileRepository profileRepository;
+    private MatchingService matchingService;
 
     @Override
     public void init() throws ServletException {
         jobRepository = new JobRepository(getServletContext());
         applicationRepository = new ApplicationRepository(getServletContext());
         profileRepository = new ProfileRepository(getServletContext());
+        matchingService = new MatchingService();
     }
 
     @Override
@@ -193,7 +199,24 @@ public class TaJobsServlet extends HttpServlet {
 
         Profile userProfile = profileRepository.findByUserId(userId);
 
-        req.setAttribute("jobs", filteredJobs);
+        Map<String, MatchingService.MatchResult> matchResultMap = new HashMap<>();
+        for (Job job : filteredJobs) {
+            if (userProfile != null) {
+                matchResultMap.put(job.getJobId(), matchingService.computeMatch(job, userProfile));
+            }
+        }
+
+        List<Job> sortedJobs = new ArrayList<>(filteredJobs);
+        sortedJobs.sort((a, b) -> {
+            int scoreA = matchResultMap.containsKey(a.getJobId())
+                    ? matchResultMap.get(a.getJobId()).getTotalScore() : 0;
+            int scoreB = matchResultMap.containsKey(b.getJobId())
+                    ? matchResultMap.get(b.getJobId()).getTotalScore() : 0;
+            return Integer.compare(scoreB, scoreA);
+        });
+
+        req.setAttribute("jobs", sortedJobs);
+        req.setAttribute("matchResultMap", matchResultMap);
         req.setAttribute("appliedJobIds", appliedJobIds);
         req.setAttribute("userProfile", userProfile);
         req.setAttribute("typeFilter", typeFilter);

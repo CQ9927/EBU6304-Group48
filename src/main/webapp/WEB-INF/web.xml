@@ -13,6 +13,12 @@
     </context-param>
     -->
 
+    <!-- Shown on login page when account is banned (mailto or https URL). -->
+    <context-param>
+        <param-name>appealContactUrl</param-name>
+        <param-value>mailto:course-admin@example.com</param-value>
+    </context-param>
+
     <filter>
         <filter-name>EncodingFilter</filter-name>
         <filter-class>com.ebu6304.group48.filter.EncodingFilter</filter-class>
@@ -47,4 +53,17 @@
     <welcome-file-list>
         <welcome-file>index.jsp</welcome-file>
     </welcome-file-list>
+
+    <error-page>
+        <error-code>404</error-code>
+        <location>/WEB-INF/jsp/error/404.jsp</location>
+    </error-page>
+    <error-page>
+        <error-code>500</error-code>
+        <location>/WEB-INF/jsp/error/500.jsp</location>
+    </error-page>
+    <error-page>
+        <exception-type>java.lang.Throwable</exception-type>
+        <location>/WEB-INF/jsp/error/500.jsp</location>
+    </error-page>
 </web-app>

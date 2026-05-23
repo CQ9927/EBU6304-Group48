@@ -94,6 +94,7 @@
                     <webApp>
                         <contextPath>/ta-recruitment</contextPath>
                     </webApp>
+                    <scanIntervalSeconds>0</scanIntervalSeconds>
                 </configuration>
             </plugin>
         </plugins>
