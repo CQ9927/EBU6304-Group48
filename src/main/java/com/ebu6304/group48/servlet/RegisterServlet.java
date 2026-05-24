@@ -14,7 +14,7 @@ import java.util.Set;
 @WebServlet(name = "RegisterServlet", urlPatterns = "/register")
 public class RegisterServlet extends HttpServlet {
 
-    private static final Set<String> ROLES = Set.of("TA", "MO", "ADMIN");
+    private static final Set<String> ROLES = Set.of("TA", "MO");
 
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
@@ -33,13 +33,18 @@ public class RegisterServlet extends HttpServlet {
             req.getRequestDispatcher("/WEB-INF/jsp/auth/register.jsp").forward(req, resp);
             return;
         }
-        if (password == null || password.length() < 4) {
-            req.setAttribute("error", "Password must be at least 4 characters.");
+        if (password == null || password.length() < 8) {
+            req.setAttribute("error", "Password must be at least 8 characters.");
             req.getRequestDispatcher("/WEB-INF/jsp/auth/register.jsp").forward(req, resp);
             return;
         }
         if (!password.equals(confirm)) {
             req.setAttribute("error", "Passwords do not match.");
+            req.getRequestDispatcher("/WEB-INF/jsp/auth/register.jsp").forward(req, resp);
+            return;
+        }
+        if ("ADMIN".equalsIgnoreCase(role)) {
+            req.setAttribute("error", "Admin accounts can only be created by system administrators.");
             req.getRequestDispatcher("/WEB-INF/jsp/auth/register.jsp").forward(req, resp);
             return;
         }

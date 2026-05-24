@@ -61,6 +61,7 @@ public class ApplicationRepository {
                 applications.sort(Comparator.comparing(Application::getCreatedAt, Comparator.nullsLast(String::compareTo)).reversed());
                 return new ArrayList<>(applications);
             } catch (IOException | RuntimeException e) {
+                System.err.println("[ApplicationRepository] findAll failed: " + e.getMessage());
                 return new ArrayList<>();
             }
         }
@@ -243,6 +244,28 @@ public class ApplicationRepository {
             application.setCreatedAt(now);
         }
         application.setUpdatedAt(now);
+    }
+
+    public boolean delete(String applicationId) {
+        if (applicationId == null || applicationId.isBlank()) {
+            return false;
+        }
+        synchronized (FILE_LOCK) {
+            try {
+                ensureStorage();
+                List<Application> applications = readAllInternal();
+                boolean removed = applications.removeIf(
+                        a -> applicationId.equals(a.getApplicationId())
+                                && "SUBMITTED".equalsIgnoreCase(
+                                        a.getStatus() != null ? a.getStatus().trim() : ""));
+                if (removed) {
+                    Files.writeString(applicationsFile, GSON.toJson(applications), StandardCharsets.UTF_8);
+                }
+                return removed;
+            } catch (IOException | RuntimeException e) {
+                return false;
+            }
+        }
     }
 
     private boolean isValidStatus(String status) {

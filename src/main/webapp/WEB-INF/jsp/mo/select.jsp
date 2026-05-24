@@ -7,11 +7,11 @@
     <meta name="viewport" content="width=device-width, initial-scale=1"/>
     <meta name="view-transition" content="same-origin"/>
     <title>Select Applicants</title>
-    <link rel="stylesheet" href="${pageContext.request.contextPath}/css/app.css"/>
+    <link rel="stylesheet" href="${pageContext.request.contextPath}/css/app.css?v=ai2"/>
 </head>
 <body>
 <jsp:include page="/WEB-INF/jsp/_include/app-header.jsp"/>
-<main class="site-main">
+<main class="site-main" id="main-content">
 <header class="page-header">
     <h1 class="page-title">MO selection</h1>
     <p class="lead lead--tight text-muted">Filter applications and update status.</p>
@@ -57,7 +57,7 @@
     <c:if test="${not empty currentJob}">
         <c:set var="cap" value="${currentJob.capacity != null ? currentJob.capacity : 0}"/>
         <c:set var="selCount" value="${selectedCountByJob[selectedJobId] != null ? selectedCountByJob[selectedJobId] : 0}"/>
-        <div class="stats" style="margin-top:1rem;">
+        <div class="stats stats--section">
             <div class="stat-item">
                 <div class="stat-value">${cap}</div>
                 <div class="stat-label">Capacity</div>
@@ -79,6 +79,7 @@
 <table class="data-table">
     <thead>
     <tr>
+        <th><input type="checkbox" id="select-all" title="Select all" onchange="toggleAll(this)"/></th>
         <th>Application ID</th>
         <th>Applicant</th>
         <th>CV</th>
@@ -105,13 +106,19 @@
         </c:if>
 
         <tr>
+            <td><input type="checkbox" class="app-checkbox" name="applicationIds" value="${app.applicationId}" onchange="updateBatchBar()"/></td>
             <td>${app.applicationId}</td>
             <td>
                 <c:choose>
                     <c:when test="${not empty profile}">
-                        <strong>${profile.name}</strong><br/>
-                        <small class="text-muted">${profile.major}</small><br/>
-                        <small class="text-muted">${profile.email}</small>
+                        <strong><c:out value="${profile.name}"/></strong><br/>
+                        <small class="text-muted"><c:out value="${profile.major}"/></small><br/>
+                        <small class="text-muted"><c:out value="${profile.email}"/></small>
+                        <c:if test="${not empty profile.aiSummary}">
+                            <div class="ai-summary-badge">
+                                <strong>AI CV Summary:</strong> <c:out value="${profile.aiSummary}"/>
+                            </div>
+                        </c:if>
                     </c:when>
                     <c:otherwise>
                         <span class="text-muted">${app.applicantUserId}</span>
@@ -122,7 +129,7 @@
             <td>
                 <c:if test="${not empty profile and not empty profile.cvFileName}">
                     <a href="${pageContext.request.contextPath}/mo/jobs/select?download=${profile.cvFileName}&jobId=${selectedJobId}"
-                       class="btn btn-secondary" style="font-size:0.75rem;padding:0.2rem 0.5rem;">
+                       class="btn btn-secondary btn-download-cv">
                         Download CV
                     </a>
                 </c:if>
@@ -133,7 +140,7 @@
             <td>
                 <c:choose>
                     <c:when test="${not empty mr}">
-                        <div style="display:flex;flex-direction:column;gap:1px;font-size:0.8rem;line-height:1.4;">
+                        <div class="match-breakdown">
                             <span class="match-score
                                 <c:choose>
                                     <c:when test="${mr.totalScore >= 70}">match-high</c:when>
@@ -165,7 +172,7 @@
                             </c:forEach>
                         </div>
                         <c:if test="${not empty mr.detail}">
-                            <br/><small class="text-muted">${mr.detail}</small>
+                            <br/><small class="text-muted"><c:out value="${mr.detail}"/></small>
                         </c:if>
                     </c:when>
                     <c:otherwise>
@@ -209,7 +216,7 @@
                                 Select
                             </button>
                         </form>
-                        <form method="post" action="${pageContext.request.contextPath}/mo/jobs/select" class="inline-form">
+                        <form method="post" action="${pageContext.request.contextPath}/mo/jobs/select" class="inline-form" onsubmit="return confirm('Reject this applicant? This decision can be changed later.');">
                             <input type="hidden" name="applicationId" value="${app.applicationId}"/>
                             <input type="hidden" name="jobId" value="${selectedJobId}"/>
                             <input type="hidden" name="decision" value="REJECTED"/>
@@ -225,10 +232,61 @@
 </div>
 </div>
 
+<div id="batch-bar" class="batch-bar" style="display:none; position:sticky; bottom:0; background:var(--color-bg-primary); border-top:2px solid var(--color-primary); padding:0.75rem 1rem; display:flex; align-items:center; gap:0.75rem; z-index:100;">
+    <span id="batch-count" style="font-weight:600;">0 selected</span>
+    <form method="post" action="${pageContext.request.contextPath}/mo/jobs/select" style="display:inline" onsubmit="return prepareBatch(this, 'UNDER_REVIEW')">
+        <input type="hidden" name="action" value="batch"/>
+        <input type="hidden" name="jobId" value="${selectedJobId}"/>
+        <input type="hidden" name="decision" value="UNDER_REVIEW"/>
+        <input type="hidden" name="applicationIds" value=""/>
+        <button type="submit" class="btn btn-secondary">Mark as Under Review</button>
+    </form>
+    <form method="post" action="${pageContext.request.contextPath}/mo/jobs/select" style="display:inline" onsubmit="return confirm('Reject all selected applicants?') && prepareBatch(this, 'REJECTED')">
+        <input type="hidden" name="action" value="batch"/>
+        <input type="hidden" name="jobId" value="${selectedJobId}"/>
+        <input type="hidden" name="decision" value="REJECTED"/>
+        <input type="hidden" name="applicationIds" value=""/>
+        <button type="submit" class="btn btn-danger">Reject Selected</button>
+    </form>
+</div>
+
 <p class="text-muted">Status flow: SUBMITTED → UNDER_REVIEW → SELECTED / REJECTED</p>
 <p class="footer-links">
     <a href="${pageContext.request.contextPath}/mo/dashboard">Back to MO dashboard</a>
 </p>
 </main>
+
+<script>
+function toggleAll(checkbox) {
+    var checkboxes = document.querySelectorAll('.app-checkbox');
+    for (var i = 0; i < checkboxes.length; i++) {
+        checkboxes[i].checked = checkbox.checked;
+    }
+    updateBatchBar();
+}
+
+function updateBatchBar() {
+    var checked = document.querySelectorAll('.app-checkbox:checked');
+    var bar = document.getElementById('batch-bar');
+    var countEl = document.getElementById('batch-count');
+    if (checked.length > 0) {
+        bar.style.display = 'flex';
+        countEl.textContent = checked.length + ' selected';
+    } else {
+        bar.style.display = 'none';
+    }
+}
+
+function prepareBatch(form, decision) {
+    var checked = document.querySelectorAll('.app-checkbox:checked');
+    var ids = [];
+    for (var i = 0; i < checked.length; i++) {
+        ids.push(checked[i].value);
+    }
+    if (ids.length === 0) return false;
+    form.querySelector('input[name="applicationIds"]').value = ids.join(',');
+    return true;
+}
+</script>
 </body>
 </html>

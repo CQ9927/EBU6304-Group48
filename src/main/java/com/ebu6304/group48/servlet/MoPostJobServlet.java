@@ -44,6 +44,7 @@ public class MoPostJobServlet extends HttpServlet {
         String schedule = trim(req.getParameter("schedule"));
         String capacityRaw = trim(req.getParameter("capacity"));
         String requiredSkillsRaw = trim(req.getParameter("requiredSkills"));
+        String deadline = trim(req.getParameter("deadline"));
 
         Integer capacity = parseCapacity(capacityRaw);
         if (title.isEmpty() || type.isEmpty() || semester.isEmpty() || schedule.isEmpty() || capacity == null) {
@@ -78,6 +79,9 @@ public class MoPostJobServlet extends HttpServlet {
         job.setRequiredSkills(requiredSkills);
         job.setPostedByUserId(userId);
         job.setStatus("OPEN");
+        if (!deadline.isEmpty()) {
+            job.setDeadline(deadline);
+        }
         job.setCreatedAt(Instant.now().toString());
 
         boolean ok = jobRepository.save(job);

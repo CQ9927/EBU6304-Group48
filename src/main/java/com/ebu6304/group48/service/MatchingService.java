@@ -164,7 +164,7 @@ public class MatchingService {
         sb.append(")");
         sb.append(" | Schedule: ").append(scheduleScore).append("/25");
         if (jobSchedule != null && !jobSchedule.isBlank()) {
-            sb.append(scheduleMatch ? " (matched)" : " (no conflict)");
+            sb.append(scheduleMatch ? " (matched)" : " (not matched)");
         }
         sb.append(" | Major: ").append(majorScore).append("/15");
         sb.append(" | Profile: ").append(completenessScore).append("/10");

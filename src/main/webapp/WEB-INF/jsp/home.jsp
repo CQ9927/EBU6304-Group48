@@ -12,7 +12,7 @@
 <jsp:include page="/WEB-INF/jsp/_include/app-header.jsp">
     <jsp:param name="guest" value="true"/>
 </jsp:include>
-<main class="site-main site-main--landing">
+<main class="site-main site-main--landing" id="main-content">
     <div class="home-layout">
         <div class="home-layout__intro">
             <header class="page-header">

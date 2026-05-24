@@ -329,7 +329,7 @@ public class UserRepository {
         }
         String expected = u.get().getPasswordHash();
         String actual = PasswordHash.hash(u.get().getUsername(), plainPassword);
-        if (expected != null && expected.equalsIgnoreCase(actual)) {
+        if (expected != null && expected.equals(actual)) {
             return u;
         }
         return Optional.empty();

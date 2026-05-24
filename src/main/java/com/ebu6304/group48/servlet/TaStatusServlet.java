@@ -39,6 +39,24 @@ public class TaStatusServlet extends HttpServlet {
     }
 
     @Override
+    protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws IOException {
+        String action = trim(req.getParameter("action"));
+        String applicationId = trim(req.getParameter("applicationId"));
+        String userId = String.valueOf(req.getSession().getAttribute(SessionKeys.USER_ID));
+
+        if ("withdraw".equals(action) && !applicationId.isEmpty()) {
+            Application app = applicationRepository.findById(applicationId);
+            if (app != null && userId.equals(app.getApplicantUserId())
+                    && "SUBMITTED".equalsIgnoreCase(app.getStatus() != null ? app.getStatus().trim() : "")) {
+                applicationRepository.delete(applicationId);
+                resp.sendRedirect(req.getContextPath() + "/ta/status?withdrawn=1");
+                return;
+            }
+        }
+        resp.sendRedirect(req.getContextPath() + "/ta/status?error=1");
+    }
+
+    @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
         HttpSession session = req.getSession(false);
         if (session == null || session.getAttribute(SessionKeys.USER_ID) == null) {
@@ -70,5 +88,9 @@ public class TaStatusServlet extends HttpServlet {
         req.setAttribute("matchResultMap", matchResultMap);
         req.setAttribute("navCurrent", "status");
         req.getRequestDispatcher("/WEB-INF/jsp/ta/status.jsp").forward(req, resp);
+    }
+
+    private static String trim(String value) {
+        return value == null ? "" : value.trim();
     }
 }

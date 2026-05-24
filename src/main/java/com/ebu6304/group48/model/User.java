@@ -107,7 +107,7 @@ public class User {
         return "User{"
                 + "userId='" + userId + '\''
                 + ", username='" + username + '\''
-                + ", passwordHash='" + passwordHash + '\''
+                + ", passwordHash='***'"
                 + ", role='" + role + '\''
                 + ", banned=" + banned
                 + ", banReason='" + banReason + '\''

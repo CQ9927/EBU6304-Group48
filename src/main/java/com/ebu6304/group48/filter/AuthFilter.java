@@ -24,9 +24,13 @@ import java.util.Optional;
  */
 public class AuthFilter implements Filter {
 
+    private static final String CTX_USER_REPO = AuthFilter.class.getName() + ".userRepo";
+
     @Override
     public void init(FilterConfig filterConfig) {
-        // no-op
+        var ctx = filterConfig.getServletContext();
+        var dir = AppPaths.resolveDataDirectory(ctx);
+        ctx.setAttribute(CTX_USER_REPO, new UserRepository(dir));
     }
 
     @Override
@@ -66,7 +70,7 @@ public class AuthFilter implements Filter {
         }
 
         try {
-            UserRepository userRepo = new UserRepository(AppPaths.resolveDataDirectory(req.getServletContext()));
+            UserRepository userRepo = (UserRepository) req.getServletContext().getAttribute(CTX_USER_REPO);
             userRepo.ensureStorage();
             Optional<User> u = userRepo.findByUserId(String.valueOf(userId));
             if (u.isPresent() && Boolean.TRUE.equals(u.get().getBanned())) {

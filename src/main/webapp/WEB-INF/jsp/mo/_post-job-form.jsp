@@ -14,7 +14,13 @@
     </p>
     <p>
         <label for="semester">Semester *</label><br/>
-        <input type="text" id="semester" name="semester" placeholder="e.g. 2026_SPRING" required/>
+        <select id="semester" name="semester" required>
+            <option value="">— choose —</option>
+            <option value="2026_SPRING">2026 Spring</option>
+            <option value="2026_FALL">2026 Fall</option>
+            <option value="2025_SPRING">2025 Spring</option>
+            <option value="2025_FALL">2025 Fall</option>
+        </select>
     </p>
     <p>
         <label for="schedule">Schedule *</label><br/>
@@ -49,6 +55,10 @@
     <p>
         <label for="requiredSkills">Required skills (comma-separated)</label><br/>
         <input type="text" id="requiredSkills" name="requiredSkills" placeholder="Java, Teaching, Algorithms"/>
+    </p>
+    <p>
+        <label for="deadline">Application deadline (optional)</label><br/>
+        <input type="datetime-local" id="deadline" name="deadline"/>
     </p>
     <div class="modal__actions">
         <button type="button" class="btn btn-ghost" data-modal-close>Cancel</button>

@@ -36,7 +36,8 @@ public class TaApplyServlet extends HttpServlet {
 
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws IOException {
-        submitApplication(req, resp);
+        // GET should not trigger side effects; redirect to jobs listing
+        resp.sendRedirect(req.getContextPath() + "/ta/jobs");
     }
 
     @Override
@@ -58,6 +59,14 @@ public class TaApplyServlet extends HttpServlet {
         Job job = jobRepository.findById(jobId);
         if (job == null || !"OPEN".equalsIgnoreCase(job.getStatus())) {
             session.setAttribute("error", "Job not found or no longer open.");
+            resp.sendRedirect(req.getContextPath() + "/ta/jobs");
+            return;
+        }
+
+        // Check deadline
+        if (job.getDeadline() != null && !job.getDeadline().isBlank()
+                && job.getDeadline().compareTo(Instant.now().toString()) < 0) {
+            session.setAttribute("error", "Application deadline has passed for this job.");
             resp.sendRedirect(req.getContextPath() + "/ta/jobs");
             return;
         }

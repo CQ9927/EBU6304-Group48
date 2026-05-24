@@ -133,6 +133,7 @@ public class Profile {
     private List<String> availability;
     private String notes;
     private String cvFileName;
+    private String aiSummary;
     private String updatedAt;
     private String createdAt;
 
@@ -229,6 +230,14 @@ public class Profile {
         this.cvFileName = cvFileName;
     }
 
+    public String getAiSummary() {
+        return aiSummary;
+    }
+
+    public void setAiSummary(String aiSummary) {
+        this.aiSummary = aiSummary;
+    }
+
     public String getUpdatedAt() {
         return updatedAt;
     }
@@ -257,6 +266,7 @@ public class Profile {
                 ", availability=" + availability +
                 ", notes='" + notes + '\'' +
                 ", cvFileName='" + cvFileName + '\'' +
+                ", aiSummary='" + aiSummary + '\'' +
                 ", updatedAt='" + updatedAt + '\'' +
                 ", createdAt='" + createdAt + '\'' +
                 '}';

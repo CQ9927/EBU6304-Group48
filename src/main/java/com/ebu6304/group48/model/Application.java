@@ -151,7 +151,7 @@ public class Application {
 
     public Application(String applicationId, String jobId, String applicantUserId,
                       Integer matchScore, List<String> missingSkills, String status,
-                      String note, String createdAt, String updatedAt) {
+                      String note, Boolean adminRevoked, String createdAt, String updatedAt) {
         this.applicationId = applicationId;
         this.jobId = jobId;
         this.applicantUserId = applicantUserId;
@@ -159,6 +159,7 @@ public class Application {
         this.missingSkills = missingSkills;
         this.status = status;
         this.note = note;
+        this.adminRevoked = adminRevoked;
         this.createdAt = createdAt;
         this.updatedAt = updatedAt;
     }

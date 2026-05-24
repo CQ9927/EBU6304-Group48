@@ -1,75 +1,118 @@
+<%@ page import="com.ebu6304.group48.util.SemesterFormat" %>
 <%@ page contentType="text/html;charset=UTF-8" pageEncoding="UTF-8" %>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
+<%@ taglib prefix="fn" uri="http://java.sun.com/jsp/jstl/functions" %>
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8"/>
     <meta name="viewport" content="width=device-width, initial-scale=1"/>
     <meta name="view-transition" content="same-origin"/>
-    <title>MO Dashboard</title>
+    <title>My Positions</title>
     <link rel="stylesheet" href="${pageContext.request.contextPath}/css/app.css"/>
 </head>
 <body>
 <jsp:include page="/WEB-INF/jsp/_include/app-header.jsp"/>
-<main class="site-main">
+<main class="site-main" id="main-content">
     <header class="page-header">
-        <h1 class="page-title">MO dashboard</h1>
-        <p class="lead">Welcome, <strong>${username}</strong>. Summary of jobs you posted and applications awaiting action.</p>
+        <h1 class="page-title">My Positions</h1>
+        <p class="lead">Hello, <strong>${username}</strong></p>
     </header>
 
     <c:if test="${param.saved == '1'}">
         <div class="alert alert-success" role="status">Job has been saved.</div>
     </c:if>
+    <c:if test="${param.closed == '1'}">
+        <div class="alert alert-success" role="status">Job has been closed.</div>
+    </c:if>
     <c:if test="${not empty error}">
         <div class="alert alert-error" role="alert">${error}</div>
     </c:if>
 
-    <div class="stats-grid stats-grid--narrow">
-        <div class="card"><div class="label">My job posts</div><div class="value">${myJobsTotal}</div></div>
-        <div class="card"><div class="label">My open jobs</div><div class="value">${myOpenJobs}</div></div>
-        <div class="card"><div class="label">Applications to review</div><div class="value">${pendingApplications}</div></div>
-    </div>
-
-    <div class="card dashboard-actions">
-        <p class="card__label">Actions</p>
-        <div class="action-row">
-            <button type="button" class="btn btn-primary" id="open-post-job-modal" aria-haspopup="dialog">Post a new job</button>
-            <a class="btn btn-ghost" href="${pageContext.request.contextPath}/mo/jobs/select">Review applications</a>
+    <%-- Compact stats --%>
+    <div class="compact-stats">
+        <div class="compact-stat">
+            <span class="compact-stat__value">${myJobsTotal}</span>
+            <span class="compact-stat__label">Posts</span>
+        </div>
+        <div class="compact-stat">
+            <span class="compact-stat__value">${myOpenJobs}</span>
+            <span class="compact-stat__label">Open</span>
+        </div>
+        <div class="compact-stat">
+            <span class="compact-stat__value">${pendingApplications}</span>
+            <span class="compact-stat__label">Pending</span>
         </div>
     </div>
 
-    <p class="hint">Your job posts (newest first):</p>
-    <div class="card card--flush">
-        <div class="table-scroll">
-            <table class="data-table">
-                <thead>
-                <tr>
-                    <th>ID</th>
-                    <th>Title</th>
-                    <th>Type</th>
-                    <th>Semester</th>
-                    <th>Capacity</th>
-                    <th>Status</th>
-                </tr>
-                </thead>
-                <tbody>
+    <%-- Primary CTAs --%>
+    <div class="mo-ctas">
+        <button type="button" class="btn btn-primary" id="open-post-job-modal" aria-haspopup="dialog">+ Post New Job</button>
+        <a class="btn btn-ghost" href="${pageContext.request.contextPath}/mo/jobs/select">Review Applications &rarr;</a>
+    </div>
+
+    <%-- Job cards --%>
+    <c:choose>
+        <c:when test="${not empty jobs}">
+            <h2 class="section__title" style="margin-top: 1.5rem; margin-bottom: 0.75rem;">Your Positions</h2>
+            <div class="job-cards">
                 <c:forEach var="job" items="${jobs}">
-                    <tr>
-                        <td>${job.jobId}</td>
-                        <td>${job.title}</td>
-                        <td>${job.type}</td>
-                        <td>${job.semester}</td>
-                        <td>${job.capacity}</td>
-                        <td>${job.status}</td>
-                    </tr>
+                    <c:set var="jid" value="${job.jobId}"/>
+                    <c:set var="appTotal" value="${totalByJob[jid] != null ? totalByJob[jid] : 0}"/>
+                    <c:set var="appSub" value="${submittedByJob[jid] != null ? submittedByJob[jid] : 0}"/>
+                    <c:set var="appRev" value="${underReviewByJob[jid] != null ? underReviewByJob[jid] : 0}"/>
+                    <c:set var="appSel" value="${selectedByJob[jid] != null ? selectedByJob[jid] : 0}"/>
+                    <c:set var="appRej" value="${rejectedByJob[jid] != null ? rejectedByJob[jid] : 0}"/>
+                    <div class="job-card">
+                        <div class="job-card__header">
+                            <div>
+                                <span class="job-card__id mono">${job.jobId}</span>
+                                <h3 class="job-card__title">${job.title}</h3>
+                            </div>
+                            <span class="badge badge-${fn:toLowerCase(job.status)}">${job.status}</span>
+                        </div>
+                        <div class="job-card__meta">
+                            <span class="badge badge-${fn:toLowerCase(job.type)}">${job.type}</span>
+                            <span><%= SemesterFormat.label(((com.ebu6304.group48.model.Job)pageContext.getAttribute("job")).getSemester()) %></span>
+                            <span>Cap: ${job.capacity}</span>
+                            <c:if test="${not empty job.deadline}">
+                                <span class="deadline-badge">Deadline: ${job.deadline}</span>
+                            </c:if>
+                        </div>
+                        <div class="job-card__applicants">
+                            <c:choose>
+                                <c:when test="${appTotal > 0}">
+                                    &#x1f4ca; ${appTotal} applicant<c:if test="${appTotal != 1}">s</c:if>
+                                    <c:if test="${appSub > 0}"><span class="applicant-detail">(${appSub} submitted<c:if test="${appRev > 0}">, ${appRev} under review</c:if>)</span></c:if>
+                                </c:when>
+                                <c:otherwise>
+                                    &#x1f4ca; No applicants yet
+                                </c:otherwise>
+                            </c:choose>
+                        </div>
+                        <div class="job-card__actions">
+                            <a class="btn btn-ghost btn-sm" href="${pageContext.request.contextPath}/mo/jobs/select">Review Applicants &rarr;</a>
+                            <c:if test="${job.status == 'OPEN'}">
+                                <a class="btn btn-ghost btn-sm" href="${pageContext.request.contextPath}/mo/jobs/invite?jobId=${job.jobId}">Invite TAs</a>
+                                <form method="post" action="${pageContext.request.contextPath}/mo/dashboard" style="display:inline" onsubmit="return confirm('Close this job? No more applications will be accepted.');">
+                                    <input type="hidden" name="action" value="close"/>
+                                    <input type="hidden" name="jobId" value="${job.jobId}"/>
+                                    <button type="submit" class="btn btn-ghost btn-sm" style="color:#d32f2f;">Close Job</button>
+                                </form>
+                            </c:if>
+                        </div>
+                    </div>
                 </c:forEach>
-                <c:if test="${empty jobs}">
-                    <tr><td colspan="6" class="text-muted">No jobs posted yet.</td></tr>
-                </c:if>
-                </tbody>
-            </table>
-        </div>
-    </div>
+            </div>
+        </c:when>
+        <c:otherwise>
+            <%-- Empty state --%>
+            <div class="empty-state-card">
+                <h3>No jobs yet?</h3>
+                <p>Click <strong>"Post New Job"</strong> above to create your first position. Then applicants can apply and you can review them here.</p>
+            </div>
+        </c:otherwise>
+    </c:choose>
 </main>
 
 <div class="modal" id="post-job-modal" role="dialog" aria-modal="true" aria-labelledby="post-job-modal-title" hidden>
@@ -114,7 +157,11 @@
         if (e.key === 'Escape' && !modal.hidden) closeModal();
     });
 
-    var shouldOpen = ${not empty error or param.openPost == '1'};
+    <c:set var="shouldOpenJs" value="${not empty error or param.openPost == '1'}"/>
+    var shouldOpen = ${shouldOpenJs};
+    if (!shouldOpen && window.location.hash === '#post-job-modal') {
+        shouldOpen = true;
+    }
     if (shouldOpen) openModal();
 })();
 </script>

@@ -130,7 +130,9 @@
 
 package com.ebu6304.group48.servlet;
 
+import com.ebu6304.group48.model.Job;
 import com.ebu6304.group48.model.Profile;
+import com.ebu6304.group48.repository.JobRepository;
 import com.ebu6304.group48.repository.ProfileRepository;
 import com.ebu6304.group48.util.SessionKeys;
 import javax.servlet.ServletException;
@@ -141,17 +143,25 @@ import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 import java.io.IOException;
 import java.time.Instant;
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.LinkedHashSet;
+import java.util.List;
+import java.util.Locale;
+import java.util.Set;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 @WebServlet(name = "TaProfileServlet", urlPatterns = "/ta/profile")
 public class TaProfileServlet extends HttpServlet {
 
     private ProfileRepository profileRepository;
+    private JobRepository jobRepository;
 
     @Override
     public void init() throws ServletException {
         profileRepository = new ProfileRepository(getServletContext());
+        jobRepository = new JobRepository(getServletContext());
     }
 
     @Override
@@ -162,9 +172,27 @@ public class TaProfileServlet extends HttpServlet {
             return;
         }
 
-        String userId = (String) session.getAttribute(SessionKeys.USER_ID);
+        String userId = String.valueOf(session.getAttribute(SessionKeys.USER_ID));
         Profile profile = profileRepository.findByUserId(userId);
+
+        // Extract suggested skills from open jobs for chip display
+        Set<String> suggestedSkills = new LinkedHashSet<>();
+        try {
+            for (Job job : jobRepository.findAll()) {
+                if ("OPEN".equalsIgnoreCase(job.getStatus()) && job.getRequiredSkills() != null) {
+                    for (String skill : job.getRequiredSkills()) {
+                        if (skill != null && !skill.trim().isEmpty()) {
+                            suggestedSkills.add(skill.trim());
+                        }
+                    }
+                }
+            }
+        } catch (Exception ignore) {
+            // Suggested skills are non-critical
+        }
+
         req.setAttribute("profile", profile);
+        req.setAttribute("suggestedSkills", new ArrayList<>(suggestedSkills));
         req.setAttribute("navCurrent", "profile");
         req.getRequestDispatcher("/WEB-INF/jsp/ta/profile.jsp").forward(req, resp);
     }
@@ -177,13 +205,32 @@ public class TaProfileServlet extends HttpServlet {
             return;
         }
 
-        String userId = (String) session.getAttribute(SessionKeys.USER_ID);
+        String userId = String.valueOf(session.getAttribute(SessionKeys.USER_ID));
         String name = req.getParameter("name");
         String email = req.getParameter("email");
         String major = req.getParameter("major");
-        String[] skills = req.getParameterValues("skills");
         String[] availability = req.getParameterValues("availability");
         String notes = req.getParameter("notes");
+
+        // Handle skills from text input (comma-separated) or fallback to checkbox array
+        String[] skills;
+        String skillsInput = req.getParameter("skillsInput");
+        if (skillsInput != null && !skillsInput.trim().isEmpty()) {
+            skills = Arrays.stream(skillsInput.split(","))
+                    .map(String::trim)
+                    .filter(s -> !s.isEmpty())
+                    .toArray(String[]::new);
+        } else {
+            skills = req.getParameterValues("skills");
+        }
+
+        if (name == null || name.trim().isEmpty()
+                || email == null || email.trim().isEmpty()
+                || major == null || major.trim().isEmpty()) {
+            session.setAttribute("error", "Please fill in all required fields (name, email, major).");
+            resp.sendRedirect(req.getContextPath() + "/ta/profile");
+            return;
+        }
 
         Profile existingProfile = profileRepository.findByUserId(userId);
         Profile profile;
@@ -199,7 +246,7 @@ public class TaProfileServlet extends HttpServlet {
             profile.setUpdatedAt(Instant.now().toString());
         } else {
             profile = new Profile();
-            profile.setProfileId("P" + UUID.randomUUID().toString().substring(0, 8).toUpperCase());
+            // profileId will be assigned by ProfileRepository.normalizeBeforeSave() with consistent P- prefix
             profile.setUserId(userId);
             profile.setName(name);
             profile.setEmail(email);

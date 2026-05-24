@@ -1,5 +1,6 @@
 <%@ page contentType="text/html;charset=UTF-8" pageEncoding="UTF-8" %>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
+<%@ taglib prefix="fn" uri="http://java.sun.com/jsp/jstl/functions" %>
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -11,11 +12,15 @@
 </head>
 <body>
 <jsp:include page="/WEB-INF/jsp/_include/app-header.jsp"/>
-<main class="site-main">
+<main class="site-main" id="main-content">
 <header class="page-header">
     <h1 class="page-title">My application status</h1>
     <p class="lead lead--tight text-muted"><a href="${pageContext.request.contextPath}/ta/status">Refresh</a> for the latest updates.</p>
 </header>
+
+<c:if test="${param.withdrawn == '1'}">
+    <div class="alert alert-success" role="status">Application withdrawn successfully.</div>
+</c:if>
 
 <c:choose>
     <c:when test="${not empty applications}">
@@ -31,6 +36,7 @@
                 <th>Status</th>
                 <th>Feedback</th>
                 <th>Last Updated</th>
+                <th>Action</th>
             </tr>
             </thead>
             <tbody>
@@ -84,14 +90,23 @@
                     <td>
                         <c:choose>
                             <c:when test="${not empty app.note}">
-                                ${app.note}
+                                <c:out value="${app.note}"/>
                             </c:when>
                             <c:otherwise>
                                 <span class="text-muted">—</span>
                             </c:otherwise>
                         </c:choose>
                     </td>
-                    <td>${app.updatedAt}</td>
+                    <td>${fn:substring(app.updatedAt, 0, 10)} ${fn:substring(app.updatedAt, 11, 16)}</td>
+                    <td>
+                        <c:if test="${app.status == 'SUBMITTED'}">
+                            <form method="post" action="${pageContext.request.contextPath}/ta/status" onsubmit="return confirm('Withdraw this application? This action cannot be undone.');">
+                                <input type="hidden" name="action" value="withdraw"/>
+                                <input type="hidden" name="applicationId" value="${app.applicationId}"/>
+                                <button type="submit" class="btn btn-ghost btn-sm" style="color:#d32f2f;">Withdraw</button>
+                            </form>
+                        </c:if>
+                    </td>
                 </tr>
             </c:forEach>
             </tbody>
