@@ -21,8 +21,9 @@
    - [4.3 Invite TAs](#43-invite-tas)
 5. [Admin Guide](#5-admin-guide)
    - [5.1 Admin Console (Workload)](#51-admin-console-workload)
-   - [5.2 User Management](#52-user-management)
-   - [5.3 Application Management](#53-application-management)
+   - [5.2 TA Workload Monitor](#52-ta-workload-monitor)
+   - [5.3 User Management](#53-user-management)
+   - [5.4 Application Management](#54-application-management)
 6. [Auth Pages](#6-auth-pages)
 7. [Error Pages](#7-error-pages)
 8. [Tabi AI Assistant](#8-tabi-ai-assistant)
@@ -222,7 +223,21 @@ Toggle the workload table visibility with the **"Hide Details"** button.
 
 ![Admin Console](screenshots/12-admin-workload.png)
 
-### 5.2 User Management
+### 5.2 TA Workload Monitor
+
+The TA Workload Monitor shows workload from the TA perspective — hours, assignments, schedule conflicts, and risk flags.
+
+**Features:**
+
+- **4 stat cards**: Total TAs, Selected Assignments, TAs over threshold, Schedule Conflicts
+- **Configurable threshold**: Set max weekly hours (default 10 hrs); TAs exceeding it get a **High load** flag
+- **TA workload table**: Each row shows TA name, major, Selected/Pending/Rejected counts, estimated weekly hours, assigned jobs, and risk flags
+- **Risk flags**: High load (yellow), Banned (red), Schedule clash (red), No CV (yellow)
+- **Detail expand**: Click **Detail** on any TA row to see full info — username, email, skills, CV status, and per-job breakdown with schedule, weekly hours, and semester
+
+![TA Workload Monitor](admin-workload-monitor.png)
+
+### 5.3 User Management
 
 Navigate to **Users** in the top nav.
 
@@ -233,7 +248,7 @@ Navigate to **Users** in the top nav.
 
 ![Admin User Management](screenshots/13-admin-users.png)
 
-### 5.3 Application Management
+### 5.4 Application Management
 
 Navigate to **Applications** in the top nav.
 

@@ -2,8 +2,10 @@ package com.ebu6304.group48.servlet;
 
 import com.ebu6304.group48.model.Application;
 import com.ebu6304.group48.model.Job;
+import com.ebu6304.group48.model.Profile;
 import com.ebu6304.group48.repository.ApplicationRepository;
 import com.ebu6304.group48.repository.JobRepository;
+import com.ebu6304.group48.repository.ProfileRepository;
 import com.ebu6304.group48.util.SessionKeys;
 
 import javax.servlet.ServletException;
@@ -12,6 +14,7 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -23,11 +26,13 @@ public class MoDashboardServlet extends HttpServlet {
 
     private JobRepository jobRepository;
     private ApplicationRepository applicationRepository;
+    private ProfileRepository profileRepository;
 
     @Override
     public void init() {
         jobRepository = new JobRepository(getServletContext());
         applicationRepository = new ApplicationRepository(getServletContext());
+        profileRepository = new ProfileRepository(getServletContext());
     }
 
     @Override
@@ -93,6 +98,17 @@ public class MoDashboardServlet extends HttpServlet {
             else if ("REJECTED".equals(s)) rejectedByJob.merge(app.getJobId(), 1, Integer::sum);
         }
 
+        // Build map: jobId -> list of selected TA profiles
+        Map<String, List<Profile>> selectedProfilesByJob = new HashMap<>();
+        for (Application app : applicationRepository.findAll()) {
+            if (app == null || !myJobIds.contains(app.getJobId())) continue;
+            if (!"SELECTED".equalsIgnoreCase(app.getStatus() != null ? app.getStatus() : "")) continue;
+            Profile p = profileRepository.findByUserId(app.getApplicantUserId());
+            if (p != null) {
+                selectedProfilesByJob.computeIfAbsent(app.getJobId(), k -> new ArrayList<>()).add(p);
+            }
+        }
+
         req.setAttribute("myJobsTotal", myJobsTotal);
         req.setAttribute("myOpenJobs", myOpenJobs);
         req.setAttribute("pendingApplications", pendingApplications);
@@ -102,6 +118,7 @@ public class MoDashboardServlet extends HttpServlet {
         req.setAttribute("selectedByJob", selectedByJob);
         req.setAttribute("rejectedByJob", rejectedByJob);
         req.setAttribute("totalByJob", totalByJob);
+        req.setAttribute("selectedProfilesByJob", selectedProfilesByJob);
 
         req.getRequestDispatcher("/WEB-INF/jsp/mo/dashboard.jsp").forward(req, resp);
     }

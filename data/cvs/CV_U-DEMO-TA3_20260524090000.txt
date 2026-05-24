@@ -1,0 +1,24 @@
+WANG LEI
+PhD Candidate, Artificial Intelligence
+wang.lei.demo@example.edu
+
+ACADEMIC
+- PhD candidate, AI & Machine Learning, 3rd year
+- MSc Computer Science, GPA 3.85
+- BSc Mathematics, GPA 3.6
+
+SKILLS
+- Python (expert), PyTorch, TensorFlow
+- Machine Learning, Deep Learning
+- Algorithms, Data Structures
+- Teaching (3 semesters as undergrad lab TA)
+- Data Analysis, NumPy, Pandas
+
+EXPERIENCE
+- Graduate Teaching Assistant, Intro to AI (2025 Fall)
+- Lab Demonstrator, Machine Learning (2025 Spring)
+- Research Assistant, NLP Lab (2024-present)
+
+CERTIFICATIONS
+- NVIDIA DLI Deep Learning Certificate
+- AWS Machine Learning Specialty

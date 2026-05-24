@@ -16,12 +16,36 @@
     "createdAt": "2026-03-15T10:00:00Z"
   },
   {
+    "userId": "U-DEMO-TA3",
+    "username": "ta_wang",
+    "passwordHash": "9a5f4c710014f1205df87ae0124fb748a6b2b5c40cda7eec273d1945a8c39f48",
+    "role": "TA",
+    "banned": false,
+    "createdAt": "2026-03-20T09:00:00Z"
+  },
+  {
+    "userId": "U-DEMO-TA4",
+    "username": "ta_sarah",
+    "passwordHash": "fa30ae1fd9da0f15cda556a4f218ace385a59cb41d038366c1e32b4500607fc9",
+    "role": "TA",
+    "banned": false,
+    "createdAt": "2026-04-01T14:00:00Z"
+  },
+  {
     "userId": "U-DEMO-MO",
     "username": "mo_demo",
     "passwordHash": "0cb41bae797d8065c90cb2bde250ee34e7619773be553bcd9a5dc2a660dd2977",
     "role": "MO",
     "banned": false,
     "createdAt": "2026-03-01T00:00:00Z"
+  },
+  {
+    "userId": "U-DEMO-MO2",
+    "username": "mo_smith",
+    "passwordHash": "cbe550bbf78c400d06a3b58375265c4031b2a7a790ba9cce71dd859ed0d85278",
+    "role": "MO",
+    "banned": false,
+    "createdAt": "2026-04-01T09:00:00Z"
   },
   {
     "userId": "U-DEMO-ADMIN",

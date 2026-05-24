@@ -1,0 +1,23 @@
+SARAH JONES
+BSc Computer Science, Year 3
+sarah.jones.demo@example.edu
+
+ACADEMIC
+- BSc Computer Science, GPA 3.65
+- Relevant coursework: Data Structures, Algorithms, Web Dev, Database Systems
+
+SKILLS
+- Java (proficient), Spring Boot
+- Web Development (HTML, CSS, JavaScript, React)
+- Database (MySQL, PostgreSQL)
+- Software Testing, JUnit, Selenium
+- Git, CI/CD
+
+EXPERIENCE
+- Peer Tutor, CS Department (2025-present)
+- Summer Intern, Web Development at TechCorp (2025)
+- Hackathon Winner, University Coding Challenge (2025)
+
+VOLUNTEERING
+- Code Club mentor for first-year students
+- Women in Tech society committee member
