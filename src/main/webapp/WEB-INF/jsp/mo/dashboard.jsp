@@ -82,13 +82,22 @@
                         <div class="job-card__applicants">
                             <c:choose>
                                 <c:when test="${appTotal > 0}">
-                                    &#x1f4ca; ${appTotal} applicant<c:if test="${appTotal != 1}">s</c:if>
+                                    <div>&#x1f4ca; ${appTotal} applicant<c:if test="${appTotal != 1}">s</c:if>
                                     <c:if test="${appSub > 0}"><span class="applicant-detail">(${appSub} submitted<c:if test="${appRev > 0}">, ${appRev} under review</c:if>)</span></c:if>
+                                    </div>
                                 </c:when>
                                 <c:otherwise>
-                                    &#x1f4ca; No applicants yet
+                                    <div>&#x1f4ca; No applicants yet</div>
                                 </c:otherwise>
                             </c:choose>
+                            <%-- Show selected TAs --%>
+                            <c:set var="selList" value="${selectedProfilesByJob[jid]}"/>
+                            <c:if test="${not empty selList}">
+                                <div class="selected-tas">
+                                    <span class="selected-tas__label">&#x2705; Hired (${selList.size()}/${job.capacity}):</span>
+                                    <span class="selected-tas__names"><c:forEach var="p" items="${selList}" varStatus="st">${p.name}<c:if test="${not st.last}">, </c:if></c:forEach></span>
+                                </div>
+                            </c:if>
                         </div>
                         <div class="job-card__actions">
                             <a class="btn btn-ghost btn-sm" href="${pageContext.request.contextPath}/mo/jobs/select">Review Applicants &rarr;</a>

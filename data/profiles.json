@@ -24,5 +24,31 @@
     "cvFileName": "CV_U-DEMO-TA2_20260524090000.txt",
     "createdAt": "2026-04-05T11:00:00Z",
     "updatedAt": "2026-04-12T09:00:00Z"
+  },
+  {
+    "profileId": "P-DEMO-TA3",
+    "userId": "U-DEMO-TA3",
+    "name": "Wang Lei",
+    "email": "wang.lei.demo@example.edu",
+    "major": "Artificial Intelligence",
+    "skills": ["Python", "Machine Learning", "Algorithms", "Teaching", "Data Analysis"],
+    "availability": ["MON_14_16", "WED_18_20", "THU_14_16"],
+    "notes": "PhD candidate; experienced in AI modules and teaching undergrad labs.",
+    "cvFileName": "CV_U-DEMO-TA3_20260524090000.txt",
+    "createdAt": "2026-04-08T10:00:00Z",
+    "updatedAt": "2026-04-12T10:00:00Z"
+  },
+  {
+    "profileId": "P-DEMO-TA4",
+    "userId": "U-DEMO-TA4",
+    "name": "Sarah Jones",
+    "email": "sarah.jones.demo@example.edu",
+    "major": "Computer Science",
+    "skills": ["Java", "Web Development", "Testing", "Database"],
+    "availability": ["TUE_18_20", "WED_18_20", "FRI_09_12"],
+    "notes": "Undergrad with prior tutoring experience; strong Java and web skills.",
+    "cvFileName": "CV_U-DEMO-TA4_20260524090000.txt",
+    "createdAt": "2026-04-10T15:00:00Z",
+    "updatedAt": "2026-04-10T15:00:00Z"
   }
 ]

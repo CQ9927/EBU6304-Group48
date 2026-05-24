@@ -46,5 +46,53 @@
     "postedByUserId": "U-DEMO-MO",
     "status": "CLOSED",
     "createdAt": "2025-12-01T09:00:00Z"
+  },
+  {
+    "jobId": "J-DEMO-005",
+    "title": "Introduction to AI Lab Demonstrator",
+    "type": "MODULE",
+    "semester": "2026_SPRING",
+    "schedule": "THU_14_16",
+    "capacity": 2,
+    "requiredSkills": ["Machine Learning", "Python", "Teaching"],
+    "postedByUserId": "U-DEMO-MO",
+    "status": "OPEN",
+    "createdAt": "2026-04-12T10:00:00Z"
+  },
+  {
+    "jobId": "J-DEMO-006",
+    "title": "Web Development Tutorial",
+    "type": "MODULE",
+    "semester": "2026_SPRING",
+    "schedule": "MON_14_16",
+    "capacity": 2,
+    "requiredSkills": ["Web Development", "Java", "Teaching"],
+    "postedByUserId": "U-DEMO-MO",
+    "status": "OPEN",
+    "createdAt": "2026-04-12T11:00:00Z"
+  },
+  {
+    "jobId": "J-DEMO-007",
+    "title": "Final Exam Invigilation (Hall B)",
+    "type": "INVIGILATION",
+    "semester": "2026_SPRING",
+    "schedule": "FRI_09_12",
+    "capacity": 3,
+    "requiredSkills": ["Proctoring"],
+    "postedByUserId": "U-DEMO-MO",
+    "status": "OPEN",
+    "createdAt": "2026-04-13T08:00:00Z"
+  },
+  {
+    "jobId": "J-DEMO-008",
+    "title": "Data Structures Tutorial",
+    "type": "MODULE",
+    "semester": "2026_SPRING",
+    "schedule": "WED_18_20",
+    "capacity": 2,
+    "requiredSkills": ["Java", "Algorithms", "Teaching"],
+    "postedByUserId": "U-DEMO-MO2",
+    "status": "OPEN",
+    "createdAt": "2026-04-14T09:00:00Z"
   }
 ]

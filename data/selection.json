@@ -14,5 +14,21 @@
     "reviewerUserId": "U-DEMO-MO",
     "decision": "SELECTED",
     "decisionAt": "2026-04-12T09:00:00Z"
+  },
+  {
+    "selectionId": "S-DEMO-003",
+    "applicationId": "A-DEMO-005",
+    "jobId": "J-DEMO-001",
+    "reviewerUserId": "U-DEMO-MO",
+    "decision": "SELECTED",
+    "decisionAt": "2026-04-13T10:00:00Z"
+  },
+  {
+    "selectionId": "S-DEMO-004",
+    "applicationId": "A-DEMO-006",
+    "jobId": "J-DEMO-005",
+    "reviewerUserId": "U-DEMO-MO",
+    "decision": "SELECTED",
+    "decisionAt": "2026-04-13T11:00:00Z"
   }
 ]

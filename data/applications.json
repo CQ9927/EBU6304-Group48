@@ -42,5 +42,71 @@
     "note": "Strong database background; demo selected applicant.",
     "createdAt": "2026-04-11T17:00:00Z",
     "updatedAt": "2026-04-12T09:00:00Z"
+  },
+  {
+    "applicationId": "A-DEMO-005",
+    "jobId": "J-DEMO-001",
+    "applicantUserId": "U-DEMO-TA3",
+    "matchScore": 85,
+    "missingSkills": [],
+    "status": "SELECTED",
+    "note": "Strong algorithm and teaching background; PhD candidate.",
+    "createdAt": "2026-04-13T09:00:00Z",
+    "updatedAt": "2026-04-13T10:00:00Z"
+  },
+  {
+    "applicationId": "A-DEMO-006",
+    "jobId": "J-DEMO-005",
+    "applicantUserId": "U-DEMO-TA3",
+    "matchScore": 95,
+    "missingSkills": [],
+    "status": "SELECTED",
+    "note": "Perfect match: AI background, Python expert, teaching experience.",
+    "createdAt": "2026-04-13T09:30:00Z",
+    "updatedAt": "2026-04-13T11:00:00Z"
+  },
+  {
+    "applicationId": "A-DEMO-007",
+    "jobId": "J-DEMO-003",
+    "applicantUserId": "U-DEMO-TA4",
+    "matchScore": 72,
+    "missingSkills": ["Teaching"],
+    "status": "UNDER_REVIEW",
+    "note": "Good database and Java skills; limited teaching experience.",
+    "createdAt": "2026-04-14T10:00:00Z",
+    "updatedAt": "2026-04-14T10:30:00Z"
+  },
+  {
+    "applicationId": "A-DEMO-008",
+    "jobId": "J-DEMO-006",
+    "applicantUserId": "U-DEMO-TA4",
+    "matchScore": 90,
+    "missingSkills": [],
+    "status": "SUBMITTED",
+    "note": "Strong web dev and Java skills. Available Mon afternoons.",
+    "createdAt": "2026-04-14T11:00:00Z",
+    "updatedAt": "2026-04-14T11:00:00Z"
+  },
+  {
+    "applicationId": "A-DEMO-009",
+    "jobId": "J-DEMO-001",
+    "applicantUserId": "U-DEMO-TA4",
+    "matchScore": 80,
+    "missingSkills": ["Teaching"],
+    "status": "SUBMITTED",
+    "note": "Java expert, good match overall.",
+    "createdAt": "2026-04-14T14:00:00Z",
+    "updatedAt": "2026-04-14T14:00:00Z"
+  },
+  {
+    "applicationId": "A-DEMO-010",
+    "jobId": "J-DEMO-007",
+    "applicantUserId": "U-DEMO-TA",
+    "matchScore": 55,
+    "missingSkills": ["Proctoring"],
+    "status": "SUBMITTED",
+    "note": "Available Friday mornings. Willing to train.",
+    "createdAt": "2026-04-15T08:00:00Z",
+    "updatedAt": "2026-04-15T08:00:00Z"
   }
 ]
