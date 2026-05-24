@@ -36,6 +36,7 @@
     <a href="<%= ctx %>/mo/jobs/new" class="<%= "post".equals(navCurrent) ? "nav-link--current" : "" %>">Post job</a>
     <a href="<%= ctx %>/mo/jobs/select" class="<%= "select".equals(navCurrent) ? "nav-link--current" : "" %>">Review applications</a>
     <% } else if ("ADMIN".equals(role)) { %>
+    <a href="<%= ctx %>/admin/ta-workload" class="<%= "ta-workload".equals(navCurrent) ? "nav-link--current" : "" %>">TA Workload</a>
     <a href="<%= ctx %>/admin/workload" class="<%= "workload".equals(navCurrent) ? "nav-link--current" : "" %>">Workload</a>
     <a href="<%= ctx %>/admin/users" class="<%= "users".equals(navCurrent) ? "nav-link--current" : "" %>">Users</a>
     <a href="<%= ctx %>/admin/applications" class="<%= "applications".equals(navCurrent) ? "nav-link--current" : "" %>">Applications</a>
